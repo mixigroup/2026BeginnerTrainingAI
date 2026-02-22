@@ -1,0 +1,16 @@
+[project]
+name = "05-model-trainig"
+version = "0.1.0"
+description = "Hands-on for ML model training: Iris classification, overfitting, and transfer learning"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.20.1",
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "pandas>=2.0",
+    "seaborn>=0.13",
+    "matplotlib>=3.8",
+    "numpy>=1.24,<2.0",
+    "scikit-learn>=1.3",
+]
