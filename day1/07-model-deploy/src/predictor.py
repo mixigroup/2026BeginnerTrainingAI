@@ -5,7 +5,6 @@ Downloads the YOLO ONNX model from GCS at startup,
 then runs inference using ONNX Runtime.
 """
 
-import os
 from urllib.parse import urlparse
 
 import cv2

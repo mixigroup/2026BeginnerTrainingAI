@@ -23,7 +23,6 @@ Requirements:
 import argparse
 import subprocess
 import sys
-import time
 
 from google.cloud import aiplatform, storage
 
@@ -104,7 +103,7 @@ def push_image(image_uri: str) -> None:
 # ---------------------------------------------------------------------------
 def upload_vertex_model(user: str, image_uri: str, gcs_uri: str) -> str:
     """Upload model to Vertex AI and return the model resource name."""
-    print(f"\n[Step 3] Registering model in Vertex AI Model Registry...")
+    print("\n[Step 3] Registering model in Vertex AI Model Registry...")
 
     aiplatform.init(project=PROJECT_ID, location=REGION)
 
@@ -117,8 +116,8 @@ def upload_vertex_model(user: str, image_uri: str, gcs_uri: str) -> str:
         serving_container_ports=[8080],
     )
 
-    print(f"  Model registered: {model.resource_name}")
-    return model.resource_name
+    print(f"  Model registered: {model.resource_name}")  # pyright: ignore
+    return model.resource_name  # pyright: ignore
 
 
 # ---------------------------------------------------------------------------
@@ -126,7 +125,7 @@ def upload_vertex_model(user: str, image_uri: str, gcs_uri: str) -> str:
 # ---------------------------------------------------------------------------
 def create_endpoint(user: str) -> str:
     """Create a Vertex AI endpoint and return its resource name."""
-    print(f"\n[Step 4] Creating Vertex AI endpoint...")
+    print("\n[Step 4] Creating Vertex AI endpoint...")
 
     endpoint = aiplatform.Endpoint.create(
         display_name=f"yolo-endpoint-{user}",
@@ -141,19 +140,19 @@ def create_endpoint(user: str) -> str:
 # ---------------------------------------------------------------------------
 def deploy_model(model_name: str, endpoint_name: str, user: str) -> None:
     """Deploy the model to the endpoint."""
-    print(f"\n[Step 5] Deploying model to endpoint (this takes ~5-10 minutes)...")
+    print("\n[Step 5] Deploying model to endpoint (this takes ~5-10 minutes)...")
 
     model = aiplatform.Model(model_name)
     endpoint = aiplatform.Endpoint(endpoint_name)
 
-    deployed = endpoint.deploy(
+    _ = endpoint.deploy(
         model=model,
         deployed_model_display_name=f"yolo-{user}",
         machine_type=MACHINE_TYPE,
         traffic_percentage=100,
     )
 
-    print(f"  Deployment complete.")
+    print("  Deployment complete.")
     print(f"  Endpoint: {endpoint.resource_name}")
 
 

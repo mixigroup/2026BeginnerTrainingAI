@@ -10,7 +10,6 @@ Usage:
 """
 
 import argparse
-import sys
 
 from src.preprocess import get_processor, preprocess_image
 from src.inference import load_model, run_inference

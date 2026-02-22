@@ -55,11 +55,9 @@ def _(mo):
 @app.cell
 def _():
     import os
-    import time
 
     from ultralytics import YOLO
     from onnxruntime.quantization import quantize_dynamic, QuantType
-    import onnxruntime as ort
 
     print("Libraries loaded successfully.")
     return QuantType, YOLO, os, quantize_dynamic
