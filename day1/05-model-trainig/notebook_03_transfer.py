@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -46,6 +47,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _():
     import sys
+
     sys.path.insert(0, ".")
 
     import numpy as np
@@ -64,11 +66,18 @@ def _():
     )
 
     return (
-        sys, np, plt,
-        torch, nn, optim,
+        sys,
+        np,
+        plt,
+        torch,
+        nn,
+        optim,
         load_cifar10_dataloaders,
         ResNet18TransferModel,
-        train_model, plot_learning_curves, compare_learning_curves, plot_confusion_matrix,
+        train_model,
+        plot_learning_curves,
+        compare_learning_curves,
+        plot_confusion_matrix,
     )
 
 
@@ -231,8 +240,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    HEAD_EPOCHS = 5    # Edit: epochs for head-only training
-    HEAD_LR = 0.001    # Edit: learning rate for head training
+    HEAD_EPOCHS = 5  # Edit: epochs for head-only training
+    HEAD_LR = 0.001  # Edit: learning rate for head training
 
     mo.md(
         f"""
@@ -247,7 +256,17 @@ def _(mo):
 
 
 @app.cell
-def _(HEAD_EPOCHS, HEAD_LR, model, nn, optim, torch, train_loader, test_loader, train_model):
+def _(
+    HEAD_EPOCHS,
+    HEAD_LR,
+    model,
+    nn,
+    optim,
+    torch,
+    train_loader,
+    test_loader,
+    train_model,
+):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
@@ -311,8 +330,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    FINETUNE_EPOCHS = 5   # Edit: epochs for fine-tuning
-    FINETUNE_LR = 1e-4    # Edit: small learning rate for fine-tuning
+    FINETUNE_EPOCHS = 5  # Edit: epochs for fine-tuning
+    FINETUNE_LR = 1e-4  # Edit: small learning rate for fine-tuning
 
     mo.md(
         f"""
@@ -327,7 +346,18 @@ def _(mo):
 
 
 @app.cell
-def _(FINETUNE_EPOCHS, FINETUNE_LR, criterion, device, model, optim, torch, train_loader, test_loader, train_model):
+def _(
+    FINETUNE_EPOCHS,
+    FINETUNE_LR,
+    criterion,
+    device,
+    model,
+    optim,
+    torch,
+    train_loader,
+    test_loader,
+    train_model,
+):
     # Phase 2: Unfreeze backbone for fine-tuning
     model.unfreeze_backbone()
     n_trainable_unfrozen = model.get_num_trainable_params()
@@ -394,8 +424,11 @@ def _(compare_learning_curves, histories_compare):
 @app.cell
 def _(class_names, device, model, plot_confusion_matrix, test_loader):
     cm_fig = plot_confusion_matrix(
-        model, test_loader, class_names, device=device,
-        title="CIFAR-10 Confusion Matrix (after fine-tuning)"
+        model,
+        test_loader,
+        class_names,
+        device=device,
+        title="CIFAR-10 Confusion Matrix (after fine-tuning)",
     )
     cm_fig
     return (cm_fig,)

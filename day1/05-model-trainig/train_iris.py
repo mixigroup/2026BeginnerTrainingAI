@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import matplotlib
+
 matplotlib.use("Agg")  # Non-interactive backend for saving figures
 
 
@@ -18,7 +19,12 @@ def main() -> None:
 
     from src.dataset import load_iris_dataloaders
     from src.model import FCNet
-    from src.evaluate import train_model, evaluate, plot_learning_curves, plot_confusion_matrix
+    from src.evaluate import (
+        train_model,
+        evaluate,
+        plot_learning_curves,
+        plot_confusion_matrix,
+    )
 
     # Hyperparameters
     BATCH_SIZE = 16
@@ -33,7 +39,9 @@ def main() -> None:
     train_loader, val_loader, test_loader, class_names = load_iris_dataloaders(
         batch_size=BATCH_SIZE, val_ratio=0.2, test_ratio=0.2, random_state=42
     )
-    print(f"Train: {len(train_loader.dataset)}, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}")
+    print(
+        f"Train: {len(train_loader.dataset)}, Val: {len(val_loader.dataset)}, Test: {len(test_loader.dataset)}"
+    )
 
     # 2. Build model
     model = FCNet(input_dim=4, hidden_dims=HIDDEN_DIMS, num_classes=3)
@@ -56,7 +64,7 @@ def main() -> None:
 
     # 4. Evaluate
     test_loss, test_acc = evaluate(model, test_loader, criterion, device)
-    print(f"\nTest Loss: {test_loss:.4f} | Test Accuracy: {test_acc*100:.1f}%")
+    print(f"\nTest Loss: {test_loss:.4f} | Test Accuracy: {test_acc * 100:.1f}%")
 
     # 5. Plot and save
     import matplotlib.pyplot as plt

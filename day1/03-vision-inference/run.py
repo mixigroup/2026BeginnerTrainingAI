@@ -26,10 +26,18 @@ DEFAULT_OUTPUT = "result.png"
 def main() -> None:
     parser = argparse.ArgumentParser(description="DETR object detection demo")
     parser.add_argument("--model", default=DEFAULT_MODEL, help="HuggingFace model name")
-    parser.add_argument("--image", default=DEFAULT_IMAGE, help="Image URL or local path")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_THRESHOLD,
-                        help="Confidence threshold (0.0 - 1.0)")
-    parser.add_argument("--output", default=DEFAULT_OUTPUT, help="Output image file path")
+    parser.add_argument(
+        "--image", default=DEFAULT_IMAGE, help="Image URL or local path"
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=DEFAULT_THRESHOLD,
+        help="Confidence threshold (0.0 - 1.0)",
+    )
+    parser.add_argument(
+        "--output", default=DEFAULT_OUTPUT, help="Output image file path"
+    )
     args = parser.parse_args()
 
     # -------------------------------------------------------
@@ -46,7 +54,9 @@ def main() -> None:
     inputs = preprocess_image(image, processor)
     pixel_values = inputs["pixel_values"]
     print(f"  pixel_values shape : {tuple(pixel_values.shape)}")
-    print(f"  pixel_values range : [{pixel_values.min().item():.3f}, {pixel_values.max().item():.3f}]")
+    print(
+        f"  pixel_values range : [{pixel_values.min().item():.3f}, {pixel_values.max().item():.3f}]"
+    )
 
     # -------------------------------------------------------
     # Phase 2: Forward
@@ -77,8 +87,10 @@ def main() -> None:
     for det in detections:
         name = label_map.get(det["label"], str(det["label"]))
         b = det["box"]
-        print(f"    {name}: score={det['score']:.3f}  "
-              f"box=({b['xmin']:.0f}, {b['ymin']:.0f}, {b['xmax']:.0f}, {b['ymax']:.0f})")
+        print(
+            f"    {name}: score={det['score']:.3f}  "
+            f"box=({b['xmin']:.0f}, {b['ymin']:.0f}, {b['xmax']:.0f}, {b['ymax']:.0f})"
+        )
 
     # -------------------------------------------------------
     # Save result image

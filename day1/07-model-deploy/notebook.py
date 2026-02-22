@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -399,7 +400,7 @@ def _(mo):
 def _():
     # --- TODO: gcloud コマンドの出力から ID を入力してください ---
     ENDPOINT_ID = "___"  # TODO: gcloud ai endpoints create の出力から
-    MODEL_ID = "___"     # TODO: gcloud ai models upload の出力から
+    MODEL_ID = "___"  # TODO: gcloud ai models upload の出力から
     return ENDPOINT_ID, MODEL_ID
 
 
@@ -610,13 +611,16 @@ def _(ENDPOINT_ID, PROJECT_ID, REGION, base64, mo):
                 return None
             pil = Image.fromarray(image)
             import io as _io
+
             buf = _io.BytesIO()
             pil.save(buf, format="JPEG")
             img_b64 = base64.b64encode(buf.getvalue()).decode()
 
             # Vertex AI SDK sends {"instances": [...]} → app.py returns {"predictions": [...]}
             resp = _endpoint.predict(instances=[{"image": img_b64}])
-            detections = resp.predictions[0].get("detections", []) if resp.predictions else []
+            detections = (
+                resp.predictions[0].get("detections", []) if resp.predictions else []
+            )
             return draw_detections(image, detections)
 
         demo = gr.Interface(

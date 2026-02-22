@@ -147,7 +147,9 @@ def train_model(
     patience_counter = 0
 
     for epoch in range(1, epochs + 1):
-        train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device)
+        train_loss, train_acc = train_one_epoch(
+            model, train_loader, criterion, optimizer, device
+        )
         val_loss, val_acc = evaluate(model, val_loader, criterion, device)
 
         history.train_losses.append(train_loss)
@@ -174,7 +176,9 @@ def train_model(
                 patience_counter += 1
                 if patience_counter >= early_stopping_patience:
                     if verbose:
-                        print(f"Early stopping at epoch {epoch} (patience={early_stopping_patience})")
+                        print(
+                            f"Early stopping at epoch {epoch} (patience={early_stopping_patience})"
+                        )
                     break
 
     return history

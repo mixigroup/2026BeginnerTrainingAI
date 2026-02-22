@@ -51,7 +51,11 @@ def load_iris_dataloaders(
     # Then split remaining into train and validation
     val_ratio_adj = val_ratio / (1.0 - test_ratio)
     X_train, X_val, y_train, y_val = train_test_split(
-        X_temp, y_temp, test_size=val_ratio_adj, random_state=random_state, stratify=y_temp
+        X_temp,
+        y_temp,
+        test_size=val_ratio_adj,
+        random_state=random_state,
+        stratify=y_temp,
     )
 
     # Normalize using training statistics
@@ -96,17 +100,21 @@ def load_cifar10_dataloaders(
     mean = (0.4914, 0.4822, 0.4465)
     std = (0.2023, 0.1994, 0.2010)
 
-    train_transform = transforms.Compose([
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomCrop(32, padding=4),
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std),
-    ])
+    train_transform = transforms.Compose(
+        [
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, padding=4),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ]
+    )
 
-    test_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std),
-    ])
+    test_transform = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ]
+    )
 
     train_dataset = torchvision.datasets.CIFAR10(
         root=data_root, train=True, download=True, transform=train_transform
@@ -116,17 +124,31 @@ def load_cifar10_dataloaders(
     )
 
     train_loader = DataLoader(
-        train_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=num_workers, pin_memory=True
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=num_workers,
+        pin_memory=True,
     )
     test_loader = DataLoader(
-        test_dataset, batch_size=batch_size, shuffle=False,
-        num_workers=num_workers, pin_memory=True
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=num_workers,
+        pin_memory=True,
     )
 
     class_names = [
-        "airplane", "automobile", "bird", "cat", "deer",
-        "dog", "frog", "horse", "ship", "truck",
+        "airplane",
+        "automobile",
+        "bird",
+        "cat",
+        "deer",
+        "dog",
+        "frog",
+        "horse",
+        "ship",
+        "truck",
     ]
     return train_loader, test_loader, class_names
 

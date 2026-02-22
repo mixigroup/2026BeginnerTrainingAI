@@ -102,7 +102,9 @@ def visualize_results(
         color = colors[label_id % len(colors)]
 
         rect = patches.Rectangle(
-            (x, y), w, h,
+            (x, y),
+            w,
+            h,
             linewidth=2,
             edgecolor=color,
             facecolor="none",
@@ -110,12 +112,14 @@ def visualize_results(
         ax.add_patch(rect)
 
         class_name = (
-            label_names[label_id] if label_names and label_id in label_names
+            label_names[label_id]
+            if label_names and label_id in label_names
             else str(label_id)
         )
         label_text = f"{class_name}: {score:.2f}"
         ax.text(
-            x, y - 5,
+            x,
+            y - 5,
             label_text,
             color="white",
             fontsize=10,

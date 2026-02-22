@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -41,6 +42,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _():
     import sys
+
     sys.path.insert(0, ".")
 
     import numpy as np
@@ -52,14 +54,28 @@ def _():
 
     from src.dataset import get_iris_raw, load_iris_dataloaders
     from src.model import FCNet
-    from src.evaluate import train_model, evaluate, plot_learning_curves, plot_confusion_matrix
+    from src.evaluate import (
+        train_model,
+        evaluate,
+        plot_learning_curves,
+        plot_confusion_matrix,
+    )
 
     return (
-        sys, np, pd, plt, sns,
-        torch, nn,
-        get_iris_raw, load_iris_dataloaders,
+        sys,
+        np,
+        pd,
+        plt,
+        sns,
+        torch,
+        nn,
+        get_iris_raw,
+        load_iris_dataloaders,
         FCNet,
-        train_model, evaluate, plot_learning_curves, plot_confusion_matrix,
+        train_model,
+        evaluate,
+        plot_learning_curves,
+        plot_confusion_matrix,
     )
 
 
@@ -176,7 +192,16 @@ def _(load_iris_dataloaders, mo):
         - 各バッチの形状: `(batch, 4)` → `(batch,)` （特徴量 → クラスラベル）
         """
     )
-    return BATCH_SIZE, train_loader, val_loader, test_loader, class_names_loader, n_train, n_val, n_test
+    return (
+        BATCH_SIZE,
+        train_loader,
+        val_loader,
+        test_loader,
+        class_names_loader,
+        n_train,
+        n_val,
+        n_test,
+    )
 
 
 @app.cell(hide_code=True)
@@ -210,10 +235,10 @@ def _(mo):
 @app.cell
 def _(FCNet):
     # --- Hyperparameters: Edit these to experiment! ---
-    HIDDEN_DIMS = [64, 32]   # Hidden layer sizes
-    DROPOUT_RATE = 0.0       # Dropout probability (0.0 = no dropout)
-    LEARNING_RATE = 0.01     # Optimizer learning rate
-    EPOCHS = 100             # Number of training epochs
+    HIDDEN_DIMS = [64, 32]  # Hidden layer sizes
+    DROPOUT_RATE = 0.0  # Dropout probability (0.0 = no dropout)
+    LEARNING_RATE = 0.01  # Optimizer learning rate
+    EPOCHS = 100  # Number of training epochs
 
     model = FCNet(
         input_dim=4,
@@ -307,14 +332,20 @@ def _(mo):
 def _(class_names_loader, device, evaluate, model, nn, test_loader):
     criterion_eval = nn.CrossEntropyLoss()
     test_loss, test_acc = evaluate(model, test_loader, criterion_eval, device)
-    print(f"Test Loss: {test_loss:.4f}  |  Test Accuracy: {test_acc:.4f} ({test_acc*100:.1f}%)")
+    print(
+        f"Test Loss: {test_loss:.4f}  |  Test Accuracy: {test_acc:.4f} ({test_acc * 100:.1f}%)"
+    )
     return test_loss, test_acc, criterion_eval
 
 
 @app.cell
 def _(class_names_loader, device, model, plot_confusion_matrix, test_loader):
     cm_fig = plot_confusion_matrix(
-        model, test_loader, class_names_loader, device=device, title="Iris - Confusion Matrix"
+        model,
+        test_loader,
+        class_names_loader,
+        device=device,
+        title="Iris - Confusion Matrix",
     )
     cm_fig
     return (cm_fig,)

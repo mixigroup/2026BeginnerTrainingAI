@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -46,6 +47,7 @@ def _(mo):
 @app.cell(hide_code=True)
 def _():
     import sys
+
     sys.path.insert(0, ".")
 
     import numpy as np
@@ -64,11 +66,19 @@ def _():
     )
 
     return (
-        sys, np, plt,
-        torch, nn, optim,
+        sys,
+        np,
+        plt,
+        torch,
+        nn,
+        optim,
         load_iris_dataloaders,
-        OversizedFCNet, FCNet,
-        TrainingHistory, train_model, plot_learning_curves, compare_learning_curves,
+        OversizedFCNet,
+        FCNet,
+        TrainingHistory,
+        train_model,
+        plot_learning_curves,
+        compare_learning_curves,
     )
 
 
@@ -119,7 +129,15 @@ def _(load_iris_dataloaders, mo):
         30 サンプルはかなり少ない → 過学習しやすい設定です。
         """
     )
-    return SUBSET_SIZE, train_loader_ov, val_loader_ov, test_loader_ov, class_names, n_train_ov, n_val_ov
+    return (
+        SUBSET_SIZE,
+        train_loader_ov,
+        val_loader_ov,
+        test_loader_ov,
+        class_names,
+        n_train_ov,
+        n_val_ov,
+    )
 
 
 @app.cell
@@ -165,7 +183,9 @@ def _(mo):
 
 @app.cell
 def _(history_ov, plot_learning_curves):
-    fig_ov = plot_learning_curves(history_ov, title="Oversized Model (No Regularization)")
+    fig_ov = plot_learning_curves(
+        history_ov, title="Oversized Model (No Regularization)"
+    )
     fig_ov
     return (fig_ov,)
 
@@ -198,7 +218,16 @@ def _(mo):
 
 
 @app.cell
-def _(OversizedFCNet, nn, optim, torch, train_loader_ov, val_loader_ov, device, train_model):
+def _(
+    OversizedFCNet,
+    nn,
+    optim,
+    torch,
+    train_loader_ov,
+    val_loader_ov,
+    device,
+    train_model,
+):
     PATIENCE = 20  # Edit: early stopping patience
 
     model_es = OversizedFCNet(input_dim=4, num_classes=3)
@@ -262,8 +291,8 @@ def _(mo):
 @app.cell
 def _(FCNet, nn, optim, torch, train_loader_ov, val_loader_ov, device, train_model):
     # Regularized model: smaller FC net + dropout + weight decay
-    DROPOUT = 0.4    # Edit: dropout probability
-    WD = 1e-3        # Edit: weight decay (L2 regularization strength)
+    DROPOUT = 0.4  # Edit: dropout probability
+    WD = 1e-3  # Edit: weight decay (L2 regularization strength)
 
     model_reg = FCNet(
         input_dim=4,

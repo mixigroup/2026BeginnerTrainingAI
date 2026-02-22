@@ -7,6 +7,7 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -273,10 +274,10 @@ def _(mo):
 def _():
     # --- Hyperparameters: Edit these to experiment! ---
     HIDDEN_UNITS = [1000, 500, 300]  # Hidden layer sizes
-    DROPOUT_RATE = 0.2               # Dropout probability (0.0 - 1.0)
-    LEARNING_RATE = 0.001            # Adam optimizer learning rate
-    EPOCHS = 100                     # Number of training epochs
-    BATCH_SIZE = 100                 # Mini-batch size
+    DROPOUT_RATE = 0.2  # Dropout probability (0.0 - 1.0)
+    LEARNING_RATE = 0.001  # Adam optimizer learning rate
+    EPOCHS = 100  # Number of training epochs
+    BATCH_SIZE = 100  # Mini-batch size
     return BATCH_SIZE, DROPOUT_RATE, EPOCHS, HIDDEN_UNITS, LEARNING_RATE
 
 

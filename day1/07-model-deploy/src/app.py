@@ -142,9 +142,7 @@ async def predict(request: PredictRequest) -> JSONResponse:
         try:
             result = app.state.predictor.predict(image)
         except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Inference error: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
 
         predictions.append(result)
 

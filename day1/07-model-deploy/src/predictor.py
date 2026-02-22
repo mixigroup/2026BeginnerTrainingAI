@@ -54,7 +54,7 @@ def _preprocess(image: np.ndarray) -> np.ndarray:
     """
     resized = cv2.resize(image, (640, 640))
     rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-    chw = rgb.transpose(2, 0, 1)          # HWC -> CHW
+    chw = rgb.transpose(2, 0, 1)  # HWC -> CHW
     normalized = chw.astype(np.float32) / 255.0
     batched = np.expand_dims(normalized, axis=0)  # 1 x C x H x W
     return batched
@@ -147,9 +147,15 @@ def _postprocess(
         inter_y1 = np.maximum(boxes_xyxy[idx, 1], boxes_xyxy[rest, 1])
         inter_x2 = np.minimum(boxes_xyxy[idx, 2], boxes_xyxy[rest, 2])
         inter_y2 = np.minimum(boxes_xyxy[idx, 3], boxes_xyxy[rest, 3])
-        inter_area = np.maximum(0, inter_x2 - inter_x1) * np.maximum(0, inter_y2 - inter_y1)
-        area_idx = (boxes_xyxy[idx, 2] - boxes_xyxy[idx, 0]) * (boxes_xyxy[idx, 3] - boxes_xyxy[idx, 1])
-        area_rest = (boxes_xyxy[rest, 2] - boxes_xyxy[rest, 0]) * (boxes_xyxy[rest, 3] - boxes_xyxy[rest, 1])
+        inter_area = np.maximum(0, inter_x2 - inter_x1) * np.maximum(
+            0, inter_y2 - inter_y1
+        )
+        area_idx = (boxes_xyxy[idx, 2] - boxes_xyxy[idx, 0]) * (
+            boxes_xyxy[idx, 3] - boxes_xyxy[idx, 1]
+        )
+        area_rest = (boxes_xyxy[rest, 2] - boxes_xyxy[rest, 0]) * (
+            boxes_xyxy[rest, 3] - boxes_xyxy[rest, 1]
+        )
         iou = inter_area / (area_idx + area_rest - inter_area + 1e-6)
         order = rest[iou <= iou_threshold]
 

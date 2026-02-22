@@ -95,7 +95,10 @@ def _(mo):
 
 @app.cell
 def _(YOLO, mo, run_export_button):
-    mo.stop(not run_export_button.value, mo.md("▲ ボタンを押して ONNX エクスポートを実行してください。"))
+    mo.stop(
+        not run_export_button.value,
+        mo.md("▲ ボタンを押して ONNX エクスポートを実行してください。"),
+    )
 
     _model = YOLO("yolo26m-pose.pt")
     _export_path = _model.export(
@@ -139,7 +142,13 @@ def _(mo, os):
     for _fname, _label in _files.items():
         if os.path.exists(_fname):
             _size_mb = os.path.getsize(_fname) / (1024 * 1024)
-            _rows.append({"モデル": _label, "ファイル名": _fname, "サイズ (MB)": f"{_size_mb:.1f}"})
+            _rows.append(
+                {
+                    "モデル": _label,
+                    "ファイル名": _fname,
+                    "サイズ (MB)": f"{_size_mb:.1f}",
+                }
+            )
 
     if _rows:
         mo.md(
@@ -212,13 +221,24 @@ def _(mo):
 
 @app.cell
 def _(QuantType, mo, os, quantize_dynamic, run_quant_button):
-    mo.stop(not run_quant_button.value, mo.md("▲ ボタンを押して INT8 量子化を実行してください。"))
+    mo.stop(
+        not run_quant_button.value,
+        mo.md("▲ ボタンを押して INT8 量子化を実行してください。"),
+    )
 
     _model_fp32 = "yolo26m-pose.onnx"
     _model_quant = "yolo26m-pose-quantized.onnx"
 
     if not os.path.exists(_model_fp32):
-        mo.stop(True, mo.callout(mo.md(f"`{_model_fp32}` が見つかりません。先に Step 2 を実行してください。"), kind="warn"))
+        mo.stop(
+            True,
+            mo.callout(
+                mo.md(
+                    f"`{_model_fp32}` が見つかりません。先に Step 2 を実行してください。"
+                ),
+                kind="warn",
+            ),
+        )
 
     quantize_dynamic(
         _model_fp32,
@@ -253,12 +273,14 @@ def _(mo, os):
             if _base_size is None:
                 _base_size = _size_mb
             _ratio = f"{_size_mb / _base_size * 100:.0f}%" if _base_size else "-"
-            _rows.append({
-                "モデル": _label,
-                "ファイル名": _fname,
-                "サイズ (MB)": f"{_size_mb:.1f}",
-                ".pt 比": _ratio,
-            })
+            _rows.append(
+                {
+                    "モデル": _label,
+                    "ファイル名": _fname,
+                    "サイズ (MB)": f"{_size_mb:.1f}",
+                    ".pt 比": _ratio,
+                }
+            )
 
     if _rows:
         mo.ui.table(_rows, selection=None)

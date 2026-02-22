@@ -48,7 +48,10 @@ def run(cmd: list[str], description: str = "") -> None:
     print("  " + " ".join(cmd))
     result = subprocess.run(cmd, text=True)
     if result.returncode != 0:
-        print(f"[ERROR] Command failed with exit code {result.returncode}", file=sys.stderr)
+        print(
+            f"[ERROR] Command failed with exit code {result.returncode}",
+            file=sys.stderr,
+        )
         sys.exit(result.returncode)
 
 
@@ -227,7 +230,7 @@ def main() -> None:
     print("To run inference, update ENDPOINT_ID in notebook.py:")
     # Extract the endpoint ID (last segment of the resource name)
     endpoint_id = endpoint_name.split("/")[-1]
-    print(f"  ENDPOINT_ID = \"{endpoint_id}\"")
+    print(f'  ENDPOINT_ID = "{endpoint_id}"')
 
 
 if __name__ == "__main__":
