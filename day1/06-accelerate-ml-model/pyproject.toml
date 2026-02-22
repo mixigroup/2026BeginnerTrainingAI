@@ -1,5 +1,5 @@
 [project]
-name = "05-accelerate-ml-model"
+name = "06-accelerate-ml-model"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
