@@ -6,4 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "marimo>=0.20.1",
+    "transformers>=4.40",
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "Pillow>=10.0",
+    "matplotlib>=3.8",
+    "requests>=2.31",
+    "timm>=0.9",
 ]
