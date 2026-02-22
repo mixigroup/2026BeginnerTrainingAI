@@ -11,7 +11,7 @@
 #   - Follows the Vertex AI recommended pattern (AIP_STORAGE_URI)
 # ============================================================
 
-FROM python:3.12-slim
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 WORKDIR /app
 
@@ -20,9 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
-
-# Install uv (fast Python package manager)
-RUN pip install --no-cache-dir uv
 
 # Avoid writing .pyc files and enable unbuffered stdout for better logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
