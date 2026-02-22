@@ -28,7 +28,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## ONNX とは
@@ -42,7 +42,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 1: ライブラリのインポート
@@ -65,7 +65,7 @@ def _():
     return QuantType, YOLO, os, quantize_dynamic
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 2: ONNX へのエクスポート
@@ -112,7 +112,7 @@ def _(YOLO, mo, run_export_button):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 3: Netron でモデル構造を確認する
@@ -131,8 +131,8 @@ def _(mo):
 def _(mo, os):
     _files = {
         "yolo26m-pose.pt": "PyTorch (.pt)",
-        "yolo26m-pose.onnx": "ONNX (.onnx)",
-        "yolo26m-pose-quantized.onnx": "ONNX qint8 (.onnx)",
+        # "yolo26m-pose.onnx": "ONNX (.onnx)",
+        # "yolo26m-pose-quantized.onnx": "ONNX qint8 (.onnx)",
     }
 
     _rows = []
@@ -156,7 +156,7 @@ def _(mo, os):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 4: Gradio デモで FPS を比較する
@@ -187,7 +187,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 5: INT8 量子化でエクスポート
@@ -229,7 +229,7 @@ def _(QuantType, mo, os, quantize_dynamic, run_quant_button):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md("""
     ### ファイルサイズの比較
@@ -267,7 +267,7 @@ def _(mo, os):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## Step 6: 量子化モデルの FPS を比較する
@@ -292,7 +292,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     ## 追加課題：別フォーマットにエクスポートしてみよう
