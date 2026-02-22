@@ -29,6 +29,49 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(r"""
+    ## キーボードショートカット
+
+    ### 実行系
+
+    | ショートカット | 動作 |
+    |---|---|
+    | `Ctrl/Cmd + Enter` | 現在のセルを実行 |
+    | `Shift + Enter` | 現在のセルを実行して下に新セルを追加 |
+    | `Ctrl/Cmd + Shift + Enter` | 上に新セルを追加して実行 |
+    | `Ctrl/Cmd + Shift + R` | 変更されたセルをすべて実行 |
+
+    ### セル操作
+
+    | ショートカット | 動作 |
+    |---|---|
+    | `Ctrl/Cmd + Shift + O` | 上にセルを追加 |
+    | `Ctrl/Cmd + Shift + P` | 下にセルを追加 |
+    | `Shift + Backspace` | セルを削除 |
+    | `Ctrl/Cmd + /` | コメントのオン/オフ |
+
+    ### セッションリスタート
+
+    実行順序の乱れや状態がおかしくなった場合は、左サイドバーの **「Restart」** ボタンでセッションを初期化できます。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## marimoのリアクティブセルについて
+
+    marimo では変数が変わると、それに依存するセルが**自動で再実行**されます。
+
+    > **重要:** marimo では同じ変数名を複数のセルで定義できません。
+    > 1つの変数は1つのセルで定義し、他のセルへは関数の引数として渡します。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.md("""
     ## 1. 基本的な変数と計算
     """)
@@ -145,6 +188,78 @@ def _(mo):
 def _(mo, name_input):
     display_name = name_input.value if name_input.value else "World"
     mo.md(f"# Hello, {display_name}!")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 6. Python 環境の確認
+
+    使用中の Python バージョンやインストール済みパッケージを確認します。
+    """)
+    return
+
+
+@app.cell
+def _():
+    import sys
+
+    print(f"Python version: {sys.version}")
+    print(f"Python path: {sys.executable}")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### シェルコマンドの実行
+
+    Python の `subprocess` モジュールを使うと、シェルコマンドをコードから実行できます。
+    """)
+    return
+
+
+@app.cell
+def _():
+    import subprocess
+
+    # Run shell command and capture output
+    result_cmd = subprocess.run(
+        ["pip", "list"],
+        capture_output=True,
+        text=True,
+    )
+    print(result_cmd.stdout)
+    return (subprocess,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## 7. GPU の確認と解放
+
+    本講義ではモデルの学習に GPU を使用します。
+    `nvidia-smi` コマンドで GPU の状況を確認できます。
+
+    > **重要:** notebook ごとに GPU を占有するため、使い終わったら
+    > 左サイドバーの **「Restart」** でセッションを終了し GPU を解放してください。
+    """)
+    return
+
+
+@app.cell
+def _(subprocess):
+    # Check GPU status
+    gpu_result = subprocess.run(
+        ["nvidia-smi"],
+        capture_output=True,
+        text=True,
+    )
+    if gpu_result.returncode == 0:
+        print(gpu_result.stdout)
+    else:
+        print("nvidia-smi not available (no GPU or driver not installed)")
     return
 
 
