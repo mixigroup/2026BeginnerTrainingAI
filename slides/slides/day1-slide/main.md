@@ -1005,11 +1005,35 @@ Token Classification（固有表現認識など）では、**各トークンの�
 
 ---
 
-# 代表手段：ONNX（ざっくり全体像）
+# なぜPyTorchモデルをそのまま推論に使いにくいか？
+
+### PyTorchはEager Mode（動的計算グラフ）
+
+- `forward()` を呼ぶたびにPythonで計算グラフが**動的に構築**される
+- グラフが事前に固定されないため、静的最適化（カーネル融合等）が困難
+
+### Autograd情報が残っている
+
+- 学習用の勾配計算グラフ（backward用情報）が含まれる
+- 推論には不要だが、メモリを消費する
+
+### Python依存
+
+- Pythonインタープリタが必要 → C++/Java/モバイル環境では動かしにくい
+
+### → 推論専用フォーマットに変換して解決
+
+- export時に計算グラフをトレース・固定化してAOT（事前コンパイル）形式に変換
+- ※ `torch.no_grad()` や `torch.compile()` である程度緩和できるが、Python依存は残る
+
+---
+
+# 代表手段：ONNX
 
 **ONNX**: モデルをフレームワーク非依存の形式にする規格。
 
-- PyTorch/TF など → **ONNX** に export
+- `torch.onnx.export` でPyTorchの動的グラフを**静的グラフに変換**して保存
+  - Pythonのcontrol flow・data structureを除去してAOT形式に固定化
 - 実行は **ONNX Runtime**（CPU/GPU）などで行う
 
 ### 嬉しいこと
@@ -1024,37 +1048,98 @@ Token Classification（固有表現認識など）では、**各トークンの�
 
 ---
 
+# エクスポートフォーマット比較
+
+| フォーマット | 向いている環境 | 強み | 弱み |
+|---|---|---|---|
+| **ONNX** | CPU/GPU 汎用 | 汎用性最高・ツール充実 | 未対応opあり |
+| **TorchScript** | Python/C++ | PyTorchネイティブ | 最適化の余地少 |
+| **CoreML** | Mac/iPhone/iPad | Appleシリコン最適化 | Apple環境のみ |
+| **TFLite** | Android/組込み | 軽量・省電力 | TF経由で変換が必要 |
+| **OpenVINO** | Intel CPU | Intel CPU最適化（CPU比2-3x） | Intel環境のみ |
+| **TensorRT** | NVIDIA GPU | 最速GPU推論（GPU比2-5x） | NVIDIA GPUのみ |
+
+参考: [Ultralytics Export Formats](https://docs.ultralytics.com/ja/modes/export/)
+
+---
+
 # ハンズオン：ONNXに変換して推論してみる
 
 ### やること
 
-- 同じ入力で、以下の推論時間を測る
-  - 変換前：pytorch
-  - 変換後：ONNX Runtime
-- Netron を使って、モデル構造を可視化
+```bash
+uv run python src/onnx-export.py  # → yolo26m-pose.onnx を生成
+uv run python src/gradio-demo.py  # → Gradio デモでFPSを比較
+```
+
+- **Netron** でモデル構造を可視化（[netron.app](https://netron.app)）
+- `gradio-demo.py` の `MODEL_FILES` の `"ONNX (.onnx)"` 行のコメントアウトを外す
 
 ### 見る観点
 
-- 平均実行時間
-- 精度が変わっていないか（同一入力で出力差分チェック）
+- PyTorchとONNX Runtimeの推論時間・FPS差
+- Netronで入出力のshapeやノード構成（Conv/BatchNorm/ReLU等）を確認
+- 同一入力での出力差分（精度が変わっていないか）
 
 ---
 
-# 高速化の代表例
+# 高速化手法①：半精度（FP16 / BF16）
 
-TODO: 表形式にまとめる
+**FP32（32bit浮動小数点）→ FP16（16bit）に変換してメモリ・速度を改善**
 
-- **半精度（FP16 / BF16）**
-  - GPUで効きやすい、メモリも半分に
-  - 精度劣化は小さいことが多い
+- メモリ使用量が**約半分**に削減
+- NVIDIA Tensor Core等のGPUで特に効果大
+- 精度劣化は多くの場合小さい
 
-- **量子化（INT8 など）**
-  - CPU推論で効果大、モデルサイズも削減
-  - 精度劣化と相性（モデル/層）に注意
+### BF16（BrainFloat16）との違い
 
-- **枝刈り（Pruning）**
-  - 重みや構造を削る、極端な軽量化が可能
-  - 再学習（Fine-tuning）が必要になることが多い
+| 形式 | 指数部 | 仮数部 | 特徴 |
+|---|---|---|---|
+| FP32 | 8bit | 23bit | 標準 |
+| FP16 | 5bit | 10bit | GPU推論向け・オーバーフローに注意 |
+| BF16 | 8bit | 7bit | FP32と同じ指数部でオーバーフロー防止 → LLMでよく使われる |
+
+### ハンズオンでの適用
+
+```python
+model.export(format="onnx", half=True)  # FP16でエクスポート
+```
+
+---
+
+# 高速化手法②：量子化（Quantization）とは
+
+**浮動小数点(FP32)を整数(INT8など)で近似する手法**
+
+- INT8: 8bit整数（-128〜127）で表現 → **メモリ約1/4、CPU推論で高速化**
+- `scale`（スケール）と `zero_point`（ゼロ点）で量子化・逆量子化（近似誤差は発生）
+
+$$x_{\text{INT8}} = \text{round}\!\left(\frac{x_{\text{FP32}}}{\text{scale}}\right) + \text{zero\_point}$$
+
+### 2種類の量子化
+
+| 種類 | 特徴 | 使用場面 |
+|---|---|---|
+| **動的量子化** | 重みを事前量子化、activationは実行時に動的に量子化 | 手軽・精度影響小 |
+| **静的量子化** | calibrationデータでactivationも事前量子化 | より高速・精度は要確認 |
+
+**ハンズオンで使うのは「動的量子化」**
+
+---
+
+# 高速化手法③：枝刈り（Pruning）とは
+
+**重要度の低い重み・ニューロン・フィルタを削除してモデルを軽量化する手法**
+
+### 2種類のPruning
+
+- **Unstructured Pruning（非構造的）**
+  - 個々の重みをゼロに（スパース化）
+  - 専用ハードウェアのスパース演算サポートが必要
+
+- **Structured Pruning（構造的）**
+  - チャネルや層全体を削除
+  - 実際の推論速度改善に直結しやすい
 
 ---
 
@@ -1062,32 +1147,41 @@ TODO: 表形式にまとめる
 
 ### やること
 
-- ONNX Runtimeの量子化機能を使用
-- 推論速度を測定（ONNX FP32 vs INT8）
+```bash
+uv run python src/onnx-qint8-export.py  # → yolo26m-pose-quantized.onnx を生成
+uv run python src/gradio-demo.py         # → 3モデルでFPSを比較
+```
+
+`gradio-demo.py` の `MODEL_FILES` に量子化モデルを追加してFPSを3モデルで比較
 
 ### 見る観点
 
-1. **速度改善**：各ステップでどれくらい速くなったか
+1. **速度改善**：PyTorch → ONNX FP32 → INT8でどれくらい速くなったか
 2. **精度影響**：同一入力で出力差分をチェック
-3. **モデルサイズ**：ファイルサイズがどう変わったか
+3. **モデルサイズ**：ファイルサイズがどう変わったか（約75%削減が目安）
 
 ---
 
-# Optional: 他の変換フォーマットを試す
+# Optional: 他のエクスポートフォーマットを試す
 
-### やること
+Ultralyticsは `format=` を変えるだけで様々なフォーマットに対応
 
-同じ入力で、以下の推論時間を測る
+```python
+from ultralytics import YOLO
+model = YOLO("yolo26m-pose.pt")
 
-- **TFLite**：モバイル・エッジ向け
-- **OpenVINO**：Intelハードウェア最適化
-- **TensorRT**：NVIDIA GPU向け
+model.export(format="coreml")    # Mac/iPhone/iPad向け（macOSのみ）
+model.export(format="tflite")    # Android/組込みデバイス向け
+model.export(format="openvino")  # Intel CPU向け（要 uv add openvino）
+```
 
-### 見る観点
+### 各フォーマットで確認してみよう
 
-- 平均実行時間
-- 精度が変わっていないか（同一入力で出力差分チェック）
-- 各フォーマットの特性と使いどころを理解
+- Netronに読み込んで、ONNXとの構造の違いを観察
+- `gradio-demo.py` に追加してFPSを比較
+- 精度が変わっていないかを確認（同一入力で出力差分チェック）
+
+参考: [Ultralytics Export ドキュメント](https://docs.ultralytics.com/ja/modes/export/)
 
 ---
 
