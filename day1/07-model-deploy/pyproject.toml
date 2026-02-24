@@ -1,0 +1,24 @@
+[project]
+name = "07-model-deploy"
+version = "0.1.0"
+description = "YOLO model deployment hands-on with Vertex AI custom container"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.20.1",
+    # Inference server
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "python-multipart>=0.0.12",
+    # Model inference
+    "onnxruntime>=1.20.0",
+    "opencv-python-headless>=4.10.0",
+    "numpy>=1.26.0",
+    # GCS access
+    "google-cloud-storage>=2.18.0",
+    # Vertex AI SDK (for Step 5: endpoint inference test)
+    "google-cloud-aiplatform>=1.70.0",
+    # Gradio demo (Step 7: optional)
+    "gradio>=5.0.0",
+    "Pillow>=10.0.0",
+]
