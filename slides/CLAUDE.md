@@ -8,47 +8,50 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 環境について
 
-このプロジェクトではmiseを使用してMarp CLIをグローバルにインストールしています。
-そのため、`marp`コマンドが直接使用できます。
+このプロジェクトではmiseを使用してMarp CLIをローカルに管理しています。
+`.mise.toml`でNode.js 20とMarp CLIのバージョンを固定しています。
 
 ## セットアップ
 
-### 基本的なディレクトリ構造の作成
+### 1. miseのインストール
+
 ```bash
-# スライドディレクトリの作成（必要に応じて）
-mkdir -p slides dist assets
+curl https://mise.run | sh
 ```
 
-### package.jsonスクリプト（オプション）
-```json
-{
-  "scripts": {
-    "build": "marp slides/ --output dist/",
-    "build:pdf": "marp --pdf slides/ --output dist/",
-    "build:pptx": "marp --pptx slides/ --output dist/",
-    "watch": "marp -w slides/ --output dist/",
-    "serve": "marp -s slides/",
-    "preview": "marp -p slides/"
-  }
-}
+### 2. プロジェクトのツールをインストール
+
+```bash
+cd slides/
+mise install  # .mise.tomlに基づいてNode.js 20とMarp CLIをインストール
+```
+
+### 3. ディレクトリ構造
+
+```bash
+# 出力ディレクトリの作成
+mkdir -p public
 ```
 
 ## よく使用するコマンド
 
-### 開発用コマンド
-- `npm run watch` - ファイル変更を監視してHTMLを自動生成
-- `npm run serve` - ローカルサーバーを起動
-- `npm run preview` - プレビューウィンドウを開く
+### mise task（推奨）
 
-### ビルドコマンド
-- `npm run build` - HTMLファイルを生成
-- `npm run build:pdf` - PDFファイルを生成
-- `npm run build:pptx` - PowerPointファイルを生成
+```bash
+mise run build:day1     # day1スライドをビルド
+mise run build:day2     # day2スライドをビルド
+mise run build:all      # 全スライドをビルド
+mise run serve          # プレビューサーバーを起動（localhost:8080）
+```
 
 ### 直接的なMarp CLIコマンド
-- `marp slide.md` - 単一ファイルをHTML変換
-- `marp --pdf slide.md` - PDFに変換
-- `marp --images png slide.md` - 画像ファイルに変換
+
+```bash
+# miseでインストールされたコマンドを使用
+mise exec -- marp slides/day1-slide/main.md --html --allow-local-files -o public/day1.html
+mise exec -- marp slides/day1-slide/main.md --pdf --allow-local-files -o public/day1.pdf
+mise exec -- marp slides/day1-slide/main.md --pptx --allow-local-files -o public/day1.pptx
+```
 
 ## プロジェクト構造
 
