@@ -1,0 +1,21 @@
+# Marp CLI configuration for local development
+[tools]
+node = "20"  # Use Node.js 20 LTS for compatibility
+"npm:@marp-team/marp-cli" = "latest"
+
+# Build tasks
+[tasks."build:day1"]
+description = "Build day1 slide to HTML"
+run = "marp slides/day1-slide/main.md --html --allow-local-files -o public/day1.html"
+
+[tasks."build:day2"]
+description = "Build day2 slide to HTML"
+run = "marp slides/day2-slide/main.md --html --allow-local-files -o public/day2.html"
+
+[tasks."build:all"]
+description = "Build all slides"
+run = "marp slides/*/main.md --html --allow-local-files -o public/"
+
+[tasks."serve"]
+description = "Start Marp server for preview"
+run = "marp -s slides/ -p 8080 --allow-local-files"
