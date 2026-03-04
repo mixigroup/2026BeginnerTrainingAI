@@ -6,33 +6,85 @@ Marpを使用してMarkdownからプレゼンテーションスライドを作�
 
 このプロジェクトでは、Markdownファイルから美しいプレゼンテーションスライドを生成できます。HTML、PDF、PowerPoint形式での出力をサポートしています。
 
-### Marp CLIの基本的な使用方法
+## 🚀 セットアップ
+
+### 1. miseのインストール
 
 ```bash
-# サーバを立てて、スライドを確認
-marp -s ./slides --allow-local-files
+curl https://mise.run | sh
 ```
 
-### エクスポート方法
-
-#### PDFファイルとして出力
+### 2. プロジェクトのツールをインストール
 
 ```bash
-# 特定のディレクトリをPDFとして出力
-marp --input-dir ./slides/sample/ --pdf --allow-local-files
-
-# 単一ファイルをPDFとして出力
-marp ./slides/sample.md --pdf --allow-local-files
+cd slides/
+mise install  # .mise.tomlに基づいてNode.js 20とMarp CLIをインストール
 ```
 
-#### PowerPoint（PPTX）ファイルとして出力
+## 🔨 ビルド方法
+
+### mise taskを使用（推奨）
+
+#### HTML出力
 
 ```bash
-# 特定のディレクトリをPowerPointとして出力
-marp --input-dir ./slides/sample/ --pptx --allow-local-files
+# day1スライドをビルド
+mise run build:day1
 
-# 単一ファイルをPowerPointとして出力
-marp ./slides/sample.md --pptx --allow-local-files
+# day2スライドをビルド
+mise run build:day2
+
+# 全スライドをビルド
+mise run build:all
+```
+
+#### PDF/PowerPoint出力
+
+```bash
+# day1スライドをPDFに出力
+mise run build:day1:pdf
+
+# day1スライドをPowerPointに出力
+mise run build:day1:pptx
+
+# day2スライドをPDFに出力
+mise run build:day2:pdf
+
+# day2スライドをPowerPointに出力
+mise run build:day2:pptx
+```
+
+#### すべてのフォーマットを一括出力
+
+```bash
+# day1スライドを全フォーマット（HTML, PDF, PPTX）で出力
+mise run export:day1
+
+# day2スライドを全フォーマットで出力
+mise run export:day2
+
+# 全スライドを全フォーマットで出力
+mise run export:all
+```
+
+#### プレビューサーバー
+
+```bash
+# プレビューサーバーを起動（localhost:8080）
+mise run serve
+```
+
+### 直接Marp CLIを使用
+
+```bash
+# HTMLファイルとして出力
+mise exec -- marp slides/day1-slide/main.md --html --allow-local-files -o public/day1.html
+
+# PDFファイルとして出力
+mise exec -- marp slides/day1-slide/main.md --pdf --allow-local-files -o public/day1.pdf
+
+# PowerPoint（PPTX）ファイルとして出力
+mise exec -- marp slides/day1-slide/main.md --pptx --allow-local-files -o public/day1.pptx
 ```
 
 **注意**: `--allow-local-files` フラグはローカル画像やアセットを使用する場合に必要です。
@@ -82,35 +134,40 @@ color: black
 ```
 .
 ├── slides/              # Markdownスライドファイル
-│   ├── sample.md       # サンプルスライド
-│   └── ...             # その他のスライド
-├── dist/               # 生成されたファイル（HTML, PDF等）
-├── assets/             # 画像やカスタムCSSファイル
-├── package.json        # プロジェクト設定
-├── README.md          # このファイル
-└── CLAUDE.md          # Claude Code用ガイド
+│   ├── day1-slide/     # day1スライド
+│   │   ├── main.md
+│   │   └── imgs/
+│   ├── day2-slide/     # day2スライド
+│   │   ├── main.md
+│   │   └── imgs/
+│   └── theme-debug/    # テーマデバッグ用
+├── public/             # 生成されたファイル（HTML, PDF等）
+├── themes/             # カスタムテーマCSS
+├── .mise.toml          # mise設定ファイル
+├── README.md           # このファイル
+└── CLAUDE.md           # Claude Code用ガイド
 ```
 
 ## 🎨 カスタマイゼーション
 
 ### カスタムテーマ
 
-`assets/`ディレクトリにCSSファイルを作成して独自テーマを適用できます：
+`themes/`ディレクトリにCSSファイルを作成して独自テーマを適用できます：
 
 ```markdown
 ---
 marp: true
-theme: assets/custom-theme.css
+theme: mixi
 ---
 ```
 
 ### 画像の使用
 
 ```markdown
-![画像の説明](assets/images/my-image.png)
+![画像の説明](slides/day1-slide/imgs/example.png)
 
 <!-- サイズ指定 -->
-![w:500](assets/images/my-image.png)
+![w:500](slides/day1-slide/imgs/example.png)
 ```
 
 ## 📚 参考資料
