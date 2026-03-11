@@ -2,8 +2,8 @@
 marp: true
 theme: mixi
 paginate: true
-title: AI/ML トレーニング資料 Day2
-description: LLM・生成AI・Agentの基礎から実践まで
+title: 新卒AI研修(２日目)
+description: LLM・生成AIに関する基礎とagentについて
 ---
 
 ![mixi-logo w:400px](https://webtan.impress.co.jp/sites/default/files/images/news2022/0914_mixi.png)
@@ -31,9 +31,9 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
 
 ---
 
-# 自己紹介：TBD
+# 自己紹介：牧野 舜
 
-**TBD**
+**牧野　舜　/　まきの　しゅん**
 
 職種：MLエンジニア
 
@@ -43,15 +43,15 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
 
 ---
 
-# 改めて、AI / ML / DL / 生成AI の関係整理
+# ML / DL / 生成AI の関係整理
 
 ### 人工知能 (AI)
 
 - 人間のように「考える・判断する」コンピュータの技術全般
 
-### 機械学習 (ML)
+### 機械学習 (ML、パターン認識)
 
-- データから自動で学習して予測・判断する仕組み
+- データからパターンを学習して予測する仕組み
 - **AIを実現する中核技術**
 
 ### 深層学習 (Deep Learning)
@@ -61,8 +61,8 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
 
 ### 生成AI (Generative AI)
 
-- テキスト、画像、音声などのコンテンツを**生成**するAI
-- LLM（GPT、Claude）、画像生成（Stable Diffusion、DALL-E）など
+- テキスト、画像、音声などのコンテンツを生成するAI
+- LLM（GPT、Claude）、画像生成（Stable Diffusion、Nano Banana）など
 
 ---
 
@@ -100,23 +100,7 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
    - RAG、プロンプトエンジニアリング
 
 5. **AI Agentを設計・実装する**
-   - Planning、Tool使用、評価・運用
-
----
-
-# 2日目の成果物
-
-### ハンズオン
-
-1. **拡散モデル**: Stable Diffusionで画像生成
-2. **RAG**: LangChainでRAGシステム構築
-3. **AI Agent**: LangGraphでCoding Agent作成
-
-### 目標
-
-- LLM/生成AIの仕組みを理解する
-- AI Agentの設計・評価・運用サイクルを体験する
-- プロダクトへの応用イメージを持つ
+   - Agentの概念、Planning、Tool使用
 
 ---
 
@@ -139,55 +123,61 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
 
 ---
 
-# LLM・生成AIとは
+# LLM・生成AIについて整理
+
+### LLM（Large Language Model）
+
+- **大規模言語モデル**
+- 大量のテキストデータで事前学習された大量のパラメタを持つ言語モデル
+  - 参考: GPT-3は1750億パラメータ、GPT-4は推定1兆以上のパラメータ
+
+### マルチモーダルモデル
+
+- 画像や音声もtokenとして扱うことができる(Vision Language Modelなど)
+  - tokenについては後述
+  - モーダル: テキスト、画像、音声などの扱うデータの形式
+- テキストに加えて、画像や音声も入力や出力に使用することができる
 
 ### 生成AI（Generative AI）
 
 - **コンテンツを生成するAI**の総称
 - テキスト、画像、音声、動画など多様なモダリティに対応
-
-### LLM（Large Language Model）
-
-- **大規模言語モデル**
-- 大量のテキストデータで事前学習された言語モデル
-- GPT、Claude、Gemini、Llama など
-
-### 特徴
-
-- **事前学習 + ファインチューニング**で汎用性と専門性を両立
-- **プロンプト**で振る舞いを制御
-- **Few-shot / Zero-shot学習**で少量データでもタスク対応
+- LLMが中核技術の１つ
 
 ---
 
-# 代表的なLLM・生成AIプロダクト
+# 代表的なLLM・生成AIプロダクト（2026年現在）
 
 ### LLM（テキスト生成）
 
-- **OpenAI GPT**: GPT-3.5、GPT-4、GPT-4 Turbo
-- **Anthropic Claude**: Claude 3 (Opus, Sonnet, Haiku)
-- **Google Gemini**: Gemini Pro、Gemini Ultra
-- **Meta Llama**: Llama 2、Llama 3（オープンソース）
+- **OpenAI GPT**: GPT-4、GPT-4 Turbo、o1（推論特化）
+- **Anthropic Claude**: Claude 3.5/4 (Opus, Sonnet, Haiku)
+- **Google Gemini**: Gemini 1.5/2.0 Pro、Ultra
+- **Meta Llama**: Llama 3.1/3.2（オープンソース、400B+）
+- **DeepSeek**: 中国発の高性能オープンソースLLM
 
 ### 画像生成
 
-- **Stable Diffusion**（オープンソース）
+- **Stable Diffusion 3**（オープンソース）
 - **DALL-E 3**（OpenAI）
-- **Midjourney**
+- **Midjourney v6/v7**
+- **Imagen 3**（Google）
 
 ### マルチモーダル
 
-- **GPT-4V**（Vision）: 画像理解 + テキスト生成
+- **GPT-4o**: 音声・画像・テキストをネイティブ統合
 - **Gemini**: テキスト・画像・音声・動画を統合
+- **Claude 3.5 Sonnet**: 画像理解 + テキスト生成
 
 ---
 
-# LLM・生成AIの歴史的発展
+# LLM・生成AIの簡単な歴史的発展
 
 ### 2017: Transformer登場
 
 - "Attention is All You Need"論文
-- **Attention機構**で系列データを効率的に処理
+- TransformerではAttentionを並列で効率的に計算
+- 大規模な言語モデルがアーキテクチャとして可能になる
 
 ### 2018-2019: BERT、GPT-2
 
@@ -207,29 +197,15 @@ Notion: [LINK](https://www.notion.so/familyalbum/AI-2-TBD)
 
 - マルチモーダル対応、高精度、長いコンテキスト
 
----
+### 現在 (2025-)
 
-# LLM・生成AIの応用分野
+- さらなる精度向上、推論能力の強化
+- Agentによる自律的なタスク遂行
+- VLA（Vision-Language-Action）モデル：ロボット制御など物理世界への適用
 
-### コンテンツ生成
+### 20xx
 
-- 記事執筆、コード生成、メール作成、翻訳
-
-### 対話・アシスタント
-
-- チャットボット、カスタマーサポート、教育支援
-
-### 検索・推薦
-
-- 自然言語検索、RAG（検索拡張生成）
-
-### データ分析・要約
-
-- 長文要約、データ抽出、レポート生成
-
-### クリエイティブ
-
-- 画像生成、音楽生成、動画編集
+- ???
 
 ---
 <!-- _class: section -->
@@ -256,10 +232,40 @@ $$P(w_t | w_1, w_2, ..., w_{t-1})$$
 ### 例
 
 「今日の天気は」→ 次に来る確率が高い単語は？
+
 - 「晴れ」: 0.4
 - 「曇り」: 0.3
 - 「雨」: 0.2
 - 「猫」: 0.001
+
+### 分散表現（Word Embedding）
+
+- **単語をベクトル（数値の列）で表現**
+- 意味が似た単語は近いベクトルになる
+
+**例**:
+
+- 「猫」: [0.8, 0.1, 0.3, ...]
+- 「犬」: [0.7, 0.2, 0.4, ...] ← 猫に近い
+- 「車」: [0.1, 0.9, 0.1, ...] ← 猫から遠い
+
+**メリット**:
+
+- 意味の類似性を計算可能
+- 機械学習モデルの入力として使用
+
+**代表的な手法**:
+
+- Word2Vec、GloVe → Transformer（現在の主流）
+
+### Decoding戦略
+
+生成時に次の単語をどう選ぶか：
+
+- **Greedy Decoding**: 常に確率最大の単語を選択（決定論的）
+- **Beam Search**: 複数候補を保持して探索
+- **Top-k Sampling**: 確率上位k個からランダムサンプリング
+- **Temperature**: 確率分布の鋭さを調整（高い→多様、低い→保守的）
 
 ---
 
@@ -267,12 +273,18 @@ $$P(w_t | w_1, w_2, ..., w_{t-1})$$
 
 ### それまでの問題
 
-- **RNN/LSTM**: 系列を順番に処理 → 並列化できない、長距離依存が難しい
+- **RNN/LSTM**: 単語の系列を順番に処理
+  - 並列化できない
+    - 大規模化が難しい
+  - 長距離依存が難しい
 
 ### Transformerの特徴
 
-1. **Attention機構**: 入力全体を一度に見て重要な部分に注目
-2. **並列化可能**: 計算効率が高い
+1. **Self-Attention + 並列化**:
+   - Attentionの概念自体は以前から存在（RNN + Attention）
+   - Transformerは**全てをAttentionで処理**し、完全並列化を実現
+   - これにより大規模化が可能に
+2. **Multi-Head Attention**: 複数の視点で同時に注目
 3. **位置エンコーディング**: 単語の順序情報を保持
 
 ### 構成要素
