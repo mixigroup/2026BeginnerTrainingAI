@@ -8,8 +8,6 @@ Provides:
 - plot_confusion_matrix: visualize classification results
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 
 import matplotlib.pyplot as plt
@@ -17,6 +15,7 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import confusion_matrix
 from torch.utils.data import DataLoader
+import seaborn as sns
 
 
 @dataclass
@@ -286,7 +285,6 @@ def plot_confusion_matrix(
     Returns:
         matplotlib Figure object.
     """
-    import seaborn as sns
 
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

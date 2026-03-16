@@ -6,8 +6,6 @@ Provides data loading and preprocessing for:
 - CIFAR-10 dataset (torchvision) for CNN transfer learning
 """
 
-from __future__ import annotations
-
 import numpy as np
 import torch
 from sklearn.datasets import load_iris

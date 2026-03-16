@@ -7,8 +7,6 @@ Provides:
 - ResNet18TransferModel: ResNet18-based transfer learning model for CIFAR-10
 """
 
-from __future__ import annotations
-
 import torch
 import torch.nn as nn
 

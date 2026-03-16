@@ -362,6 +362,60 @@ def _(compare_learning_curves, comparison_histories):
 
 
 @app.cell(hide_code=True)
+def _():
+    import lightning.pytorch as pl
+    from lightning.pytorch.callbacks import EarlyStopping as LitEarlyStopping
+    from src.lightning_model import ClassifierModule, MetricsCallback
+
+    return pl, LitEarlyStopping, ClassifierModule, MetricsCallback
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ---
+
+        ## PyTorch Lightning 版: EarlyStopping
+
+        Step 2 で手動実装した EarlyStopping を、Lightning コールバックで置き換えます。
+
+        | 比較項目 | PyTorch（手動） | PyTorch Lightning |
+        |---|---|---|
+        | EarlyStopping | `if val_loss < best_val_loss:` 手動 | `EarlyStopping` コールバック1行 |
+        | コード量 | ~10行 | 1行 |
+        | オプション | 基本のみ | patience / min_delta / mode など |
+
+        学習曲線は TensorBoard で確認できます（`uv run tensorboard --logdir runs`）。
+        """
+    )
+    return
+
+
+@app.cell
+def _(OversizedFCNet, ClassifierModule, pl, MetricsCallback, LitEarlyStopping, train_loader_ov, val_loader_ov, PATIENCE):
+    # 同じ設定: 大きいモデル + 小データセット + Lightning EarlyStopping
+    lit_ov_backbone = OversizedFCNet(input_dim=4, num_classes=3)
+    lit_ov_model = ClassifierModule(lit_ov_backbone, learning_rate=0.001)
+
+    lit_ov_trainer = pl.Trainer(
+        max_epochs=300,
+        accelerator="auto",
+        callbacks=[
+            LitEarlyStopping(monitor="val_loss", patience=PATIENCE, mode="min", verbose=True),
+        ],
+        enable_progress_bar=True,
+        log_every_n_steps=1,
+    )
+
+    print(f"Lightning EarlyStopping で学習開始 (patience={PATIENCE})...")
+    lit_ov_trainer.fit(lit_ov_model, train_loader_ov, val_loader_ov)
+    lit_ov_stopped_epoch = lit_ov_trainer.current_epoch
+    print(f"停止エポック: {lit_ov_stopped_epoch}")
+    return lit_ov_backbone, lit_ov_model, lit_ov_trainer, lit_ov_stopped_epoch
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -376,6 +430,11 @@ def _(mo):
         | **Early Stopping** | val_loss が改善しなければ停止 | 最良の汎化点で学習終了 | patience の設定が必要 |
         | **Dropout** | 学習時にニューロンをランダム無効化 | アンサンブル効果・汎化改善 | p が大きすぎると学習が遅い |
         | **Weight Decay** | 重みが大きくなりすぎることを防ぐ | モデルの複雑さを制限 | 強すぎると underfitting |
+
+        ### PyTorch Lightning での EarlyStopping
+
+        手動実装と Lightning コールバックは同じロジックですが、
+        Lightning 版は `patience`, `min_delta`, `mode` などのオプションが充実しています。
 
         ### 試してみよう
 
