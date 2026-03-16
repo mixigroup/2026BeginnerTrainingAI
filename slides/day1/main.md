@@ -359,24 +359,26 @@ $$\hat{y} = f(\mathbf{x})$$
 
 # NLP：ハンズオン概要
 
-### タスク：Token Classification（固有表現認識/NER）
+### タスク：Sentiment Analysis（感情分析）
 
 - **やること**
-  - 文章中の各単語に固有表現ラベルを付ける
-    - PER（人名）、LOC（地名）、ORG（組織名）、O（その他）
-  - 例：「東京でミクシィの木内が話す」
-    - 東京 → LOC、ミクシィ → ORG、木内 → PER
+  - 文章全体にポジティブ/ネガティブのラベルを付ける
+  - 例：「私はとっても幸せ」→ ポジティブ、「私はとっても不幸」→ ネガティブ
+- **モデル**: `tabularisai/multilingual-sentiment-analysis`
+  - 多言語対応のBERT系モデルで、文章全体の特徴を捉えて分類する
 
-参考：[Token classification](https://huggingface.co/docs/transformers/ja/tasks/token_classification)
+参考
+[Text classification](https://huggingface.co/docs/transformers/ja/tasks/sequence_classification)
+[tabularisai/multilingual-sentiment-analysis](https://huggingface.co/tabularisai/multilingual-sentiment-analysis)
 
 ---
 
 # NLP詳細：Preprocess（前処理）
 
-### 文章をトークン単位のテンソルに変換
+### 文章を固定長テンソルに変換
 
 1. **Tokenizerで分割**
-   - 例：「今日の天気は快晴だ!」 → `["今日", "の", "天気", "は", "快", "#晴", "だ!"]`
+   - 例：「このレストランは最高でした！」 → `["この", "レストラン", "は", "最高", "でした", "！"]`
 
 2. **数値IDに変換**
    - トークン → 語彙辞書で数値化 → `input_ids`
@@ -388,7 +390,7 @@ $$\hat{y} = f(\mathbf{x})$$
 
 # NLP詳細：Forward（モデル計算）
 
-### Token Classificationの推論
+### Sentiment Analysisの推論
 
 1. **入力**
 
@@ -396,13 +398,13 @@ $$\hat{y} = f(\mathbf{x})$$
 
 2. **モデル処理**
 
-    - BERT系モデルでトークンごとに特徴抽出
+    - BERT系モデルで文章全体の特徴を抽出
 
 3. **出力**
 
-    - **logits**：`(batch, seq_len, num_labels)`
-      - 各トークンの各ラベルに対するスコア
-      - 例：`(1, 20, 9)`（20トークン、9ラベル）
+    - **logits**：`(batch, num_labels)`
+      - 文章全体の各ラベルに対するスコア
+      - 例：`(1, 2)`（ポジティブ/ネガティブの2ラベル）
 
 ---
 
@@ -410,39 +412,30 @@ $$\hat{y} = f(\mathbf{x})$$
 
 ### logits からラベルへの変換
 
-1. **argmax でラベルID取得**
-   - 各トークンで最大スコアのラベルを選択
-   - 例：`[0, 1, 2, 0, ...]` → `[O, PER, LOC, O, ...]`
+1. **softmax で確率に変換**
+   - logitsを確率分布に変換
+   - 例：`[3.2, -1.5]` → `[0.99, 0.01]`
 
-2. **entity-levelの整形**
-   - トークン列から固有表現を抽出
-   - 例：`["東京", "LOC"]`、`["ミクシィ", "ORG"]`
+2. **argmax でラベルID取得 → ラベル名にマッピング**
+   - 最大確率のラベルを選択
+   - 例：`[0.99, 0.01]` → ポジティブ（99%）
 
 ---
 
 # NLP：評価指標
 
-Token Classification（固有表現認識など）では、**各トークンのラベルが正しいかを評価**します。
+Sentiment Analysis（感情分析）では、**文章全体の分類が正しいかを評価**します。
 
-**例：「東京でミクシィが」**
-
-**正解：**
+**評価例：**
 
 ```
-東京[LOC] で[O] ミクシィ[ORG] が[O]
+文章: 「料理が美味しかった」→ 正解: ポジティブ, 予測: ポジティブ ✅
+文章: 「サービスが最悪」  → 正解: ネガティブ, 予測: ネガティブ ✅
+文章: 「まあまあだった」  → 正解: ネガティブ, 予測: ポジティブ ❌
+文章: 「また行きたい」   → 正解: ポジティブ, 予測: ポジティブ ✅
 ```
 
-**予測：**
-
-```
-東京[LOC] で[O] ミク[O] シィ[O]
-```
-
-**評価結果：**
-
-- ✅ 正解：`東京[LOC]`、`で[O]`（2トークン）
-- ❌ 不正解：`ミク[O]`（正解は`[ORG]`）、`シィ[O]`（正解は`[ORG]`）
-- **Accuracy: 50%（2/4トークン正解）**
+**Accuracy: 75%（3/4文章正解）**
 
 ---
 

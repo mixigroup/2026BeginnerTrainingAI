@@ -1,9 +1,11 @@
 [project]
 name = "02-nlp-inference"
 version = "0.1.0"
-description = "Add your description here"
+description = "日本語感情分析ハンズオン - HuggingFace Transformers を使った NLP 推論の学習用ノートブック"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "marimo>=0.20.1",
+    "transformers>=4.40.0",
+    "torch>=2.2.0",
 ]
