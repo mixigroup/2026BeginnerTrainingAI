@@ -10,6 +10,7 @@ MODEL_FILES = {
     "PyTorch (.pt)": "yolo26m-pose.pt",
     # "ONNX (.onnx)": "yolo26m-pose.onnx",
     # "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",
+    # "Pruned ONNX (.onnx)": "yolo26m-pose-pruned.onnx",
     # export 済みモデルを追加する場合はここにパスを追加
     # "LiteRT (.tflite)": "yolo26m-pose.tflite",
 }

@@ -1,94 +1,64 @@
-"""Dataset utilities for Iris classification hands-on."""
+"""Iris 推論ハンズオン用データセットユーティリティ
+
+事前学習で保存したスケーラーパラメータを使って、
+学習時と同一の前処理を再現する。
+"""
+
+import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.datasets import load_iris
-from sklearn.preprocessing import normalize
+from sklearn.model_selection import train_test_split
+
+MODELS_DIR = Path(__file__).resolve().parent.parent / "models"
+
+
+def load_scaler_params() -> dict:
+    """保存済みの StandardScaler パラメータ（mean, scale）を読み込む。"""
+    with open(MODELS_DIR / "scaler.json") as f:
+        return json.load(f)
 
 
 def load_iris_data() -> tuple[pd.DataFrame, object]:
-    """Load Iris dataset and return as DataFrame.
-
-    Returns:
-        data: DataFrame with feature columns and 'target' column
-        iris: Original sklearn Bunch object (contains target_names, etc.)
-    """
+    """Iris データセットを DataFrame として返す（EDA 用）。"""
     iris = load_iris()
     data = pd.DataFrame(iris.data, columns=iris.feature_names)
     data["target"] = iris.target
+    data["species"] = [iris.target_names[t] for t in iris.target]
     return data, iris
 
 
-def shuffle_data(data: pd.DataFrame, seed: int = 42) -> pd.DataFrame:
-    """Shuffle DataFrame rows with a fixed random seed.
-
-    Args:
-        data: Input DataFrame
-        seed: Random seed for reproducibility
-
-    Returns:
-        Shuffled DataFrame
-    """
-    rng = np.random.default_rng(seed=seed)
-    shuffled_indices = rng.permutation(len(data))
-    return data.iloc[shuffled_indices]
-
-
-def split_features_and_labels(data: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-    """Split DataFrame into feature matrix X and label vector y.
-
-    Args:
-        data: DataFrame with 4 feature columns and 'target' column
-
-    Returns:
-        X: Feature matrix of shape (n_samples, 4)
-        y: Label vector of shape (n_samples, 1)
-    """
-    X = data.iloc[:, :4].values
-    y = data.iloc[:, 4:].values
-    return X, y
-
-
 def normalize_features(X: np.ndarray) -> np.ndarray:
-    """Normalize feature matrix to [0, 1] range column-wise.
+    """保存済みスケーラーで特徴量を標準化する。
 
-    Args:
-        X: Feature matrix of shape (n_samples, n_features)
+    学習時と同じ mean / scale を使うことで、推論時の前処理を再現する。
+    """
+    params = load_scaler_params()
+    mean = np.array(params["mean"], dtype=np.float32)
+    scale = np.array(params["scale"], dtype=np.float32)
+    return ((X - mean) / scale).astype(np.float32)
+
+
+def prepare_test_data(
+    test_ratio: float = 0.2,
+    random_state: int = 42,
+) -> tuple[np.ndarray, np.ndarray, list[str]]:
+    """学習時と同じ分割でテストデータを取得し、正規化して返す。
 
     Returns:
-        Normalized feature matrix
+        X_test_scaled: 正規化済みテスト特徴量
+        y_test: テストラベル（整数）
+        target_names: クラス名リスト
     """
-    return normalize(X, axis=0)
+    iris = load_iris()
+    X, y = iris.data.astype(np.float32), iris.target
 
+    # 学習時と同じ分割を再現（最初に test を分離する）
+    _, X_test, _, y_test = train_test_split(
+        X, y, test_size=test_ratio, random_state=random_state, stratify=y
+    )
 
-def split_dataset(
-    X: np.ndarray,
-    y: np.ndarray,
-    train_ratio: float = 0.8,
-    valid_ratio: float = 0.1,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """Split dataset into train / valid / test sets.
-
-    Args:
-        X: Feature matrix
-        y: Label array
-        train_ratio: Fraction of data to use for training (default 0.8)
-        valid_ratio: Fraction of data to use for validation (default 0.1)
-            Remaining fraction is used for test.
-
-    Returns:
-        X_train, X_valid, X_test, y_train, y_valid, y_test
-    """
-    total = len(X)
-    train_len = int(train_ratio * total)
-    valid_len = int(valid_ratio * total)
-
-    X_train = X[:train_len]
-    X_valid = X[train_len : train_len + valid_len]
-    X_test = X[train_len + valid_len :]
-
-    y_train = y[:train_len]
-    y_valid = y[train_len : train_len + valid_len]
-    y_test = y[train_len + valid_len :]
-
-    return X_train, X_valid, X_test, y_train, y_valid, y_test
+    X_test_scaled = normalize_features(X_test)
+    return X_test_scaled, y_test, list(iris.target_names)

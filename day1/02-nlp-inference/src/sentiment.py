@@ -28,8 +28,8 @@ EVAL_DATA: list[tuple[str, str]] = [
     ("予約したのに待たされた", "Negative"),
     ("料理が口に合わなかった", "Negative"),
     ("二度と行かない", "Negative"),
-    ("まあまあだった", "Negative"),   # モデルが迷いやすい例
-    ("普通でした", "Negative"),       # モデルが迷いやすい例
+    ("まあまあだった", "Negative"),  # モデルが迷いやすい例
+    ("普通でした", "Negative"),  # モデルが迷いやすい例
 ]
 
 

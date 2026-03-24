@@ -9,7 +9,6 @@ from src.sentiment import (
     load_model,
     load_tokenizer,
     postprocess,
-    predict,
     preprocess,
 )
 
@@ -31,7 +30,7 @@ section("pipeline で1行実行（比較用）")
 
 pipe = pipeline("text-classification", model=MODEL_NAME)
 pipeline_result = pipe("あなたのことが大好きです。")
-print(f"入力: あなたのことが大好きです。")
+print("入力: あなたのことが大好きです。")
 print(f"結果: {pipeline_result}")
 
 

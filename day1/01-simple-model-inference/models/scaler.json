@@ -1,0 +1,25 @@
+{
+  "mean": [
+    5.836666658189562,
+    3.013333331214057,
+    3.751111095481449,
+    1.1977777656581667
+  ],
+  "scale": [
+    0.8613232547385682,
+    0.41397799158458154,
+    1.7622110048646351,
+    0.757037748682768
+  ],
+  "feature_names": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
+  ],
+  "target_names": [
+    "setosa",
+    "versicolor",
+    "virginica"
+  ]
+}

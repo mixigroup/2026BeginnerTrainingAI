@@ -1,6 +1,6 @@
 # Marp CLI configuration for local development
 [tools]
-node = "20"  # Use Node.js 20 LTS for compatibility
+node = "20"                          # Use Node.js 20 LTS for compatibility
 "npm:@marp-team/marp-cli" = "latest"
 
 # Build tasks
@@ -72,4 +72,4 @@ marp day2/main.md --pptx --allow-local-files -o public/day2.pptx
 [tasks."serve"]
 description = "Start Marp server for preview"
 dir = "slides"
-run = "marp -s . -p 8080 --allow-local-files"
+run = "marp -s -I . -p 8080 --allow-local-files"

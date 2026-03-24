@@ -393,7 +393,16 @@ def _(mo):
 
 
 @app.cell
-def _(OversizedFCNet, ClassifierModule, pl, MetricsCallback, LitEarlyStopping, train_loader_ov, val_loader_ov, PATIENCE):
+def _(
+    OversizedFCNet,
+    ClassifierModule,
+    pl,
+    MetricsCallback,
+    LitEarlyStopping,
+    train_loader_ov,
+    val_loader_ov,
+    PATIENCE,
+):
     # 同じ設定: 大きいモデル + 小データセット + Lightning EarlyStopping
     lit_ov_backbone = OversizedFCNet(input_dim=4, num_classes=3)
     lit_ov_model = ClassifierModule(lit_ov_backbone, learning_rate=0.001)
@@ -402,7 +411,9 @@ def _(OversizedFCNet, ClassifierModule, pl, MetricsCallback, LitEarlyStopping, t
         max_epochs=300,
         accelerator="auto",
         callbacks=[
-            LitEarlyStopping(monitor="val_loss", patience=PATIENCE, mode="min", verbose=True),
+            LitEarlyStopping(
+                monitor="val_loss", patience=PATIENCE, mode="min", verbose=True
+            ),
         ],
         enable_progress_bar=True,
         log_every_n_steps=1,

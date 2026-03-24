@@ -160,10 +160,19 @@ def _(mo):
 
 
 @app.cell
-def _(audio_array, load_feature_extractor, resample_audio, sampling_rate, MODEL_NAME, TARGET_SAMPLING_RATE):
+def _(
+    audio_array,
+    load_feature_extractor,
+    resample_audio,
+    sampling_rate,
+    MODEL_NAME,
+    TARGET_SAMPLING_RATE,
+):
     # Step 1: リサンプリング
     print(f"元のサンプリングレート: {sampling_rate} Hz")
-    resampled_audio = resample_audio(audio_array, orig_sr=sampling_rate, target_sr=TARGET_SAMPLING_RATE)
+    resampled_audio = resample_audio(
+        audio_array, orig_sr=sampling_rate, target_sr=TARGET_SAMPLING_RATE
+    )
     print(f"変換後のサンプリングレート: {TARGET_SAMPLING_RATE} Hz")
     print(f"元のサンプル数: {len(audio_array)}")
     print(f"変換後のサンプル数: {len(resampled_audio)}")
@@ -183,9 +192,11 @@ def _(extract_features, feature_extractor, resampled_audio, TARGET_SAMPLING_RATE
     input_features = inputs["input_features"]
 
     print(f"input_features shape: {tuple(input_features.shape)}")
-    print(f"  → (batch_size, mel_bands, time_frames)")
-    print(f"  → ({input_features.shape[0]}, {input_features.shape[1]}, {input_features.shape[2]})")
-    print(f"  → 80 mel帯域 × 3000フレーム（30秒分）")
+    print("  → (batch_size, mel_bands, time_frames)")
+    print(
+        f"  → ({input_features.shape[0]}, {input_features.shape[1]}, {input_features.shape[2]})"
+    )
+    print("  → 80 mel帯域 × 3000フレーム（30秒分）")
     print(f"dtype: {input_features.dtype}")
 
     return inputs, input_features
@@ -317,7 +328,7 @@ def _(reference_text, transcription):
     print("=== 結果の確認 ===")
     print(f"正解テキスト: {reference_text}")
     print(f"予測テキスト: {transcription}")
-    print(f"\npipeline の出力と同じ結果になっているはず！")
+    print("\npipeline の出力と同じ結果になっているはず！")
 
     return
 
@@ -399,9 +410,11 @@ def _(
 
     NUM_EVAL_SAMPLES = 5
 
-    print(f"データセットをロード中...")
+    print("データセットをロード中...")
     # データセットを一度だけロードしてキャッシュする（毎ループ再ロードを避ける）
-    eval_dataset = load_dataset("google/fleurs", "ja_jp", split=f"test[:{NUM_EVAL_SAMPLES}]")
+    eval_dataset = load_dataset(
+        "google/fleurs", "ja_jp", split=f"test[:{NUM_EVAL_SAMPLES}]"
+    )
 
     print(f"評価中（{NUM_EVAL_SAMPLES}件）...")
 
@@ -413,13 +426,17 @@ def _(
         sr_i = sample["audio"]["sampling_rate"]
         ref_i = sample["transcription"]
 
-        resampled_i = resample_audio(audio_i, orig_sr=sr_i, target_sr=TARGET_SAMPLING_RATE)
-        inputs_i = extract_features(feature_extractor, resampled_i, TARGET_SAMPLING_RATE)
+        resampled_i = resample_audio(
+            audio_i, orig_sr=sr_i, target_sr=TARGET_SAMPLING_RATE
+        )
+        inputs_i = extract_features(
+            feature_extractor, resampled_i, TARGET_SAMPLING_RATE
+        )
         ids_i = generate_tokens(model, inputs_i, language="japanese")
         hyp_i = decode_tokens(processor, ids_i)
         eval_references.append(ref_i)
         eval_hypotheses.append(hyp_i)
-        print(f"  [{i+1}/{NUM_EVAL_SAMPLES}] 完了")
+        print(f"  [{i + 1}/{NUM_EVAL_SAMPLES}] 完了")
 
     results, avg_wer, avg_cer = evaluate_batch(eval_references, eval_hypotheses)
 
@@ -427,7 +444,9 @@ def _(
     print("-" * 65)
     for r in results:
         mark = "✅" if r["correct"] else "❌"
-        print(f"{mark} {r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}")
+        print(
+            f"{mark} {r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}"
+        )
 
     print(f"\n平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）")
 

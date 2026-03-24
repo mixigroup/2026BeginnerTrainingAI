@@ -82,9 +82,7 @@ def main() -> None:
     print(f"      logits.shape:     {tuple(logits.shape)}  （クラス スコア）")
     print(f"      pred_boxes.shape: {tuple(pred_boxes.shape)}  （bbox: cx,cy,w,h）")
 
-    top5 = sorted(
-        enumerate(logits.softmax(-1)[0, 0].tolist()), key=lambda x: -x[1]
-    )[:5]
+    top5 = sorted(enumerate(logits.softmax(-1)[0, 0].tolist()), key=lambda x: -x[1])[:5]
     print("      先頭クエリの上位5クラス（softmax後）:")
     for cls_id, score in top5:
         print(f"        class_{cls_id}: {score:.3f}")

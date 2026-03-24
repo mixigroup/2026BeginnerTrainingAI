@@ -414,7 +414,7 @@ def _(lit_trainer, lit_model, train_loader, val_loader):
     print("Lightning で学習開始...")
     print("学習曲線は TensorBoard で確認できます: uv run tensorboard --logdir runs")
     lit_trainer.fit(lit_model, train_loader, val_loader)
-    print(f"学習完了")
+    print("学習完了")
     return
 
 

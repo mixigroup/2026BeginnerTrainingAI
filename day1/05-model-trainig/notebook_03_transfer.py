@@ -471,12 +471,16 @@ def _(ResNet18TransferModel, ClassifierModule, HEAD_LR):
     lit_resnet = ResNet18TransferModel(num_classes=10, pretrained=True)
     lit_resnet.freeze_backbone()
     lit_transfer_model = ClassifierModule(lit_resnet, learning_rate=HEAD_LR)
-    print(f"Phase 1 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（ヘッドのみ）")
+    print(
+        f"Phase 1 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（ヘッドのみ）"
+    )
     return lit_resnet, lit_transfer_model
 
 
 @app.cell
-def _(pl, TensorBoardLogger, lit_transfer_model, train_loader, test_loader, HEAD_EPOCHS):
+def _(
+    pl, TensorBoardLogger, lit_transfer_model, train_loader, test_loader, HEAD_EPOCHS
+):
     lit_trainer_head = pl.Trainer(
         max_epochs=HEAD_EPOCHS,
         accelerator="auto",
@@ -492,11 +496,24 @@ def _(pl, TensorBoardLogger, lit_transfer_model, train_loader, test_loader, HEAD
 
 
 @app.cell
-def _(pl, TensorBoardLogger, lit_resnet, lit_transfer_model, train_loader, test_loader, FINETUNE_EPOCHS, FINETUNE_LR):
+def _(
+    pl,
+    TensorBoardLogger,
+    lit_resnet,
+    lit_transfer_model,
+    train_loader,
+    test_loader,
+    FINETUNE_EPOCHS,
+    FINETUNE_LR,
+):
     # backbone を解凍して fine-tuning
     lit_resnet.unfreeze_backbone()
-    lit_transfer_model.learning_rate = FINETUNE_LR  # configure_optimizers は fit() 開始時に再呼び出し
-    print(f"Phase 2 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（全パラメータ）")
+    lit_transfer_model.learning_rate = (
+        FINETUNE_LR  # configure_optimizers は fit() 開始時に再呼び出し
+    )
+    print(
+        f"Phase 2 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（全パラメータ）"
+    )
 
     lit_trainer_ft = pl.Trainer(
         max_epochs=FINETUNE_EPOCHS,

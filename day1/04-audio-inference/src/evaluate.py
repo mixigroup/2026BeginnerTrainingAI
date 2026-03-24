@@ -73,12 +73,14 @@ def evaluate_batch(
     for ref, hyp in zip(references, hypotheses):
         cer = compute_cer(ref, hyp)
         is_correct = cer == 0.0
-        results.append({
-            "reference": ref,
-            "hypothesis": hyp,
-            "cer": cer,
-            "correct": is_correct,
-        })
+        results.append(
+            {
+                "reference": ref,
+                "hypothesis": hyp,
+                "cer": cer,
+                "correct": is_correct,
+            }
+        )
 
     avg_wer = compute_wer(references, hypotheses)
     avg_cer = compute_cer(references, hypotheses)
