@@ -532,82 +532,100 @@ Sentiment Analysis（感情分析）では、**文章全体の分類が正しい
 
 # [Optional] 音声：ハンズオン概要
 
-### タスク：Audio Classification（音声分類）
+### タスク：ASR（自動音声認識）
 
 - **やること**
 
-  - 音声データをクラスに分類
-  - 例：音楽ジャンル、感情、話者、環境音などの分類
-    - 音声の特徴からクラスを予測
+  - 日本語音声をテキストに書き起こす
+  - 例：「今日の天気は晴れです」という音声 → `"今日の天気は晴れです"`
 
-参考：[Audio classification](https://huggingface.co/docs/transformers/ja/tasks/audio_classification)
+- **モデル**: `openai/whisper-small`
+  - OpenAI が開発した多言語対応の ASR モデル
+  - encoder-decoder 構造（音声 → 内部表現 → テキスト）
+
+参考：[Automatic Speech Recognition](https://huggingface.co/docs/transformers/ja/tasks/asr)
+/ [openai/whisper-small](https://huggingface.co/openai/whisper-small)
 
 ---
 
 # [Optional] 音声詳細：Preprocess（前処理）
 
-### 音声をテンソルに変換
+### 音声を log-mel spectrogram に変換
 
 1. **resample（サンプリングレート調整）**
-   - モデルの期待するサンプリングレートに変換
-   - 例：`44.1kHz` → `16kHz`
+   - Whisper の期待するレートに変換
+   - 例：`48kHz` → `16kHz`
 
-2. **特徴量抽出**
-   - **log-mel spectrogram**：周波数領域の特徴
-   - または**raw waveform**：波形を直接使用（モデル次第）
+2. **log-mel spectrogram に変換**
+   - `AutoFeatureExtractor` で時間×周波数の2次元表現に変換
+   - shape：`(1, 80, 3000)` ← 80 mel 帯域 × 30 秒分
 
-3. **長さ調整**
-   - 長すぎる音声を切り詰め
-   - 短すぎる音声をpadding
+3. **可視化**
+   - spectrogram を画像として表示 → 音声の形が「見える」
 
 ---
 
 # [Optional] 音声詳細：Forward（モデル計算）
 
-### Audio Classificationの推論
+### Whisper の encoder-decoder 構造
 
-**入力**
+```
+[log-mel spectrogram]  (1, 80, 3000)
+        ↓
+[Encoder（CNN + Transformer）]
+        ↓
+[encoder hidden states]  (1, 1500, hidden_size)
+        ↓
+[Decoder（Transformer + 自己回帰生成）]
+        ↓
+[token ids]  (1, seq_len)
+```
 
-- 特徴量テンソルまたは波形テンソル
-
-**モデル処理**
-
-- Wav2Vec2系 / AST系で音声分類
-
-**出力**
-
-- **logits**：`(batch, num_classes)`
-  - 各クラスのスコア
+- **Encoder**：音声特徴量 → 内部表現（並列処理）
+- **Decoder**：内部表現 → トークンを1つずつ生成（自己回帰）
 
 ---
 
 # [Optional] 音声詳細：Postprocess（後処理）
 
-### logits からクラス予測へ
+### token ids からテキストへの変換
 
-1. **softmax で確率化**
-   - logits → 確率分布
+1. **token id → サブワード変換**
+   - 語彙辞書でIDを文字列に変換
 
-2. **top-k 取得**
-   - 上位k個のクラスとスコアを取得
-   - 例：`[("jazz", 0.85), ("blues", 0.10), ...]`
+2. **特殊トークンを除去**
+   - `<|startoftranscript|>`, `<|ja|>`, `<|endoftext|>` などを削除
+
+3. **テキストに結合**
+   - サブワードを連結して最終的な文字列を生成
 
 ---
 
 # [Optional] 音声：評価指標
 
-### Audio Classificationの評価
+### WER（Word Error Rate）
 
-- **Accuracy**
+英語などの分かち書き言語で標準的な指標。
 
-  - 単一ラベル分類で使用
-  - クラスバランスが良い場合に有効
+```
+WER = (S + D + I) / N
+  S: 置換（substitution）
+  D: 削除（deletion）
+  I: 挿入（insertion）
+  N: 正解の単語数
+```
 
-- **Precision / Recall / F1**
+### CER（Character Error Rate）
 
-  - クラス不均衡がある場合に使用
-  - マルチラベル分類でも使用
-  - 各クラスごとに評価して平均（macro/micro）
+日本語に適した指標。文字レベルで WER と同様に計算する。
+
+```
+正解: 今日は晴れです     （7文字）
+予測: 今日は晴れでした   （8文字）
+CER = 編集距離 2 / 7 ≈ 28.6%
+```
+
+参考：[WER の解説](https://huggingface.co/spaces/evaluate-metric/wer) / [jiwer ドキュメント](https://jiwer.readthedocs.io/en/latest/)
 
 ---
 
