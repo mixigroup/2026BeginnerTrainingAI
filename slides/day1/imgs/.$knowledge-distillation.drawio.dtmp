@@ -1,0 +1,221 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.1 Chrome/142.0.7444.265 Electron/39.8.0 Safari/537.36" version="29.6.1">
+  <diagram name="知識蒸留（Knowledge Distillation）" id="kd-viz">
+    <mxGraphModel dx="1437" dy="590" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="780" pageHeight="520" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t-label" parent="1" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#333333;" value="教師モデル（大）" vertex="1">
+          <mxGeometry height="26" width="150" x="20" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="t-box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;arcSize=12;" value="" vertex="1">
+          <mxGeometry height="160" width="130" x="30" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t-l1" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#B0C4DE;strokeColor=#6C8EBF;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="106" x="42" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="t-l3" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#B0C4DE;strokeColor=#6C8EBF;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="106" x="42" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="t-l4" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#B0C4DE;strokeColor=#6C8EBF;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="106" x="42" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="t-l5" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#B0C4DE;strokeColor=#6C8EBF;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="106" x="42" y="194" as="geometry" />
+        </mxCell>
+        <mxCell id="t-l6" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#B0C4DE;strokeColor=#6C8EBF;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="106" x="42" y="222" as="geometry" />
+        </mxCell>
+        <mxCell id="t-out-arrow" edge="1" parent="1" source="t-box" style="endArrow=block;endFill=1;strokeWidth=2;strokeColor=#6C8EBF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="t-dist-box" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="95" y="250" as="sourcePoint" />
+            <mxPoint x="95" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t-dist-box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFF9E6;strokeColor=#D6B656;strokeWidth=2;arcSize=10;" value="" vertex="1">
+          <mxGeometry height="110" width="170" x="10" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="t-dist-title" parent="1" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#8B7000;" value="Soft Labels（確率分布）" vertex="1">
+          <mxGeometry height="18" width="160" x="15" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-cat" parent="1" style="rounded=0;fillColor=#6C8EBF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="84" x="48" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-cat-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="猫" vertex="1">
+          <mxGeometry height="18" width="26" x="18" y="317" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-cat-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#6C8EBF;fontStyle=1;" value="0.7" vertex="1">
+          <mxGeometry height="18" width="30" x="135" y="317" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-dog" parent="1" style="rounded=0;fillColor=#93B4D8;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="24" x="48" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-dog-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="犬" vertex="1">
+          <mxGeometry height="18" width="26" x="18" y="339" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-dog-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#93B4D8;fontStyle=1;" value="0.2" vertex="1">
+          <mxGeometry height="18" width="30" x="75" y="339" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-bird" parent="1" style="rounded=0;fillColor=#C0D4E8;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="12" x="48" y="362" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-bird-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="鳥" vertex="1">
+          <mxGeometry height="18" width="26" x="18" y="361" as="geometry" />
+        </mxCell>
+        <mxCell id="t-bar-bird-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#C0D4E8;fontStyle=1;" value="0.1" vertex="1">
+          <mxGeometry height="18" width="30" x="63" y="361" as="geometry" />
+        </mxCell>
+        <mxCell id="jShiWzGvh9upNqt2MVA2-4" edge="1" parent="1" source="input-icon" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="t-label">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="jShiWzGvh9upNqt2MVA2-5" edge="1" parent="1" source="input-icon" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="s-label">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="input-icon" parent="1" style="text;html=1;align=center;fontSize=12;fontStyle=1;fontColor=#555555;" value="入力" vertex="1">
+          <mxGeometry height="24" width="70" x="275" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s-label" parent="1" style="text;html=1;align=center;fontSize=14;fontStyle=1;fontColor=#333333;" value="生徒モデル（小）" vertex="1">
+          <mxGeometry height="26" width="150" x="455" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="s-box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#D5E8D4;strokeColor=#82B366;strokeWidth=2;arcSize=12;" value="" vertex="1">
+          <mxGeometry height="100" width="110" x="473" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="s-l1" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#A9D18E;strokeColor=#82B366;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="86" x="485" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="s-l2" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#A9D18E;strokeColor=#82B366;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="86" x="485" y="138" as="geometry" />
+        </mxCell>
+        <mxCell id="s-l4" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#A9D18E;strokeColor=#82B366;strokeWidth=1;fontSize=10;" value="Layer" vertex="1">
+          <mxGeometry height="22" width="86" x="485" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="s-out-arrow" edge="1" parent="1" style="endArrow=block;endFill=1;strokeWidth=2;strokeColor=#82B366;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="s-dist-box" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="525" y="210" as="sourcePoint" />
+            <mxPoint x="525" y="270" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-dist-box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#F0FAF0;strokeColor=#82B366;strokeWidth=2;arcSize=10;" value="" vertex="1">
+          <mxGeometry height="110" width="170" x="440" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="s-dist-title" parent="1" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#4A7A3A;" value="生徒の出力分布" vertex="1">
+          <mxGeometry height="18" width="160" x="445" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-cat" parent="1" style="rounded=0;fillColor=#82B366;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="72" x="478" y="318" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-cat-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="猫" vertex="1">
+          <mxGeometry height="18" width="26" x="448" y="317" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-cat-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#82B366;fontStyle=1;" value="0.6" vertex="1">
+          <mxGeometry height="18" width="30" x="553" y="317" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-dog" parent="1" style="rounded=0;fillColor=#A9D18E;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="30" x="478" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-dog-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="犬" vertex="1">
+          <mxGeometry height="18" width="26" x="448" y="339" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-dog-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#A9D18E;fontStyle=1;" value="0.25" vertex="1">
+          <mxGeometry height="18" width="35" x="511" y="339" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-bird" parent="1" style="rounded=0;fillColor=#C5E0B4;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="16" width="18" x="478" y="362" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-bird-label" parent="1" style="text;html=1;align=right;fontSize=9;fontColor=#555555;" value="鳥" vertex="1">
+          <mxGeometry height="18" width="26" x="448" y="361" as="geometry" />
+        </mxCell>
+        <mxCell id="s-bar-bird-val" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#C5E0B4;fontStyle=1;" value="0.15" vertex="1">
+          <mxGeometry height="18" width="35" x="499" y="361" as="geometry" />
+        </mxCell>
+        <mxCell id="distill-arrow" edge="1" parent="1" style="endArrow=block;endFill=1;strokeWidth=3;strokeColor=#CC0000;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="s-dist-box" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="340" />
+            </Array>
+            <mxPoint x="190" y="340" as="sourcePoint" />
+            <mxPoint x="440" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="distill-label" parent="1" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#CC0000;" value="知識の転移" vertex="1">
+          <mxGeometry height="22" width="100" x="250" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="kl-box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#F8CECC;strokeColor=#B85450;strokeWidth=2;arcSize=12;" value="" vertex="1">
+          <mxGeometry height="80" width="230" x="197" y="398" as="geometry" />
+        </mxCell>
+        <mxCell id="kl-title" parent="1" style="text;html=1;align=center;fontSize=12;fontStyle=1;fontColor=#B85450;" value="蒸留 Loss: KL Divergence" vertex="1">
+          <mxGeometry height="20" width="210" x="207" y="403" as="geometry" />
+        </mxCell>
+        <mxCell id="kl-desc" parent="1" style="text;html=1;align=center;fontSize=10;fontColor=#994040;" value="2つの確率分布の「差」を測る" vertex="1">
+          <mxGeometry height="18" width="200" x="212" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="kl-formula" parent="1" style="text;html=1;align=center;fontSize=10;fontColor=#994040;fontStyle=2;" value="D&lt;sub&gt;KL&lt;/sub&gt;(P&lt;sub&gt;teacher&lt;/sub&gt; || P&lt;sub&gt;student&lt;/sub&gt;) → 最小化" vertex="1">
+          <mxGeometry height="18" width="210" x="207" y="446" as="geometry" />
+        </mxCell>
+        <mxCell id="t-kl" edge="1" parent="1" style="endArrow=block;endFill=1;strokeWidth=1.5;strokeColor=#B85450;dashed=1;entryX=0.001;entryY=0.525;entryDx=0;entryDy=0;entryPerimeter=0;" target="kl-box" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="95" y="440" />
+              <mxPoint x="120" y="440" />
+            </Array>
+            <mxPoint x="95" y="405" as="sourcePoint" />
+            <mxPoint x="240" y="420" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t-kl-label" parent="1" style="text;html=1;align=center;fontSize=9;fontColor=#B85450;" value="P(teacher)" vertex="1">
+          <mxGeometry height="16" width="70" x="105" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="jShiWzGvh9upNqt2MVA2-2" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="75" width="170" x="225" y="303" as="geometry" />
+        </mxCell>
+        <mxCell id="s-kl-label" parent="jShiWzGvh9upNqt2MVA2-2" style="text;html=1;align=center;fontSize=9;fontColor=#B85450;" value="P(student)" vertex="1">
+          <mxGeometry height="16" width="70" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-box" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=1;whiteSpace=wrap;fillColor=#FAFAFA;strokeColor=#CCCCCC;strokeWidth=1;arcSize=8;" value="" vertex="1">
+          <mxGeometry height="70" width="170" y="5" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-title" parent="jShiWzGvh9upNqt2MVA2-2" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#666666;" value="分布を近づける" vertex="1">
+          <mxGeometry height="14" width="160" x="5" y="8" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-t-bar1" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#6C8EBF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="56" x="20" y="27" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-t-bar2" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#6C8EBF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="16" x="20" y="37" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-t-bar3" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#6C8EBF;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="8" x="20" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-t-lbl" parent="jShiWzGvh9upNqt2MVA2-2" style="text;html=1;align=center;fontSize=8;fontColor=#6C8EBF;" value="教師" vertex="1">
+          <mxGeometry height="12" width="40" x="10" y="57" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-approx" parent="jShiWzGvh9upNqt2MVA2-2" style="text;html=1;align=center;fontSize=18;fontStyle=1;fontColor=#CC0000;" value="≈" vertex="1">
+          <mxGeometry height="28" width="24" x="80" y="29" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-s-bar1" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#82B366;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="48" x="114" y="27" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-s-bar2" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#82B366;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="20" x="114" y="37" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-s-bar3" parent="jShiWzGvh9upNqt2MVA2-2" style="rounded=0;fillColor=#82B366;strokeColor=none;" value="" vertex="1">
+          <mxGeometry height="8" width="12" x="114" y="47" as="geometry" />
+        </mxCell>
+        <mxCell id="cmp-s-lbl" parent="jShiWzGvh9upNqt2MVA2-2" style="text;html=1;align=center;fontSize=8;fontColor=#82B366;" value="生徒" vertex="1">
+          <mxGeometry height="12" width="40" x="108" y="57" as="geometry" />
+        </mxCell>
+        <mxCell id="jShiWzGvh9upNqt2MVA2-6" edge="1" parent="1" source="s-dist-box" style="endArrow=block;endFill=1;strokeWidth=1.5;strokeColor=#B85450;dashed=1;entryX=1.001;entryY=0.525;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryPerimeter=0;" target="kl-box" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="525" y="440" />
+            </Array>
+            <mxPoint x="150" y="450" as="sourcePoint" />
+            <mxPoint x="255" y="505" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="jShiWzGvh9upNqt2MVA2-7" parent="1" style="text;html=1;align=center;fontSize=9;fontColor=#B85450;" value="P(student)" vertex="1">
+          <mxGeometry height="16" width="70" x="438" y="420" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">全結合ニューラルネットワーク（FCNN）</text>
+
+  <!-- Layer labels -->
+  <text x="110" y="65" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#D79B00">Input Layer</text>
+  <text x="110" y="82" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（入力層）</text>
+
+  <text x="310" y="65" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#6C8EBF">Hidden Layer</text>
+  <text x="310" y="82" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（隠れ層）</text>
+
+  <text x="510" y="65" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#6C8EBF">Hidden Layer</text>
+  <text x="510" y="82" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（隠れ層）</text>
+
+  <text x="650" y="65" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#82B366">Output Layer</text>
+  <text x="650" y="82" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（出力層）</text>
+
+  <!-- Input Layer nodes (4 nodes) -->
+  <circle cx="110" cy="140" r="20" fill="#FFE6CC" stroke="#D79B00" stroke-width="2"/>
+  <text x="110" y="145" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">x₁</text>
+  <circle cx="110" cy="200" r="20" fill="#FFE6CC" stroke="#D79B00" stroke-width="2"/>
+  <text x="110" y="205" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">x₂</text>
+  <circle cx="110" cy="260" r="20" fill="#FFE6CC" stroke="#D79B00" stroke-width="2"/>
+  <text x="110" y="265" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">x₃</text>
+  <circle cx="110" cy="320" r="20" fill="#FFE6CC" stroke="#D79B00" stroke-width="2"/>
+  <text x="110" y="325" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">x₄</text>
+
+  <!-- Hidden Layer 1 nodes (5 nodes) -->
+  <circle cx="310" cy="120" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="310" cy="175" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="310" cy="230" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="310" cy="285" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="310" cy="340" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+
+  <!-- Hidden Layer 2 nodes (4 nodes) -->
+  <circle cx="510" cy="140" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="510" cy="205" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="510" cy="270" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+  <circle cx="510" cy="335" r="18" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+
+  <!-- Output Layer nodes (3 nodes) -->
+  <circle cx="650" cy="170" r="20" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+  <text x="650" y="175" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">ŷ₁</text>
+  <circle cx="650" cy="230" r="20" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+  <text x="650" y="235" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">ŷ₂</text>
+  <circle cx="650" cy="290" r="20" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+  <text x="650" y="295" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#333">ŷ₃</text>
+
+  <!-- Connections: Input → Hidden1 (showing a few representative) -->
+  <g stroke="#CCC" stroke-width="0.8" opacity="0.5">
+    <!-- From x1 -->
+    <line x1="130" y1="140" x2="292" y2="120"/><line x1="130" y1="140" x2="292" y2="175"/>
+    <line x1="130" y1="140" x2="292" y2="230"/><line x1="130" y1="140" x2="292" y2="285"/>
+    <line x1="130" y1="140" x2="292" y2="340"/>
+    <!-- From x2 -->
+    <line x1="130" y1="200" x2="292" y2="120"/><line x1="130" y1="200" x2="292" y2="175"/>
+    <line x1="130" y1="200" x2="292" y2="230"/><line x1="130" y1="200" x2="292" y2="285"/>
+    <line x1="130" y1="200" x2="292" y2="340"/>
+    <!-- From x3 -->
+    <line x1="130" y1="260" x2="292" y2="120"/><line x1="130" y1="260" x2="292" y2="175"/>
+    <line x1="130" y1="260" x2="292" y2="230"/><line x1="130" y1="260" x2="292" y2="285"/>
+    <line x1="130" y1="260" x2="292" y2="340"/>
+    <!-- From x4 -->
+    <line x1="130" y1="320" x2="292" y2="120"/><line x1="130" y1="320" x2="292" y2="175"/>
+    <line x1="130" y1="320" x2="292" y2="230"/><line x1="130" y1="320" x2="292" y2="285"/>
+    <line x1="130" y1="320" x2="292" y2="340"/>
+  </g>
+
+  <!-- Connections: Hidden1 → Hidden2 -->
+  <g stroke="#CCC" stroke-width="0.8" opacity="0.5">
+    <line x1="328" y1="120" x2="492" y2="140"/><line x1="328" y1="120" x2="492" y2="205"/>
+    <line x1="328" y1="120" x2="492" y2="270"/><line x1="328" y1="120" x2="492" y2="335"/>
+    <line x1="328" y1="175" x2="492" y2="140"/><line x1="328" y1="175" x2="492" y2="205"/>
+    <line x1="328" y1="175" x2="492" y2="270"/><line x1="328" y1="175" x2="492" y2="335"/>
+    <line x1="328" y1="230" x2="492" y2="140"/><line x1="328" y1="230" x2="492" y2="205"/>
+    <line x1="328" y1="230" x2="492" y2="270"/><line x1="328" y1="230" x2="492" y2="335"/>
+    <line x1="328" y1="285" x2="492" y2="140"/><line x1="328" y1="285" x2="492" y2="205"/>
+    <line x1="328" y1="285" x2="492" y2="270"/><line x1="328" y1="285" x2="492" y2="335"/>
+    <line x1="328" y1="340" x2="492" y2="140"/><line x1="328" y1="340" x2="492" y2="205"/>
+    <line x1="328" y1="340" x2="492" y2="270"/><line x1="328" y1="340" x2="492" y2="335"/>
+  </g>
+
+  <!-- Connections: Hidden2 → Output -->
+  <g stroke="#CCC" stroke-width="0.8" opacity="0.5">
+    <line x1="528" y1="140" x2="630" y2="170"/><line x1="528" y1="140" x2="630" y2="230"/>
+    <line x1="528" y1="140" x2="630" y2="290"/>
+    <line x1="528" y1="205" x2="630" y2="170"/><line x1="528" y1="205" x2="630" y2="230"/>
+    <line x1="528" y1="205" x2="630" y2="290"/>
+    <line x1="528" y1="270" x2="630" y2="170"/><line x1="528" y1="270" x2="630" y2="230"/>
+    <line x1="528" y1="270" x2="630" y2="290"/>
+    <line x1="528" y1="335" x2="630" y2="170"/><line x1="528" y1="335" x2="630" y2="230"/>
+    <line x1="528" y1="335" x2="630" y2="290"/>
+  </g>
+
+  <!-- Annotations -->
+  <text x="210" y="395" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">各線 = Weight（重み）</text>
+  <text x="410" y="395" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">各ノード = Bias + 活性化関数</text>
+  <text x="600" y="395" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">出力 = softmax で確率化</text>
+</svg>

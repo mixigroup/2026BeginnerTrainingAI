@@ -1,0 +1,189 @@
+<mxfile>
+  <diagram name="Confusion Matrix and Precision Recall" id="cm-pr">
+    <mxGraphModel adaptiveColors="auto">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="混同行列（Confusion Matrix）と Precision / Recall" style="text;html=0;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="0" y="10" width="820" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Confusion Matrix Section -->
+        <mxCell id="cm_title" value="混同行列" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="340" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- Column headers -->
+        <mxCell id="col_pos" value="予測: 陽性" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="140" y="80" width="120" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="col_neg" value="予測: 陰性" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="260" y="80" width="120" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Row headers -->
+        <mxCell id="row_pos" value="正解: 陽性" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="100" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="row_neg" value="正解: 陰性" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="100" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- TP -->
+        <mxCell id="tp_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="140" y="110" width="120" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="tp_label" value="TP" style="text;html=0;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="140" y="112" width="120" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="tp_name" value="True Positive" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="140" y="140" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="tp_desc" value="正しく検出" style="text;html=0;fontSize=10;align=center;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="140" y="160" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- FN -->
+        <mxCell id="fn_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="260" y="110" width="120" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="fn_label" value="FN" style="text;html=0;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="260" y="112" width="120" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="fn_name" value="False Negative" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="260" y="140" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="fn_desc" value="見逃し" style="text;html=0;fontSize=10;align=center;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="260" y="160" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- FP -->
+        <mxCell id="fp_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="140" y="190" width="120" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="fp_label" value="FP" style="text;html=0;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="140" y="192" width="120" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="fp_name" value="False Positive" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="140" y="220" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="fp_desc" value="誤検知" style="text;html=0;fontSize=10;align=center;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="140" y="240" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- TN -->
+        <mxCell id="tn_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="260" y="190" width="120" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="tn_label" value="TN" style="text;html=0;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="260" y="192" width="120" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="tn_name" value="True Negative" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="260" y="220" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="tn_desc" value="正しく棄却" style="text;html=0;fontSize=10;align=center;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="260" y="240" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Precision / Recall Section -->
+        <mxCell id="pr_title" value="Precision と Recall" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="450" y="50" width="340" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- Precision box -->
+        <mxCell id="prec_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;opacity=30;" vertex="1" parent="1">
+          <mxGeometry x="450" y="80" width="340" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="prec_title" value="Precision（適合率）" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#7B3FA0;" vertex="1" parent="1">
+          <mxGeometry x="450" y="84" width="340" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="prec_formula" value="Precision = TP / (TP + FP)" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="450" y="112" width="340" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="prec_desc1" value="「陽性と予測した」もののうち、本当に陽性だった割合" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="450" y="138" width="340" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="prec_desc2" value="高い → 誤検知（FP）が少ない" style="text;html=0;fontSize=11;fontStyle=1;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="450" y="156" width="340" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- Recall box -->
+        <mxCell id="rec_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;" vertex="1" parent="1">
+          <mxGeometry x="450" y="190" width="340" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="rec_title" value="Recall（再現率）" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#2E6CA4;" vertex="1" parent="1">
+          <mxGeometry x="450" y="194" width="340" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="rec_formula" value="Recall = TP / (TP + FN)" style="text;html=0;fontSize=14;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="450" y="222" width="340" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="rec_desc1" value="「実際に陽性のもの」のうち、モデルが検出できた割合" style="text;html=0;fontSize=11;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="450" y="248" width="340" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="rec_desc2" value="高い → 見逃し（FN）が少ない" style="text;html=0;fontSize=11;fontStyle=1;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="450" y="266" width="340" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- F1 box -->
+        <mxCell id="f1_bg" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="750" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_formula" value="F1 = 2 × Precision × Recall / (Precision + Recall)" style="text;html=0;fontSize=13;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="304" width="750" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="f1_desc" value="Precision と Recall の調和平均。どちらかだけ高くても F1 は上がらない" style="text;html=0;fontSize=11;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="326" width="750" height="18" as="geometry"/>
+        </mxCell>
+
+        <!-- Use case examples title -->
+        <mxCell id="use_title" value="タスクによって重視する指標が変わる" style="text;html=0;fontSize=13;fontStyle=1;align=center;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="0" y="370" width="820" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- Spam -->
+        <mxCell id="spam_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="60" y="400" width="200" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="spam_title" value="スパム判定" style="text;html=0;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="60" y="404" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="spam_metric" value="Precision 重視" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#7B3FA0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="424" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="spam_reason" value="正常メールを誤ってスパムにしたくない" style="text;html=0;fontSize=10;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="60" y="448" width="200" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- Medical -->
+        <mxCell id="med_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="310" y="400" width="200" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="med_title" value="医療診断" style="text;html=0;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="310" y="404" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="med_metric" value="Recall 重視" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#2E6CA4;" vertex="1" parent="1">
+          <mxGeometry x="310" y="424" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="med_reason" value="病気の見逃しを絶対に防ぎたい" style="text;html=0;fontSize=10;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="310" y="448" width="200" height="28" as="geometry"/>
+        </mxCell>
+
+        <!-- Sentiment -->
+        <mxCell id="sent_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="560" y="400" width="200" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="sent_title" value="感情分析" style="text;html=0;fontSize=13;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="560" y="404" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="sent_metric" value="F1（バランス型）" style="text;html=0;fontSize=12;fontStyle=1;align=center;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="560" y="424" width="200" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="sent_reason" value="どちらの誤りも同程度に重要" style="text;html=0;fontSize=10;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="560" y="448" width="200" height="28" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

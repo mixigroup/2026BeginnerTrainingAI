@@ -17,7 +17,7 @@ def _(mo):
         r"""
         # Iris分類ハンズオン：テーブルデータのML推論
 
-        このノートブックでは、**アヤメ（Iris）データセット**を使って、テーブルデータの機械学習を体験します。
+        このノートブックでは、**アヤメ（Iris）データセット**を使って、テーブルデータの機械学習の**推論**を体験します。
 
         ## 推論の3つの共通フェーズ
 
@@ -31,8 +31,10 @@ def _(mo):
 
         ## 今回扱うモデル
 
-        - **Neural Network（全結合NN）**：メインのハンズオン
-        - **LightGBM（勾配ブースティング）**：追加タスク
+        - **Neural Network（全結合NN）**：PyTorch で実装
+        - **LightGBM（勾配ブースティング）**：テーブルデータで広く使われる手法
+
+        どちらも事前に学習済みのモデルをロードして、推論のみ行います。
         """
     )
     return
@@ -41,7 +43,6 @@ def _(mo):
 @app.cell
 def _():
     import sys
-    import io
 
     sys.path.insert(0, ".")
 
@@ -49,54 +50,39 @@ def _():
     import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
-    from keras import utils
+    import torch
     import lightgbm as lgb
-    from sklearn.metrics import accuracy_score, classification_report
 
     from src.dataset import (
         load_iris_data,
-        shuffle_data,
-        split_features_and_labels,
+        load_scaler_params,
         normalize_features,
-        split_dataset,
+        prepare_test_data,
     )
-    from src.model_nn import build_model, train_model
-    from src.evaluate import (
-        plot_learning_curves,
-        evaluate_nn,
-        get_nn_predictions,
-        plot_confusion_matrix,
-        print_classification_report,
-    )
+    from src.model import FCNet
+    from src.evaluate import plot_confusion_matrix, format_classification_report
 
     return (
-        io,
+        sys,
         np,
         pd,
         plt,
         sns,
-        utils,
+        torch,
         lgb,
-        accuracy_score,
-        classification_report,
         load_iris_data,
-        shuffle_data,
-        split_features_and_labels,
+        load_scaler_params,
         normalize_features,
-        split_dataset,
-        build_model,
-        train_model,
-        plot_learning_curves,
-        evaluate_nn,
-        get_nn_predictions,
+        prepare_test_data,
+        FCNet,
         plot_confusion_matrix,
-        print_classification_report,
+        format_classification_report,
     )
 
 
 @app.cell
 def _(mo):
-    mo.md("## データセットの準備")
+    mo.md("## データセットの確認")
     return
 
 
@@ -143,8 +129,8 @@ def _(mo):
 
 
 @app.cell
-def _(data, plt, sns):
-    pair_fig = sns.pairplot(data, hue="target", palette="tab10")
+def _(data, sns):
+    pair_fig = sns.pairplot(data, hue="species", palette="tab10")
     pair_fig.figure
     return (pair_fig,)
 
@@ -157,89 +143,55 @@ def _(mo):
 
         ## Phase 1: Preprocess（前処理）
 
-        テーブルデータをモデル入力形式に変換します。
+        テーブルデータをモデルが受け取れる形式に変換します。
 
         ### 前処理の手順
 
-        1. **シャッフル** - データの順序による偏りを除去
-        2. **特徴量 / ラベルの分割** - X（特徴量）と y（ラベル）に分ける
-        3. **正規化** - 各特徴量を [0, 1] スケールに揃える
-        4. **train / valid / test 分割** - モデルの評価を公平に行うため
-        5. **one-hot encoding** - ラベルをベクトルに変換（NNの出力に合わせる）
+        1. **テストデータの取得** - 学習時と同じ分割を再現
+        2. **標準化（StandardScaler）** - 学習時に計算した平均・標準偏差を使って正規化
+        3. **tensor 変換** - NumPy 配列を PyTorch tensor に変換（NN用）
+
+        ### なぜ学習時と同じスケーラーを使うのか？
+
+        学習時に「平均=5.0, 標準偏差=1.0」で正規化して学習したモデルに対して、
+        推論時に異なるスケーラーで正規化すると、モデルが見たことのない分布のデータが入力され、
+        正しい予測ができなくなります。
         """
     )
     return
 
 
 @app.cell
-def _(
-    data,
-    iris,
-    mo,
-    np,
-    normalize_features,
-    shuffle_data,
-    split_dataset,
-    split_features_and_labels,
-    utils,
-):
-    # 1. Shuffle
-    data_shuffled = shuffle_data(data, seed=42)
+def _(load_scaler_params, mo, np, prepare_test_data):
+    # テストデータの取得（学習時と同じ分割）
+    X_test, y_test, TARGET_NAMES = prepare_test_data()
 
-    # 2. Split features and labels
-    X, y = split_features_and_labels(data_shuffled)
-
-    # 3. Normalize
-    X_norm = normalize_features(X)
-
-    # 4. Train / valid / test split (80% / 10% / 10%)
-    X_train, X_valid, X_test, y_train_raw, y_valid_raw, y_test_raw = split_dataset(
-        X_norm, y, train_ratio=0.8, valid_ratio=0.1
-    )
-
-    # Integer labels (for LightGBM and evaluation)
-    y_train_label = y_train_raw.flatten()
-    y_valid_label = y_valid_raw.flatten()
-    y_test_label = y_test_raw.flatten()
-
-    # 5. One-hot encoding for Neural Network
-    y_train_onehot = utils.to_categorical(y_train_label, num_classes=3)
-    y_valid_onehot = utils.to_categorical(y_valid_label, num_classes=3)
-    y_test_onehot = utils.to_categorical(y_test_label, num_classes=3)
-
-    TARGET_NAMES = list(iris.target_names)
+    # スケーラーパラメータの確認
+    scaler_params = load_scaler_params()
 
     mo.md(
         f"""
-        ### 分割結果
+        ### 前処理結果
 
-        | セット | サンプル数 |
-        |---|---|
-        | Train | **{len(X_train)}** |
-        | Valid | **{len(X_valid)}** |
-        | Test  | **{len(X_test)}**  |
+        - テストデータ: **{len(X_test)}** 件
+        - クラス名: {TARGET_NAMES}
 
-        one-hot encoding の例（先頭3件）:
+        #### 保存済みスケーラーパラメータ
 
+        | 特徴量 | 平均（mean） | 標準偏差（scale） |
+        |---|---|---|
+        | {scaler_params["feature_names"][0]} | {scaler_params["mean"][0]:.4f} | {scaler_params["scale"][0]:.4f} |
+        | {scaler_params["feature_names"][1]} | {scaler_params["mean"][1]:.4f} | {scaler_params["scale"][1]:.4f} |
+        | {scaler_params["feature_names"][2]} | {scaler_params["mean"][2]:.4f} | {scaler_params["scale"][2]:.4f} |
+        | {scaler_params["feature_names"][3]} | {scaler_params["mean"][3]:.4f} | {scaler_params["scale"][3]:.4f} |
+
+        正規化後の先頭3件:
         ```
-        y_train_label: {y_train_label[:3]}
-        y_train_onehot:
-        {np.array2string(y_train_onehot[:3])}
+        {np.array2string(X_test[:3], precision=4)}
         ```
         """
     )
-    return (
-        X_train,
-        X_valid,
-        X_test,
-        y_train_label,
-        y_valid_label,
-        y_test_label,
-        y_train_onehot,
-        y_valid_onehot,
-        y_test_onehot,
-        TARGET_NAMES,
-    )
+    return X_test, y_test, TARGET_NAMES, scaler_params
 
 
 @app.cell
@@ -248,93 +200,90 @@ def _(mo):
         r"""
         ---
 
-        ## Phase 2: Forward（Neural Networkモデルの学習）
+        ## Phase 2: Forward（Neural Network の推論）
 
-        ### モデル構造
+        ### モデルのロード
+
+        事前に学習済みの PyTorch モデル（`models/iris_nn.pt`）をロードします。
 
         ```
-        Input(4) → Dense(1000, ReLU) → Dense(500, ReLU) → Dense(300, ReLU)
-                → Dropout(0.2) → Dense(3, Softmax)
+        Input(4) → Linear(64) → ReLU → Linear(32) → ReLU → Linear(3)
         ```
 
-        - **Dense**: 全結合層。すべての入力ノードがすべての出力ノードに接続される
-        - **ReLU**: 活性化関数。負の値を 0 にする非線形変換
-        - **Dropout**: ランダムにニューロンを無効化して過学習を防ぐ正則化手法
-        - **Softmax**: 出力を確率分布（合計 = 1）に変換
-
-        ### ハイパーパラメータの設定
-
-        以下の値を変えて、学習結果の変化を確認してみましょう。
+        - **Linear（全結合層）**: すべての入力ノードがすべての出力ノードに接続
+        - **ReLU**: 負の値を 0 にする非線形活性化関数
+        - **出力**: 3 クラスの raw logits（Softmax 前の値）
         """
     )
     return
 
 
 @app.cell
-def _():
-    # --- Hyperparameters: Edit these to experiment! ---
-    HIDDEN_UNITS = [1000, 500, 300]  # Hidden layer sizes
-    DROPOUT_RATE = 0.2  # Dropout probability (0.0 - 1.0)
-    LEARNING_RATE = 0.001  # Adam optimizer learning rate
-    EPOCHS = 100  # Number of training epochs
-    BATCH_SIZE = 100  # Mini-batch size
-    return BATCH_SIZE, DROPOUT_RATE, EPOCHS, HIDDEN_UNITS, LEARNING_RATE
+def _(FCNet, torch):
+    # 保存済みモデルをロード
+    checkpoint = torch.load("models/iris_nn.pt", weights_only=True)
+    config = checkpoint["model_config"]
+
+    nn_model = FCNet(
+        input_dim=config["input_dim"],
+        hidden_dims=config["hidden_dims"],
+        num_classes=config["num_classes"],
+    )
+    nn_model.load_state_dict(checkpoint["state_dict"])
+    nn_model.eval()  # 推論モードに切り替え
+
+    print(f"モデル構造:\n{nn_model}")
+    print(f"\nパラメータ数: {sum(p.numel() for p in nn_model.parameters()):,}")
+    return checkpoint, config, nn_model
 
 
 @app.cell
-def _(
-    BATCH_SIZE,
-    DROPOUT_RATE,
-    EPOCHS,
-    HIDDEN_UNITS,
-    LEARNING_RATE,
-    X_train,
-    X_valid,
-    build_model,
-    io,
-    mo,
-    train_model,
-    y_train_onehot,
-    y_valid_onehot,
-):
-    # Build model
-    nn_model = build_model(
-        input_dim=4,
-        hidden_units=HIDDEN_UNITS,
-        dropout_rate=DROPOUT_RATE,
-        learning_rate=LEARNING_RATE,
-    )
+def _(mo):
+    mo.md(
+        r"""
+        ### 推論の実行
 
-    # Display model summary
-    summary_buf = io.StringIO()
-    nn_model.summary(print_fn=lambda x: summary_buf.write(x + "\n"))
-    summary_text = summary_buf.getvalue()
-    mo.md(f"```\n{summary_text}\n```")
-    return nn_model, summary_buf, summary_text
+        テストデータを tensor に変換してモデルに入力し、出力（logits）を得ます。
+
+        ```python
+        # NumPy → PyTorch tensor に変換
+        X_tensor = torch.from_numpy(X_test)
+
+        # 推論（勾配計算は不要なので no_grad で囲む）
+        with torch.no_grad():
+            logits = model(X_tensor)
+        ```
+        """
+    )
+    return
 
 
 @app.cell
-def _(
-    BATCH_SIZE,
-    EPOCHS,
-    X_train,
-    X_valid,
-    nn_model,
-    train_model,
-    y_train_onehot,
-    y_valid_onehot,
-):
-    # Train model (training progress is shown below)
-    nn_history = train_model(
-        nn_model,
-        X_train,
-        y_train_onehot,
-        X_valid,
-        y_valid_onehot,
-        batch_size=BATCH_SIZE,
-        epochs=EPOCHS,
+def _(X_test, mo, nn_model, np, torch):
+    # NumPy 配列を PyTorch tensor に変換
+    X_tensor = torch.from_numpy(X_test)
+
+    # 推論実行
+    with torch.no_grad():
+        nn_logits = nn_model(X_tensor)
+
+    # logits の中身を確認（先頭3件）
+    mo.md(
+        f"""
+        ### 推論結果（logits）
+
+        logits は各クラスに対するモデルの「確信度」を表す値です。
+        まだ確率には変換されていない raw な値です。
+
+        先頭3件の logits:
+        ```
+        {np.array2string(nn_logits.numpy()[:3], precision=4)}
+        ```
+
+        各行で最も大きい値のインデックスが予測クラスになります。
+        """
     )
-    return (nn_history,)
+    return X_tensor, nn_logits
 
 
 @app.cell
@@ -343,9 +292,15 @@ def _(mo):
         r"""
         ---
 
-        ## Phase 3: Postprocess（評価）
+        ## Phase 3: Postprocess（後処理・評価）
 
-        学習結果を確認します。
+        ### logits → 予測クラス
+
+        `argmax` で各サンプルの最大 logit のインデックスを取得 → クラスラベルに変換します。
+
+        ```python
+        y_pred = logits.argmax(dim=1).numpy()
+        ```
 
         ### 評価指標
 
@@ -358,32 +313,21 @@ def _(mo):
 
 
 @app.cell
-def _(nn_history, plot_learning_curves):
-    # Learning curves: check for overfitting
-    learning_curve_fig = plot_learning_curves(nn_history)
-    learning_curve_fig
-    return (learning_curve_fig,)
+def _(TARGET_NAMES, mo, nn_logits, format_classification_report, y_test):
+    # logits → 予測ラベル
+    y_pred_nn = nn_logits.argmax(dim=1).numpy()
+
+    # 評価レポート
+    nn_report = format_classification_report(y_test, y_pred_nn, TARGET_NAMES)
+    mo.md(f"### Neural Network 評価結果\n\n```\n{nn_report}\n```")
+    return y_pred_nn, nn_report
 
 
 @app.cell
-def _(
-    TARGET_NAMES,
-    X_test,
-    get_nn_predictions,
-    mo,
-    nn_model,
-    print_classification_report,
-    y_test_onehot,
-):
-    y_true_nn, y_pred_nn = get_nn_predictions(nn_model, X_test, y_test_onehot)
-    nn_report = print_classification_report(y_true_nn, y_pred_nn, TARGET_NAMES)
-    mo.md(f"### 評価結果\n\n```\n{nn_report}\n```")
-    return nn_report, y_pred_nn, y_true_nn
-
-
-@app.cell
-def _(TARGET_NAMES, plot_confusion_matrix, y_pred_nn, y_true_nn):
-    nn_cm_fig = plot_confusion_matrix(y_true_nn, y_pred_nn, TARGET_NAMES)
+def _(TARGET_NAMES, plot_confusion_matrix, y_pred_nn, y_test):
+    nn_cm_fig = plot_confusion_matrix(
+        y_test, y_pred_nn, TARGET_NAMES, title="Neural Network - Confusion Matrix"
+    )
     nn_cm_fig
     return (nn_cm_fig,)
 
@@ -392,26 +336,38 @@ def _(TARGET_NAMES, plot_confusion_matrix, y_pred_nn, y_true_nn):
 def _(mo):
     mo.md(
         r"""
-        ---
+        ### Softmax で確率に変換
 
-        ## EX: 過学習させてみよう
-
-        Neural Network は層やユニット数を大きくすると過学習しやすくなります。
-
-        ### 試してみよう
-
-        上の「ハイパーパラメータの設定」セルで以下を変更してみましょう：
+        logits に Softmax を適用すると、各クラスの確率（合計 = 1.0）に変換できます。
 
         ```python
-        HIDDEN_UNITS = [5000, 2000, 1000]  # 層を大きくする
-        EPOCHS = 200                         # エポックを増やす
-        DROPOUT_RATE = 0.0                   # Dropout をなくす
+        probabilities = torch.softmax(logits, dim=1)
         ```
 
-        学習曲線で **train loss が下がり続けるが valid loss が上がっていく** 現象（過学習）を確認してください。
+        モデルがどの程度「確信」を持って予測しているかを確認できます。
         """
     )
     return
+
+
+@app.cell
+def _(TARGET_NAMES, mo, nn_logits, np, pd, torch):
+    # Softmax で確率に変換
+    nn_proba = torch.softmax(nn_logits, dim=1).numpy()
+
+    # 先頭5件を確率テーブルで表示
+    proba_df = pd.DataFrame(nn_proba[:5], columns=TARGET_NAMES)
+    proba_df["predicted"] = [TARGET_NAMES[i] for i in nn_proba[:5].argmax(axis=1)]
+    proba_df["confidence"] = nn_proba[:5].max(axis=1)
+
+    mo.md(
+        f"""
+        先頭5件の予測確率:
+
+        {proba_df.to_markdown(index=False, floatfmt=".4f")}
+        """
+    )
+    return nn_proba, proba_df
 
 
 @app.cell
@@ -422,7 +378,7 @@ def _(mo):
 
         ## 追加タスク: LightGBM（勾配ブースティング）
 
-        Neural Network の代わりに、テーブルデータでよく使われる **LightGBM** を使って学習してみます。
+        同じ Iris データで学習済みの **LightGBM** モデルを使って推論してみます。
 
         ### LightGBM の特徴
 
@@ -431,91 +387,61 @@ def _(mo):
         - 学習が高速
         - 特徴量の重要度が確認しやすい
 
-        ### 注意
+        ### NN との違い
 
-        LightGBM はカテゴリを内部で処理するため、**one-hot ではなく整数ラベル** を使います。
-        前処理で保持した `y_train_label` / `y_valid_label` / `y_test_label` をそのまま使えます。
+        | 比較項目 | Neural Network | LightGBM |
+        |---|---|---|
+        | 入力 | PyTorch tensor | NumPy 配列そのまま |
+        | 出力 | logits（要 softmax） | 確率（softmax 済み） |
+        | モデル形式 | `.pt`（state_dict） | `.txt`（テキスト） |
         """
     )
     return
 
 
 @app.cell
-def _(X_train, X_valid, lgb, mo, y_train_label, y_valid_label):
-    lgb_train_data = lgb.Dataset(X_train, label=y_train_label)
-    lgb_valid_data = lgb.Dataset(X_valid, label=y_valid_label, reference=lgb_train_data)
-
-    lgbm_params = {
-        "objective": "multiclass",
-        "num_class": 3,
-        "metric": "multi_logloss",
-        "verbosity": -1,
-    }
-
-    lgbm_evals = {}
-
-    lgbm_model = lgb.train(
-        lgbm_params,
-        lgb_train_data,
-        valid_sets=[lgb_train_data, lgb_valid_data],
-        num_boost_round=100,
-        callbacks=[
-            lgb.early_stopping(stopping_rounds=10, verbose=True),
-            lgb.log_evaluation(10),
-            lgb.record_evaluation(lgbm_evals),
-        ],
-    )
-
-    mo.md("LightGBM の学習が完了しました。")
-    return lgb_train_data, lgb_valid_data, lgbm_evals, lgbm_model, lgbm_params
+def _(lgb):
+    # LightGBM モデルのロード
+    lgbm_model = lgb.Booster(model_file="models/iris_lgbm.txt")
+    print("LightGBM モデルをロードしました")
+    print(f"  ブースティング回数: {lgbm_model.num_trees()}")
+    print(f"  特徴量数: {lgbm_model.num_feature()}")
+    return (lgbm_model,)
 
 
 @app.cell
-def _(lgb, lgbm_evals, plt):
-    lgb.plot_metric(lgbm_evals)
-    lgbm_curve_fig = plt.gcf()
-    lgbm_curve_fig
-    return (lgbm_curve_fig,)
-
-
-@app.cell
-def _(
-    TARGET_NAMES,
-    X_test,
-    accuracy_score,
-    classification_report,
-    lgbm_model,
-    mo,
-    np,
-    y_test_label,
-):
-    lgbm_pred_proba = lgbm_model.predict(
-        X_test, num_iteration=lgbm_model.best_iteration
-    )
-    y_pred_lgbm = np.argmax(lgbm_pred_proba, axis=1)
-
-    lgbm_acc = accuracy_score(y_test_label, y_pred_lgbm)
-    lgbm_report = classification_report(
-        y_test_label, y_pred_lgbm, target_names=TARGET_NAMES
-    )
+def _(X_test, lgbm_model, mo, np):
+    # LightGBM の推論（NumPy 配列をそのまま入力）
+    lgbm_proba = lgbm_model.predict(X_test)
+    y_pred_lgbm = np.argmax(lgbm_proba, axis=1)
 
     mo.md(
         f"""
-        ### LightGBM 評価結果
+        ### LightGBM の推論結果
 
+        LightGBM は直接確率を出力します（softmax 不要）。
+
+        先頭3件の予測確率:
         ```
-        Accuracy: {lgbm_acc * 100:.2f}%
-
-        {lgbm_report}
+        {np.array2string(lgbm_proba[:3], precision=4)}
         ```
         """
     )
-    return lgbm_acc, lgbm_pred_proba, lgbm_report, y_pred_lgbm
+    return lgbm_proba, y_pred_lgbm
 
 
 @app.cell
-def _(TARGET_NAMES, plot_confusion_matrix, y_pred_lgbm, y_test_label):
-    lgbm_cm_fig = plot_confusion_matrix(y_test_label, y_pred_lgbm, TARGET_NAMES)
+def _(TARGET_NAMES, mo, format_classification_report, y_pred_lgbm, y_test):
+    lgbm_report = format_classification_report(y_test, y_pred_lgbm, TARGET_NAMES)
+    mo.md(f"### LightGBM 評価結果\n\n```\n{lgbm_report}\n```")
+    return (lgbm_report,)
+
+
+@app.cell
+def _(TARGET_NAMES, plot_confusion_matrix, y_pred_lgbm, y_test):
+    lgbm_cm_fig = plot_confusion_matrix(
+        y_test, y_pred_lgbm, TARGET_NAMES, title="LightGBM - Confusion Matrix"
+    )
     lgbm_cm_fig
     return (lgbm_cm_fig,)
 
@@ -530,8 +456,34 @@ def _(lgb, lgbm_model, plt):
 
 @app.cell
 def _(lgb, lgbm_model):
-    # Display the first decision tree learned by LightGBM
+    # LightGBM が学習した決定木の可視化
     lgb.create_tree_digraph(lgbm_model)
+    return
+
+
+@app.cell
+def _(mo, nn_report, lgbm_report):
+    mo.md(
+        """
+        ---
+
+        ## まとめ
+
+        ### 推論の3フェーズ
+
+        | フェーズ | NN（PyTorch） | LightGBM |
+        |---|---|---|
+        | **Preprocess** | NumPy → StandardScaler → tensor | NumPy → StandardScaler |
+        | **Forward** | `model(tensor)` → logits | `model.predict(array)` → 確率 |
+        | **Postprocess** | `argmax(logits)` → クラスラベル | `argmax(確率)` → クラスラベル |
+
+        ### 試してみよう
+
+        1. `logits` と `softmax(logits)` の値を比較してみよう
+        2. テストデータの中で「間違えたサンプル」を特定し、その確率分布を確認してみよう
+        3. NN と LightGBM で予測が異なるサンプルはあるか？
+        """
+    )
     return
 
 

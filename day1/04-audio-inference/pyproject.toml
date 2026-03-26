@@ -1,9 +1,15 @@
 [project]
 name = "04-audio-inference"
 version = "0.1.0"
-description = "Add your description here"
+description = "音声認識（ASR）ハンズオン - Whisper を使った音声→テキスト変換の学習用ノートブック"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "marimo>=0.20.1",
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "datasets>=2.0.0",
+    "jiwer>=3.0.0",
+    "matplotlib>=3.0.0",
 ]

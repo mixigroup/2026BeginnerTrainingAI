@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380">
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">Underfitting / Appropriate / Overfitting</text>
+
+  <!-- === Panel 1: Underfitting === -->
+  <rect x="20" y="55" width="240" height="240" rx="8" fill="#FFE6CC" fill-opacity="0.3" stroke="#D79B00" stroke-width="1.5"/>
+  <text x="140" y="80" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#D79B00">Underfitting（未学習）</text>
+
+  <!-- Axes -->
+  <line x1="50" y1="270" x2="230" y2="270" stroke="#999" stroke-width="1"/>
+  <line x1="50" y1="270" x2="50" y2="100" stroke="#999" stroke-width="1"/>
+
+  <!-- Data points (sinusoidal pattern) -->
+  <circle cx="70" cy="230" r="5" fill="#6C8EBF"/>
+  <circle cx="100" cy="170" r="5" fill="#6C8EBF"/>
+  <circle cx="120" cy="140" r="5" fill="#6C8EBF"/>
+  <circle cx="150" cy="160" r="5" fill="#6C8EBF"/>
+  <circle cx="170" cy="200" r="5" fill="#6C8EBF"/>
+  <circle cx="200" cy="240" r="5" fill="#6C8EBF"/>
+  <circle cx="220" cy="220" r="5" fill="#6C8EBF"/>
+
+  <!-- Simple line (underfitting) -->
+  <line x1="60" y1="220" x2="225" y2="185" stroke="#D79B00" stroke-width="2.5"/>
+
+  <text x="140" y="288" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">単純すぎるモデル</text>
+  <text x="140" y="304" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#D79B00">Train ✗ / Valid ✗</text>
+
+  <!-- === Panel 2: Appropriate === -->
+  <rect x="280" y="55" width="240" height="240" rx="8" fill="#D5E8D4" fill-opacity="0.3" stroke="#82B366" stroke-width="1.5"/>
+  <text x="400" y="80" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#82B366">Appropriate（適切）</text>
+
+  <!-- Axes -->
+  <line x1="310" y1="270" x2="490" y2="270" stroke="#999" stroke-width="1"/>
+  <line x1="310" y1="270" x2="310" y2="100" stroke="#999" stroke-width="1"/>
+
+  <!-- Data points -->
+  <circle cx="330" cy="230" r="5" fill="#6C8EBF"/>
+  <circle cx="360" cy="170" r="5" fill="#6C8EBF"/>
+  <circle cx="380" cy="140" r="5" fill="#6C8EBF"/>
+  <circle cx="410" cy="160" r="5" fill="#6C8EBF"/>
+  <circle cx="430" cy="200" r="5" fill="#6C8EBF"/>
+  <circle cx="460" cy="240" r="5" fill="#6C8EBF"/>
+  <circle cx="480" cy="220" r="5" fill="#6C8EBF"/>
+
+  <!-- Smooth curve (appropriate) -->
+  <path d="M320,240 C340,200 355,150 380,140 C405,130 425,170 445,210 C465,245 475,235 485,225" fill="none" stroke="#82B366" stroke-width="2.5"/>
+
+  <text x="400" y="288" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">適度な複雑さのモデル</text>
+  <text x="400" y="304" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#82B366">Train ✓ / Valid ✓</text>
+
+  <!-- === Panel 3: Overfitting === -->
+  <rect x="540" y="55" width="240" height="240" rx="8" fill="#DAE8FC" fill-opacity="0.3" stroke="#6C8EBF" stroke-width="1.5"/>
+  <text x="660" y="80" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#6C8EBF">Overfitting（過学習）</text>
+
+  <!-- Axes -->
+  <line x1="570" y1="270" x2="750" y2="270" stroke="#999" stroke-width="1"/>
+  <line x1="570" y1="270" x2="570" y2="100" stroke="#999" stroke-width="1"/>
+
+  <!-- Data points -->
+  <circle cx="590" cy="230" r="5" fill="#6C8EBF"/>
+  <circle cx="620" cy="170" r="5" fill="#6C8EBF"/>
+  <circle cx="640" cy="140" r="5" fill="#6C8EBF"/>
+  <circle cx="670" cy="160" r="5" fill="#6C8EBF"/>
+  <circle cx="690" cy="200" r="5" fill="#6C8EBF"/>
+  <circle cx="720" cy="240" r="5" fill="#6C8EBF"/>
+  <circle cx="740" cy="220" r="5" fill="#6C8EBF"/>
+
+  <!-- Overly complex curve (overfitting) -->
+  <path d="M585,240 C590,235 595,230 600,225 C605,210 610,175 618,170 C626,165 632,148 640,140 C648,132 655,150 660,160 C665,170 672,165 680,185 C688,200 693,195 700,195 C707,195 715,240 720,240 C725,240 730,230 740,220 C745,215 748,240 750,260" fill="none" stroke="#6C8EBF" stroke-width="2.5"/>
+
+  <text x="660" y="288" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">複雑すぎるモデル</text>
+  <text x="660" y="304" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#6C8EBF">Train ✓ / Valid ✗</text>
+
+  <!-- Bottom summary -->
+  <rect x="80" y="325" width="640" height="45" rx="6" fill="#F9F9F9" stroke="#DDD" stroke-width="1"/>
+  <text x="400" y="345" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">モデルの複雑さ → 少なすぎ → ちょうど良い → 多すぎ</text>
+  <text x="400" y="363" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#888">汎化性能が最も高いのは Appropriate（バイアスとバリアンスのバランス）</text>
+</svg>

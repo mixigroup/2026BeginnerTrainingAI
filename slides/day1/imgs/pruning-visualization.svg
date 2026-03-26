@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="285" viewBox="0 0 700 285">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#CC0000"/>
+    </marker>
+  </defs>
+
+  <!-- ===== BEFORE ラベル ===== -->
+  <text x="175" y="22" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#555">Before</text>
+
+  <!-- ===== BEFORE 接続線 L1→L2 ===== -->
+  <line x1="84" y1="85"  x2="161" y2="55"  stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="85"  x2="161" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="85"  x2="161" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="85"  x2="161" y2="235" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="145" x2="161" y2="55"  stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="145" x2="161" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="145" x2="161" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="145" x2="161" y2="235" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="205" x2="161" y2="55"  stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="205" x2="161" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="205" x2="161" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="84" y1="205" x2="161" y2="235" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- BEFORE 接続線 L2→L3 -->
+  <line x1="189" y1="55"  x2="266" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="55"  x2="266" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="115" x2="266" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="115" x2="266" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="175" x2="266" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="175" x2="266" y2="175" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="235" x2="266" y2="115" stroke="#bbb" stroke-width="0.8"/>
+  <line x1="189" y1="235" x2="266" y2="175" stroke="#bbb" stroke-width="0.8"/>
+
+  <!-- BEFORE ノード L1（3個・全てアクティブ） -->
+  <circle cx="70" cy="85"  r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="70" cy="145" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="70" cy="205" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- BEFORE ノード L2（4個・全てアクティブ） -->
+  <circle cx="175" cy="55"  r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="175" cy="115" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="175" cy="175" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="175" cy="235" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- BEFORE ノード L3（2個・全てアクティブ） -->
+  <circle cx="280" cy="115" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="280" cy="175" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- ===== Pruning 矢印 ===== -->
+  <line x1="305" y1="145" x2="398" y2="145" stroke="#CC0000" stroke-width="3" marker-end="url(#arr)"/>
+  <text x="351" y="134" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="bold" fill="#CC0000">Pruning</text>
+
+  <!-- ===== AFTER ラベル ===== -->
+  <text x="525" y="22" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#555">After</text>
+
+  <!-- AFTER 接続線 L1→L2（アクティブノード：cy=115,235） -->
+  <line x1="434" y1="85"  x2="511" y2="115" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="434" y1="85"  x2="511" y2="235" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="434" y1="145" x2="511" y2="115" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="434" y1="145" x2="511" y2="235" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="434" y1="205" x2="511" y2="115" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="434" y1="205" x2="511" y2="235" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+
+  <!-- AFTER 接続線 L1→L2（刈り込みノード：cy=55,175 → 破線グレー） -->
+  <line x1="434" y1="85"  x2="511" y2="55"  stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="434" y1="85"  x2="511" y2="175" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="434" y1="145" x2="511" y2="55"  stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="434" y1="145" x2="511" y2="175" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="434" y1="205" x2="511" y2="55"  stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="434" y1="205" x2="511" y2="175" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+
+  <!-- AFTER 接続線 L2→L3（アクティブノード：cy=115,235） -->
+  <line x1="539" y1="115" x2="616" y2="115" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="539" y1="115" x2="616" y2="175" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="539" y1="235" x2="616" y2="115" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+  <line x1="539" y1="235" x2="616" y2="175" stroke="#6C8EBF" stroke-width="0.8" opacity="0.7"/>
+
+  <!-- AFTER 接続線 L2→L3（刈り込みノード：cy=55,175 → 破線グレー） -->
+  <line x1="539" y1="55"  x2="616" y2="115" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="539" y1="55"  x2="616" y2="175" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="539" y1="175" x2="616" y2="115" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+  <line x1="539" y1="175" x2="616" y2="175" stroke="#ccc" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>
+
+  <!-- AFTER ノード L1（3個・全てアクティブ） -->
+  <circle cx="420" cy="85"  r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="420" cy="145" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="420" cy="205" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- AFTER ノード L2（刈り込み済み：cy=55,175） -->
+  <circle cx="525" cy="55"  r="14" fill="#E8E8E8" stroke="#aaa" stroke-width="1.5" opacity="0.7"/>
+  <text x="525" y="61"  text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#aaa">✕</text>
+  <circle cx="525" cy="175" r="14" fill="#E8E8E8" stroke="#aaa" stroke-width="1.5" opacity="0.7"/>
+  <text x="525" y="181" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#aaa">✕</text>
+
+  <!-- AFTER ノード L2（アクティブ：cy=115,235） -->
+  <circle cx="525" cy="115" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="525" cy="235" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- AFTER ノード L3（2個・全てアクティブ） -->
+  <circle cx="630" cy="115" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <circle cx="630" cy="175" r="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+
+  <!-- ===== 層ラベル ===== -->
+  <text x="70"  y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">入力層</text>
+  <text x="175" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">隠れ層</text>
+  <text x="280" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">出力層</text>
+  <text x="420" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">入力層</text>
+  <text x="525" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">隠れ層</text>
+  <text x="630" y="255" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#888">出力層</text>
+
+  <!-- ===== 凡例 ===== -->
+  <circle cx="230" cy="272" r="7" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="1.5"/>
+  <text x="242" y="277" font-family="sans-serif" font-size="11" fill="#333">アクティブ</text>
+  <circle cx="340" cy="272" r="7" fill="#E8E8E8" stroke="#aaa" stroke-width="1.5" opacity="0.7"/>
+  <text x="352" y="277" font-family="sans-serif" font-size="11" fill="#333">刈り込み済み（接続も削除）</text>
+</svg>

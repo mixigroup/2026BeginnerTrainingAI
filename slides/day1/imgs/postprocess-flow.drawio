@@ -1,0 +1,99 @@
+<mxfile>
+  <diagram name="Postprocess後処理" id="postprocess-flow">
+    <mxGraphModel adaptiveColors="auto" dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="740" pageHeight="320">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- タイトル -->
+        <mxCell id="title" value="&lt;b style='font-size:15px;'&gt;Postprocess（後処理）: 確率からクラスラベルへ&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="140" y="10" width="420" height="30" as="geometry"/>
+        </mxCell>
+        <!-- Step 1: Logits -->
+        <mxCell id="s1box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="50" width="140" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1title" value="&lt;b style='font-size:13px;'&gt;Logits&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:10px; color:#888;'&gt;モデルの生出力&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="20" y="55" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1v1" value="Setosa&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;5.2&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="35" y="100" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1v2" value="Versicolor&amp;nbsp;&amp;nbsp;&lt;b&gt;1.8&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="35" y="140" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s1v3" value="Virginica&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;0.3&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="35" y="180" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <!-- Arrow 1 -->
+        <mxCell id="a1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="160" y="150" as="sourcePoint"/>
+            <mxPoint x="200" y="150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <!-- Step 2: Softmax -->
+        <mxCell id="s2box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="200" y="50" width="140" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2title" value="&lt;b style='font-size:13px;'&gt;① Softmax&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:10px; color:#888;'&gt;確率分布に変換&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="55" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2v1" value="Setosa&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;0.85&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="215" y="100" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2v2" value="Versicolor&amp;nbsp;&amp;nbsp;&lt;b&gt;0.12&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="215" y="140" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2v3" value="Virginica&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;0.03&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="215" y="180" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2note" value="&lt;span style='font-size:10px; color:#999;'&gt;合計 = 1.0&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="215" y="215" width="110" height="20" as="geometry"/>
+        </mxCell>
+        <!-- Arrow 2 -->
+        <mxCell id="a2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="150" as="sourcePoint"/>
+            <mxPoint x="380" y="150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <!-- Step 3: Argmax -->
+        <mxCell id="s3box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="380" y="50" width="140" height="200" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3title" value="&lt;b style='font-size:13px;'&gt;② Argmax&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:10px; color:#888;'&gt;最大確率を選択&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="380" y="55" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3v1" value="&lt;b&gt;Setosa ✓&lt;/b&gt;&amp;nbsp;&amp;nbsp;&lt;b&gt;0.85&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=12;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="395" y="100" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3v2" value="Versicolor&amp;nbsp;&amp;nbsp;0.12" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;fontSize=12;fontColor=#AAAAAA;" vertex="1" parent="1">
+          <mxGeometry x="395" y="140" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3v3" value="Virginica&amp;nbsp;&amp;nbsp;&amp;nbsp;0.03" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;fontSize=12;fontColor=#AAAAAA;" vertex="1" parent="1">
+          <mxGeometry x="395" y="180" width="110" height="32" as="geometry"/>
+        </mxCell>
+        <!-- Arrow 3 -->
+        <mxCell id="a3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#666666;strokeWidth=2;endArrow=block;endFill=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="520" y="150" as="sourcePoint"/>
+            <mxPoint x="570" y="150" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <!-- Step 4: Result -->
+        <mxCell id="s4box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;arcSize=14;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="570" y="90" width="150" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4title" value="&lt;b style='font-size:13px;'&gt;予測結果&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="570" y="95" width="150" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4label" value="&lt;span style='font-size:20px;'&gt;&lt;b&gt;Setosa&lt;/b&gt;&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="570" y="120" width="150" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4conf" value="&lt;span style='font-size:12px; color:#666;'&gt;信頼度: 85%&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="570" y="158" width="150" height="24" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

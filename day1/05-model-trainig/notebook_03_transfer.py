@@ -435,6 +435,103 @@ def _(class_names, device, model, plot_confusion_matrix, test_loader):
 
 
 @app.cell(hide_code=True)
+def _():
+    import lightning.pytorch as pl
+    from lightning.pytorch.loggers import TensorBoardLogger
+    from src.lightning_model import ClassifierModule, MetricsCallback
+
+    return pl, TensorBoardLogger, ClassifierModule, MetricsCallback
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ---
+
+        ## PyTorch Lightning 版: 転移学習
+
+        同じ 2 フェーズ学習を Lightning で実装します。
+
+        | 比較項目 | PyTorch（上記） | PyTorch Lightning（下記） |
+        |---|---|---|
+        | 学習ループ | 手動 `for epoch` | `trainer.fit()` 1行 |
+        | フェーズ切り替え | optimizer を手動再作成 | `learning_rate` を更新して新 Trainer |
+        | ログ記録 | `print()` | TensorBoard |
+
+        学習曲線は TensorBoard で確認できます（`uv run tensorboard --logdir runs`）。
+        """
+    )
+    return
+
+
+@app.cell
+def _(ResNet18TransferModel, ClassifierModule, HEAD_LR):
+    # PyTorch 版とは別の新しいインスタンスを使用
+    lit_resnet = ResNet18TransferModel(num_classes=10, pretrained=True)
+    lit_resnet.freeze_backbone()
+    lit_transfer_model = ClassifierModule(lit_resnet, learning_rate=HEAD_LR)
+    print(
+        f"Phase 1 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（ヘッドのみ）"
+    )
+    return lit_resnet, lit_transfer_model
+
+
+@app.cell
+def _(
+    pl, TensorBoardLogger, lit_transfer_model, train_loader, test_loader, HEAD_EPOCHS
+):
+    lit_trainer_head = pl.Trainer(
+        max_epochs=HEAD_EPOCHS,
+        accelerator="auto",
+        logger=TensorBoardLogger(save_dir="runs", name="cifar10_resnet_phase1"),
+        enable_progress_bar=True,
+        log_every_n_steps=5,
+    )
+    print("=== Lightning Phase 1: Head-only ===")
+    # NOTE: test_loader を val_loader として使用（CIFAR-10 に公式 val split がないため）
+    lit_trainer_head.fit(lit_transfer_model, train_loader, test_loader)
+    print("Phase 1 完了")
+    return (lit_trainer_head,)
+
+
+@app.cell
+def _(
+    pl,
+    TensorBoardLogger,
+    lit_resnet,
+    lit_transfer_model,
+    train_loader,
+    test_loader,
+    FINETUNE_EPOCHS,
+    FINETUNE_LR,
+):
+    # backbone を解凍して fine-tuning
+    lit_resnet.unfreeze_backbone()
+    lit_transfer_model.learning_rate = (
+        FINETUNE_LR  # configure_optimizers は fit() 開始時に再呼び出し
+    )
+    print(
+        f"Phase 2 学習可能パラメータ: {lit_resnet.get_num_trainable_params():,}（全パラメータ）"
+    )
+
+    lit_trainer_ft = pl.Trainer(
+        max_epochs=FINETUNE_EPOCHS,
+        accelerator="auto",
+        logger=TensorBoardLogger(save_dir="runs", name="cifar10_resnet_phase2"),
+        enable_progress_bar=True,
+        log_every_n_steps=5,
+    )
+    print("=== Lightning Phase 2: Fine-tuning ===")
+    lit_trainer_ft.fit(lit_transfer_model, train_loader, test_loader)
+
+    lit_ft_results = lit_trainer_ft.test(lit_transfer_model, test_loader, verbose=True)
+    lit_ft_test_acc = lit_ft_results[0]["test_acc"]
+    print(f"\nLightning Fine-tuning Test Accuracy: {lit_ft_test_acc * 100:.1f}%")
+    return lit_trainer_ft, lit_ft_results, lit_ft_test_acc
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -448,6 +545,12 @@ def _(mo):
         |---|---|---|---|
         | **Phase 1（ヘッドのみ）** | 凍結 | 比較的大（1e-3）| ヘッドの初期適応 |
         | **Phase 2（Fine-tuning）** | 解凍 | 小さい（1e-4） | 全体の微調整 |
+
+        ### PyTorch Lightning での転移学習
+
+        - `freeze_backbone()` / `unfreeze_backbone()` は `nn.Module` の操作なので PyTorch と同じ
+        - フェーズ切り替えは `learning_rate` 更新 + 新しい `Trainer` で実現
+        - `configure_optimizers()` は `fit()` 開始時に毎回呼ばれるため、`learning_rate` を変えれば反映される
 
         ### 試してみよう
 

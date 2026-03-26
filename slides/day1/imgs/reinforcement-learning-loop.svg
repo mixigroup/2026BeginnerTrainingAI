@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340">
+  <!-- Agent box -->
+  <rect x="40" y="100" width="200" height="120" rx="16" ry="16" fill="#DAE8FC" fill-opacity="0.8" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="140" y="140" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="bold" fill="#333">Agent</text>
+  <text x="140" y="164" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">方策 π(s) に基づき</text>
+  <text x="140" y="182" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">行動を選択</text>
+
+  <!-- Environment box -->
+  <rect x="460" y="100" width="200" height="120" rx="16" ry="16" fill="#D5E8D4" fill-opacity="0.8" stroke="#82B366" stroke-width="2"/>
+  <text x="560" y="140" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="bold" fill="#333">Environment</text>
+  <text x="560" y="164" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">状態遷移と</text>
+  <text x="560" y="182" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">報酬を返す</text>
+
+  <!-- Action arrow (Agent → Environment, top) -->
+  <defs>
+    <marker id="arrow-action" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#D79B00"/>
+    </marker>
+    <marker id="arrow-state" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#6C8EBF"/>
+    </marker>
+    <marker id="arrow-reward" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#82B366"/>
+    </marker>
+  </defs>
+
+  <!-- Action arrow -->
+  <line x1="240" y1="130" x2="455" y2="130" stroke="#D79B00" stroke-width="2.5" marker-end="url(#arrow-action)"/>
+  <text x="350" y="122" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#D79B00">Action (a)</text>
+
+  <!-- State arrow -->
+  <line x1="460" y1="170" x2="245" y2="170" stroke="#6C8EBF" stroke-width="2.5" marker-end="url(#arrow-state)"/>
+  <text x="350" y="192" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#6C8EBF">State (s)</text>
+
+  <!-- Reward arrow -->
+  <line x1="460" y1="200" x2="245" y2="200" stroke="#82B366" stroke-width="2.5" marker-end="url(#arrow-reward)"/>
+  <text x="350" y="230" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#82B366">Reward (r)</text>
+
+  <!-- Title -->
+  <text x="350" y="40" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">強化学習のループ</text>
+  <text x="350" y="65" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888">Agent が環境と相互作用しながら方策を改善する</text>
+
+  <!-- Loop indicator -->
+  <path d="M350,260 C200,300 200,80 350,60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <path d="M350,260 C500,300 500,80 350,60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="350" y="310" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#888">繰り返し学習（Episode）</text>
+</svg>

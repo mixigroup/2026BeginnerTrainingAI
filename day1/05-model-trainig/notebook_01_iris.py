@@ -352,12 +352,97 @@ def _(class_names_loader, device, model, plot_confusion_matrix, test_loader):
 
 
 @app.cell(hide_code=True)
+def _():
+    import lightning.pytorch as pl
+    from lightning.pytorch.callbacks import EarlyStopping as LitEarlyStopping
+    from lightning.pytorch.loggers import TensorBoardLogger
+    from src.lightning_model import ClassifierModule, MetricsCallback
+
+    return pl, LitEarlyStopping, TensorBoardLogger, ClassifierModule, MetricsCallback
+
+
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         ---
 
+        ## PyTorch Lightning 版
+
+        同じ Iris 分類を PyTorch Lightning で実装します。
+        手動ループとの違いを確認しましょう。
+
+        | 比較項目 | PyTorch（上記） | PyTorch Lightning（下記） |
+        |---|---|---|
+        | 学習ループ | 手動 `for epoch` | `trainer.fit()` 1行 |
+        | GPU 転送 | `.to(device)` 手動 | `accelerator="auto"` で自動 |
+        | ログ記録 | `print()` | `self.log()` → TensorBoard |
+        | Early Stopping | 手動実装 | `EarlyStopping` コールバック |
+        """
+    )
+    return
+
+
+@app.cell
+def _(FCNet, ClassifierModule, HIDDEN_DIMS, LEARNING_RATE):
+    # 同じアーキテクチャを LightningModule でラップ
+    lit_backbone = FCNet(input_dim=4, hidden_dims=HIDDEN_DIMS, num_classes=3)
+    lit_model = ClassifierModule(lit_backbone, learning_rate=LEARNING_RATE)
+    print(f"アーキテクチャ: {lit_backbone}")
+    return lit_backbone, lit_model
+
+
+@app.cell
+def _(pl, MetricsCallback, LitEarlyStopping, TensorBoardLogger, EPOCHS):
+    lit_metrics_cb = MetricsCallback()
+    lit_trainer = pl.Trainer(
+        max_epochs=EPOCHS,
+        accelerator="auto",
+        callbacks=[
+            lit_metrics_cb,
+            LitEarlyStopping(monitor="val_loss", patience=20, mode="min"),
+        ],
+        logger=TensorBoardLogger(save_dir="runs", name="iris_fcnet_nb01"),
+        enable_progress_bar=True,
+        log_every_n_steps=1,
+    )
+    return lit_metrics_cb, lit_trainer
+
+
+@app.cell
+def _(lit_trainer, lit_model, train_loader, val_loader):
+    print("Lightning で学習開始...")
+    print("学習曲線は TensorBoard で確認できます: uv run tensorboard --logdir runs")
+    lit_trainer.fit(lit_model, train_loader, val_loader)
+    print("学習完了")
+    return
+
+
+@app.cell
+def _(lit_trainer, lit_model, test_loader):
+    lit_results = lit_trainer.test(lit_model, test_loader, verbose=True)
+    lit_test_acc = lit_results[0]["test_acc"]
+    print(f"\nLightning Test Accuracy: {lit_test_acc * 100:.1f}%")
+    return (lit_test_acc,)
+
+
+@app.cell(hide_code=True)
+def _(mo, test_acc, lit_test_acc):
+    mo.md(
+        f"""
+        ---
+
         ## まとめ
+
+        ### PyTorch vs PyTorch Lightning 精度比較
+
+        | 手法 | Test Accuracy |
+        |---|---|
+        | PyTorch（手動ループ） | **{test_acc * 100:.1f}%** |
+        | PyTorch Lightning | **{lit_test_acc * 100:.1f}%** |
+
+        同じモデル・同じデータで学習しているため精度はほぼ同じです。
+        Lightning は「実装コスト」を下げるための抽象化であり、精度は変わりません。
 
         ### 試してみよう
 

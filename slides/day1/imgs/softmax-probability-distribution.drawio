@@ -1,0 +1,51 @@
+<mxfile>
+  <diagram name="Softmax確率分布" id="softmax-prob">
+    <mxGraphModel adaptiveColors="auto" dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="440" pageHeight="260">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- X軸ライン -->
+        <mxCell id="ax" value="" style="endArrow=none;strokeColor=#666666;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="40" y="210" as="sourcePoint"/>
+            <mxPoint x="410" y="210" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <!-- Setosa バー 0.85 -->
+        <mxCell id="b1" value="" style="rounded=0;whiteSpace=wrap;fillColor=#6C8EBF;strokeColor=#5A7DAD;" vertex="1" parent="1">
+          <mxGeometry x="60" y="40" width="80" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="v1" value="&lt;b&gt;0.85&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="60" y="14" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="l1" value="Setosa" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="60" y="214" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <!-- Versicolor バー 0.12 -->
+        <mxCell id="b2" value="" style="rounded=0;whiteSpace=wrap;fillColor=#82B366;strokeColor=#6D9B50;" vertex="1" parent="1">
+          <mxGeometry x="180" y="186" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="v2" value="&lt;b&gt;0.12&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="180" y="160" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="l2" value="Versicolor" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="180" y="214" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <!-- Virginica バー 0.03 -->
+        <mxCell id="b3" value="" style="rounded=0;whiteSpace=wrap;fillColor=#D79B00;strokeColor=#B8860B;" vertex="1" parent="1">
+          <mxGeometry x="300" y="204" width="80" height="6" as="geometry"/>
+        </mxCell>
+        <mxCell id="v3" value="&lt;b&gt;0.03&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="300" y="178" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="l3" value="Virginica" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="300" y="214" width="80" height="24" as="geometry"/>
+        </mxCell>
+        <!-- タイトル -->
+        <mxCell id="title" value="&lt;b style='font-size:14px;'&gt;Softmax 出力（確率分布）&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="100" y="-16" width="240" height="28" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

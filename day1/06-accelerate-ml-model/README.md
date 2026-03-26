@@ -5,6 +5,7 @@
 - PyTorch モデル（`.pt`）を **ONNX 形式にエクスポート**する方法
 - **Netron** でモデルの構造を可視化する
 - **INT8 量子化**でさらに高速化・軽量化する
+- **プルーニング（枝刈り）**でモデルを軽量化する
 - （追加課題）用途・デバイスに合わせた別フォーマットへのエクスポート
 
 > エクスポートとは何か・量子化・枝刈りなどの高速化手法については、スライドを参照してください。
@@ -113,6 +114,41 @@ uv run python src/gradio-demo.py
 ```
 
 3つのモデルを切り替えて、FPS と精度の変化を確認してみましょう。
+
+---
+
+### 7. プルーニング（枝刈り）
+
+プルーニングは、モデルの重みのうち値が小さいものをゼロに置き換える手法です。`torch.nn.utils.prune` を使い、L1 Unstructured Pruning を適用します。
+
+```bash
+uv run python src/pruning.py
+```
+
+実行後、`yolo26m-pose-pruned.pt` が生成されます。スパース率（ゼロの重みの割合）がターミナルに表示されるので確認しましょう。
+
+---
+
+### 8. プルーニング済みモデルの FPS を比較する
+
+プルーニング済みモデルを ONNX にエクスポートします。
+
+```bash
+uv run python src/onnx-pruned-export.py
+```
+
+`src/gradio-demo.py` の `MODEL_FILES` にプルーニング済みモデルも追加して FPS を比較してみましょう。
+
+```python
+MODEL_FILES = {
+    "PyTorch (.pt)": "yolo26m-pose.pt",
+    "ONNX (.onnx)": "yolo26m-pose.onnx",
+    "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",
+    "Pruned ONNX (.onnx)": "yolo26m-pose-pruned.onnx",  # コメントアウトを外す
+}
+```
+
+> **注意:** Unstructured Pruning は重みをゼロにするだけで、テンソルの形状は変わりません。そのため、スパース演算をサポートしないランタイム（通常の ONNX Runtime CPU など）では FPS が大きく改善しない場合があります。実運用でスピードアップを狙う場合は、Structured Pruning（チャネルごと削除）やスパース対応のハードウェア・ランタイムの利用を検討してください。
 
 ---
 
