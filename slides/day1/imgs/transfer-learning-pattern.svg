@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <!-- Title -->
+  <text x="350" y="35" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">転移学習の基本パターン</text>
+  <text x="350" y="58" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888">事前学習済みモデルの Backbone を凍結し、Head だけを学習する</text>
+
+  <!-- === Left: Pre-trained Model === -->
+  <text x="180" y="90" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#333">事前学習済みモデル</text>
+  <text x="180" y="108" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（例: ImageNet で学習済み）</text>
+
+  <!-- Backbone layers (frozen) -->
+  <rect x="80" y="120" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.8" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="180" y="148" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#333">Conv Layer 1</text>
+
+  <rect x="80" y="175" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.8" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="180" y="203" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#333">Conv Layer 2</text>
+
+  <rect x="80" y="230" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.8" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="180" y="258" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#333">Conv Layer N</text>
+
+  <!-- Head (original) -->
+  <rect x="80" y="290" width="200" height="45" rx="6" fill="#E6E6E6" fill-opacity="0.8" stroke="#999" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="180" y="318" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#999">Head (1000クラス)</text>
+
+  <!-- Backbone label -->
+  <rect x="22" y="120" width="50" height="155" rx="4" fill="#DAE8FC" fill-opacity="0.4" stroke="#6C8EBF" stroke-width="1"/>
+  <text x="47" y="205" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#6C8EBF" transform="rotate(-90, 47, 205)">Backbone</text>
+
+  <!-- Arrow -->
+  <path d="M310,200 L380,200" fill="none" stroke="#333" stroke-width="2.5" marker-end="url(#arrow-main)"/>
+  <text x="345" y="190" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#333">転移</text>
+
+  <defs>
+    <marker id="arrow-main" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#333"/>
+    </marker>
+  </defs>
+
+  <!-- === Right: Fine-tuned Model === -->
+  <text x="520" y="90" text-anchor="middle" font-family="sans-serif" font-size="15" font-weight="bold" fill="#333">Fine-tuned モデル</text>
+  <text x="520" y="108" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">（自社データで Fine-tune）</text>
+
+  <!-- Backbone layers (frozen - with lock icon) -->
+  <rect x="420" y="120" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.5" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="520" y="143" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#6C8EBF">Conv Layer 1</text>
+  <text x="520" y="160" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999">🔒 凍結</text>
+
+  <rect x="420" y="175" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.5" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="520" y="198" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#6C8EBF">Conv Layer 2</text>
+  <text x="520" y="215" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999">🔒 凍結</text>
+
+  <rect x="420" y="230" width="200" height="45" rx="6" fill="#DAE8FC" fill-opacity="0.5" stroke="#6C8EBF" stroke-width="2"/>
+  <text x="520" y="253" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#6C8EBF">Conv Layer N</text>
+  <text x="520" y="270" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#999">🔒 凍結</text>
+
+  <!-- New Head (trainable) -->
+  <rect x="420" y="290" width="200" height="45" rx="6" fill="#D5E8D4" fill-opacity="0.8" stroke="#82B366" stroke-width="2.5"/>
+  <text x="520" y="318" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#82B366">New Head (自社クラス数)</text>
+
+  <!-- Trainable label -->
+  <rect x="630" y="290" width="55" height="45" rx="4" fill="#D5E8D4" fill-opacity="0.4" stroke="#82B366" stroke-width="1"/>
+  <text x="657" y="318" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#82B366" transform="rotate(-90, 657, 318)">学習可能</text>
+
+  <!-- Bottom example -->
+  <rect x="80" y="355" width="540" height="55" rx="6" fill="#F9F9F9" stroke="#DDD" stroke-width="1"/>
+  <text x="350" y="375" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#333">実務例</text>
+  <text x="350" y="398" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#555">ImageNet（1000クラス）で学習済み → 自社商品分類（10クラス）に転移 → 少量データでも高精度</text>
+</svg>

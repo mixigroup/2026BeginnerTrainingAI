@@ -1,0 +1,90 @@
+<mxfile>
+  <diagram name="枝刈り（Pruning）" id="pruning-viz">
+    <mxGraphModel dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="700" pageHeight="320">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- 左ラベル: 元のモデル -->
+        <mxCell id="2" value="元のモデル" style="text;html=1;align=center;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="65" y="25" width="110" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- 左ニューロン（全てアクティブ・青） -->
+        <mxCell id="3" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="60" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="120" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="180" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="90" y="240" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 矢印 -->
+        <mxCell id="7" value="" style="endArrow=block;endFill=1;strokeWidth=3;strokeColor=#CC0000;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="175" y="162" as="sourcePoint"/>
+            <mxPoint x="370" y="162" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Pruning ラベル -->
+        <mxCell id="8" value="Pruning" style="text;html=1;align=center;fontSize=13;fontStyle=1;fontColor=#CC0000;" vertex="1" parent="1">
+          <mxGeometry x="215" y="137" width="115" height="22" as="geometry"/>
+        </mxCell>
+
+        <!-- 右ラベル: 最適化後 -->
+        <mxCell id="9" value="最適化後" style="text;html=1;align=center;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="25" width="110" height="24" as="geometry"/>
+        </mxCell>
+
+        <!-- 右ニューロン1: グレーアウト（刈り込み済み） -->
+        <mxCell id="10" value="" style="ellipse;fillColor=#E0E0E0;strokeColor=#999999;strokeWidth=2;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="515" y="60" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <!-- ×マーク1 -->
+        <mxCell id="11" value="✕" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="515" y="60" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 右ニューロン2: アクティブ（青） -->
+        <mxCell id="12" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="515" y="120" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 右ニューロン3: グレーアウト（刈り込み済み） -->
+        <mxCell id="13" value="" style="ellipse;fillColor=#E0E0E0;strokeColor=#999999;strokeWidth=2;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="515" y="180" width="50" height="50" as="geometry"/>
+        </mxCell>
+        <!-- ×マーク2 -->
+        <mxCell id="14" value="✕" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="515" y="180" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 右ニューロン4: アクティブ（青） -->
+        <mxCell id="15" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="515" y="240" width="50" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- 凡例 -->
+        <mxCell id="16" value="" style="ellipse;fillColor=#DAE8FC;strokeColor=#6C8EBF;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="248" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="アクティブ" style="text;html=1;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="253" y="247" width="75" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="" style="ellipse;fillColor=#E0E0E0;strokeColor=#999999;strokeWidth=1;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="230" y="272" width="18" height="18" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="刈り込み済み" style="text;html=1;align=left;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="253" y="271" width="85" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

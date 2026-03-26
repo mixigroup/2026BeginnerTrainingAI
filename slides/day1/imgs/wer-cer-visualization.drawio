@@ -1,0 +1,310 @@
+<mxfile>
+  <diagram name="WER-CER可視化" id="wer-cer-viz">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="750" adaptiveColors="auto">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- タイトル -->
+        <mxCell id="title" value="&lt;b style='font-size:18px;'&gt;WER / CER の計算イメージ&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="500" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- WER セクション -->
+        <mxCell id="wer-section" value="&lt;b style='font-size:15px;'&gt;WER（Word Error Rate）- 単語単位の誤り率&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontColor=#1A73E8;" vertex="1" parent="1">
+          <mxGeometry x="30" y="60" width="500" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- WER: 正解ラベル -->
+        <mxCell id="wer-ref-label" value="&lt;b&gt;正解 (Reference)&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="100" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <!-- WER: 正解単語 -->
+        <mxCell id="wr1" value="the" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="170" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wr2" value="cat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wr3" value="sat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wr4" value="on" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wr5" value="the" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wr6" value="mat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="100" width="80" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- WER: 予測ラベル -->
+        <mxCell id="wer-hyp-label" value="&lt;b&gt;予測 (Hypothesis)&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="210" width="130" height="40" as="geometry"/>
+        </mxCell>
+        <!-- WER: 予測単語 -->
+        <mxCell id="wh1" value="the" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="170" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wh2" value="cat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="270" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wh3" value="sit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wh4" value="on" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="470" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wh5" value="a" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="wh6" value="mat" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=monospace;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="670" y="210" width="80" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- WER: 矢印 -->
+        <mxCell id="wa1" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="wr1" target="wh1" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa2" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="wr2" target="wh2" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa3" style="edgeStyle=straightEdgeStyle;strokeColor=#D6B656;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" source="wr3" target="wh3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa3-label" value="S (置換)" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#D6B656;fontStyle=1;" vertex="1" connectable="0" parent="wa3">
+          <mxGeometry x="0.0" y="0" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa4" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="wr4" target="wh4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa5" style="edgeStyle=straightEdgeStyle;strokeColor=#B85450;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" source="wr5" target="wh5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa5-label" value="S (置換)" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#B85450;fontStyle=1;" vertex="1" connectable="0" parent="wa5">
+          <mxGeometry x="0.0" y="0" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="wa6" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="wr6" target="wh6" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- WER: 計算式 -->
+        <mxCell id="wer-formula-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1D5E7;strokeColor=#9673A6;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="790" y="90" width="280" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="wer-formula" value="&lt;div style='text-align:left;font-family:Helvetica;'&gt;&lt;b style='font-size:13px;'&gt;WER の計算&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;S (置換) = 2&lt;br/&gt;D (削除) = 0&lt;br/&gt;I (挿入) = 0&lt;br/&gt;N (正解単語数) = 6&lt;br/&gt;&lt;br/&gt;&lt;b style='font-size:14px; color:#9673A6;'&gt;WER = (2+0+0) / 6&lt;br/&gt;= 33.3%&lt;/b&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="800" y="95" width="260" height="160" as="geometry"/>
+        </mxCell>
+
+        <!-- 凡例 -->
+        <mxCell id="legend-ok" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;" vertex="1" parent="1">
+          <mxGeometry x="170" y="270" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-ok-text" value="一致 (Correct)" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="195" y="270" width="110" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-sub" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;" vertex="1" parent="1">
+          <mxGeometry x="320" y="270" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-sub-text" value="置換 (Substitution)" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="345" y="270" width="140" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-del" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;" vertex="1" parent="1">
+          <mxGeometry x="500" y="270" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend-del-text" value="置換 (Substitution)" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="525" y="270" width="140" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- 区切り線 -->
+        <mxCell id="divider" value="" style="line;strokeWidth=2;strokeColor=#CCCCCC;" vertex="1" parent="1">
+          <mxGeometry x="30" y="310" width="1040" height="10" as="geometry"/>
+        </mxCell>
+
+        <!-- CER セクション -->
+        <mxCell id="cer-section" value="&lt;b style='font-size:15px;'&gt;CER（Character Error Rate）- 文字単位の誤り率（日本語向き）&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="30" y="330" width="600" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例1: 東京都渋谷区 -->
+        <mxCell id="cer1-title" value="&lt;b&gt;例1&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="370" width="60" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cer1-ref-label" value="&lt;b&gt;正解&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="50" y="400" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-1" value="東" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-2" value="京" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-3" value="都" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-4" value="渋" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-5" value="谷" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr1-6" value="区" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="400" width="50" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cer1-hyp-label" value="&lt;b&gt;予測&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="50" y="500" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-1" value="東" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-2" value="京" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-3" value="と" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-4" value="渋" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-5" value="谷" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch1-6" value="区" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="500" width="50" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例1 矢印 -->
+        <mxCell id="ca1-1" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr1-1" target="ch1-1" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-2" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr1-2" target="ch1-2" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-3" style="edgeStyle=straightEdgeStyle;strokeColor=#D6B656;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" source="cr1-3" target="ch1-3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-3-label" value="S" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#D6B656;fontStyle=1;" vertex="1" connectable="0" parent="ca1-3">
+          <mxGeometry x="0.0" y="0" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-4" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr1-4" target="ch1-4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-5" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr1-5" target="ch1-5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca1-6" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr1-6" target="ch1-6" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例1 計算 -->
+        <mxCell id="cer1-formula-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="520" y="400" width="220" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="cer1-formula" value="&lt;div style='text-align:left;font-family:Helvetica;'&gt;&lt;b style='font-size:13px;'&gt;CER の計算&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;S (置換): 都→と = 1&lt;br/&gt;D (削除) = 0, I (挿入) = 0&lt;br/&gt;N (正解文字数) = 6&lt;br/&gt;&lt;br/&gt;&lt;b style='font-size:14px; color:#E65100;'&gt;CER = 1 / 6 ≈ 16.7%&lt;/b&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="530" y="405" width="200" height="135" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例2: 今日は晴れです -->
+        <mxCell id="cer2-title" value="&lt;b&gt;例2（挿入エラー）&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="30" y="570" width="150" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cer2-ref-label" value="&lt;b&gt;正解&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="50" y="600" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-1" value="今" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-2" value="日" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-3" value="は" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-4" value="晴" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-5" value="れ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-6" value="で" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAEAF6;strokeColor=#6C8EBF;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="cr2-7" value="す" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAEAF6;strokeColor=#6C8EBF;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="600" width="50" height="45" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cer2-hyp-label" value="&lt;b&gt;予測&lt;/b&gt;" style="text;html=1;align=right;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="50" y="700" width="60" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-1" value="今" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-2" value="日" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="190" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-3" value="は" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="250" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-4" value="晴" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-5" value="れ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="370" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-6" value="で" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAEAF6;strokeColor=#6C8EBF;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-7" value="し" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="490" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="ch2-8" value="た" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8CECC;strokeColor=#B85450;fontFamily=sans-serif;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="550" y="700" width="50" height="45" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例2 矢印 -->
+        <mxCell id="ca2-1" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr2-1" target="ch2-1" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-2" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr2-2" target="ch2-2" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-3" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr2-3" target="ch2-3" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-4" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr2-4" target="ch2-4" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-5" style="edgeStyle=straightEdgeStyle;strokeColor=#82B366;strokeWidth=2;endArrow=block;endFill=1;" edge="1" source="cr2-5" target="ch2-5" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-6" style="edgeStyle=straightEdgeStyle;strokeColor=#6C8EBF;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" source="cr2-6" target="ch2-6" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-7" style="edgeStyle=straightEdgeStyle;strokeColor=#B85450;strokeWidth=2;endArrow=block;endFill=1;dashed=1;" edge="1" source="cr2-7" target="ch2-7" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ca2-7-label" value="S" style="edgeLabel;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=#B85450;fontStyle=1;" vertex="1" connectable="0" parent="ca2-7">
+          <mxGeometry x="0.0" y="0" relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- 挿入マーク -->
+        <mxCell id="insert-label" value="&lt;b style='color:#B85450;'&gt;I (挿入)&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="545" y="670" width="60" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- CER例2 計算 -->
+        <mxCell id="cer2-formula-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#E65100;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="640" y="600" width="250" height="145" as="geometry"/>
+        </mxCell>
+        <mxCell id="cer2-formula" value="&lt;div style='text-align:left;font-family:Helvetica;'&gt;&lt;b style='font-size:13px;'&gt;CER の計算&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;S (置換): す→し = 1&lt;br/&gt;I (挿入): た = 1&lt;br/&gt;D (削除) = 0&lt;br/&gt;N (正解文字数) = 7&lt;br/&gt;&lt;br/&gt;&lt;b style='font-size:14px; color:#E65100;'&gt;CER = (1+0+1) / 7 ≈ 28.6%&lt;/b&gt;&lt;/div&gt;" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="650" y="605" width="230" height="135" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

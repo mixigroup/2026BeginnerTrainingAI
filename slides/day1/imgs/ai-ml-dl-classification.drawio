@@ -1,0 +1,28 @@
+<mxfile>
+  <diagram name="AI-ML-DL分類" id="ai-ml-dl">
+    <mxGraphModel adaptiveColors="auto" dx="1024" dy="768" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="600" pageHeight="460">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="520" height="400" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="&lt;b style='font-size:16px;'&gt;人工知能 (AI)&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:11px;'&gt;人間のように考える・判断する&lt;br&gt;コンピュータ技術全般&lt;br&gt;例: チェスAI、音声アシスタント、自動運転&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="55" width="300" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#D5E8D4;strokeColor=#82B366;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="100" y="130" width="400" height="280" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="&lt;b style='font-size:14px;'&gt;機械学習 (ML)&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:11px;'&gt;データから自動で学習して&lt;br&gt;予測・判断する仕組み&lt;br&gt;&lt;b&gt;AIを実現する中核技術&lt;/b&gt;&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="195" y="145" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;opacity=60;" vertex="1" parent="1">
+          <mxGeometry x="160" y="230" width="280" height="160" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="&lt;b style='font-size:13px;'&gt;深層学習 (Deep Learning)&lt;/b&gt;&lt;br&gt;&lt;span style='font-size:11px;'&gt;大量データから複雑なパターンを&lt;br&gt;学習できるML手法&lt;br&gt;例: 画像認識、音声認識、自然言語処理&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+          <mxGeometry x="185" y="265" width="230" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <!-- Title -->
+  <text x="350" y="35" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#333">学習曲線と過学習</text>
+  <text x="350" y="58" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#888">train loss は下がり続けるが、valid loss が悪化し始めたら過学習のサイン</text>
+
+  <!-- Axes -->
+  <line x1="80" y1="350" x2="620" y2="350" stroke="#555" stroke-width="2"/>
+  <line x1="80" y1="350" x2="80" y2="80" stroke="#555" stroke-width="2"/>
+  <text x="350" y="390" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#555">Epoch</text>
+  <text x="35" y="215" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#555" transform="rotate(-90, 35, 215)">Loss</text>
+
+  <!-- Epoch labels -->
+  <text x="120" y="370" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">0</text>
+  <text x="230" y="370" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">20</text>
+  <text x="350" y="370" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">40</text>
+  <text x="470" y="370" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">60</text>
+  <text x="590" y="370" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">80</text>
+
+  <!-- Train Loss curve (keeps decreasing) -->
+  <path d="M100,120 C150,110 200,180 250,220 C300,250 350,270 400,290 C450,305 500,315 580,325" fill="none" stroke="#6C8EBF" stroke-width="3"/>
+  <text x="590" y="335" font-family="sans-serif" font-size="13" font-weight="bold" fill="#6C8EBF">Train Loss</text>
+
+  <!-- Valid Loss curve (decreases then increases) -->
+  <path d="M100,130 C150,120 200,190 250,225 C300,240 330,245 360,250 C400,260 440,275 480,300 C520,320 560,335 590,345" fill="none" stroke="#D79B00" stroke-width="3"/>
+  <text x="590" y="355" font-family="sans-serif" font-size="13" font-weight="bold" fill="#D79B00">Valid Loss</text>
+
+  <!-- Best point / Early Stopping -->
+  <circle cx="360" cy="250" r="8" fill="none" stroke="#E74C3C" stroke-width="2.5"/>
+  <line x1="360" y1="80" x2="360" y2="350" stroke="#E74C3C" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="360" y="100" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="#E74C3C">Early Stopping</text>
+  <text x="360" y="118" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#E74C3C">ここで学習を止める</text>
+
+  <!-- Regions -->
+  <rect x="82" y="82" width="276" height="266" fill="#D5E8D4" fill-opacity="0.15" stroke="none"/>
+  <text x="220" y="100" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#82B366">学習が進んでいる領域</text>
+
+  <rect x="362" y="82" width="256" height="266" fill="#FFE6CC" fill-opacity="0.15" stroke="none"/>
+  <text x="490" y="100" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#D79B00">過学習の領域</text>
+
+  <!-- Gap annotation -->
+  <line x1="530" y1="320" x2="530" y2="345" stroke="#E74C3C" stroke-width="1.5"/>
+  <line x1="524" y1="320" x2="536" y2="320" stroke="#E74C3C" stroke-width="1.5"/>
+  <line x1="524" y1="345" x2="536" y2="345" stroke="#E74C3C" stroke-width="1.5"/>
+  <text x="555" y="337" font-family="sans-serif" font-size="11" fill="#E74C3C">Gap</text>
+
+  <!-- Legend box -->
+  <rect x="100" y="395" width="500" height="22" rx="4" fill="#F9F9F9" stroke="#DDD" stroke-width="1"/>
+  <text x="350" y="412" text-anchor="middle" font-family="sans-serif" font-size="11" fill="#888">Train と Valid の Loss の差（Gap）が大きくなったら過学習 → Early Stopping で防ぐ</text>
+</svg>
