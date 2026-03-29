@@ -14,8 +14,7 @@ TARGET_SAMPLING_RATE = 16000  # Whisper が要求するサンプリングレー�
 
 
 def load_sample_audio(
-    dataset_name: str = "google/fleurs",
-    language: str = "ja_jp",
+    dataset_name: str = "japanese-asr/ja_asr.jsut_basic5000",
     split: str = "test",
     index: int = 0,
 ) -> tuple[np.ndarray, int, str]:
@@ -23,7 +22,6 @@ def load_sample_audio(
 
     Args:
         dataset_name: HuggingFace のデータセット名
-        language: 言語コード（FLEURS では "ja_jp" など）
         split: データセットのスプリット
         index: 取得するサンプルのインデックス
 
@@ -34,7 +32,7 @@ def load_sample_audio(
     """
     from datasets import load_dataset
 
-    dataset = load_dataset(dataset_name, language, split=split)
+    dataset = load_dataset(dataset_name, split=split)
     sample = dataset[index]
 
     audio = sample["audio"]

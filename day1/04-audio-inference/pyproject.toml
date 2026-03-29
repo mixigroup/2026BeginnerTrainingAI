@@ -12,4 +12,5 @@ dependencies = [
     "datasets>=2.0.0",
     "jiwer>=3.0.0",
     "matplotlib>=3.0.0",
+    "torchcodec>=0.11.0",
 ]
