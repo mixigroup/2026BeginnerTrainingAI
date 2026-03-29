@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.1"
+__generated_with = "0.20.4"
 app = marimo.App(width="medium")
 
 
@@ -13,43 +13,37 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        # ハンズオン2: 過学習と対策
+    mo.md(r"""
+    # ハンズオン2: 過学習と対策
 
-        このノートブックでは、**意図的に過学習を起こし**、その対策を実践します。
+    このノートブックでは、**意図的に過学習を起こし**、その対策を実践します。
 
-        ## 学習ゴール
+    ## 学習ゴール
 
-        | ステップ | 内容 |
-        |---|---|
-        | **1. 過学習を観察** | データ削減 + モデル肥大化でオーバーフィットを再現 |
-        | **2. Early Stopping** | val_loss が改善しなければ学習を早期終了 |
-        | **3. Dropout + Weight Decay** | 正則化で汎化性能を改善 |
-        | **4. 比較** | 3 つのアプローチの学習曲線を並べて比較 |
+    | ステップ | 内容 |
+    |---|---|
+    | **1. 過学習を観察** | データ削減 + モデル肥大化でオーバーフィットを再現 |
+    | **2. Early Stopping** | val_loss が改善しなければ学習を早期終了 |
+    | **3. Dropout + Weight Decay** | 正則化で汎化性能を改善 |
+    | **4. 比較** | 3 つのアプローチの学習曲線を並べて比較 |
 
-        ## なぜ過学習が起きるのか？
+    ## なぜ過学習が起きるのか？
 
-        - **モデルが複雑すぎる** → 訓練データの雑音まで覚えてしまう
-        - **データが少なすぎる** → 汎化のために必要なパターンが学べない
-        - **エポックが多すぎる** → 訓練データに特化しすぎる
+    - **モデルが複雑すぎる** → 訓練データの雑音まで覚えてしまう
+    - **データが少なすぎる** → 汎化のために必要なパターンが学べない
+    - **エポックが多すぎる** → 訓練データに特化しすぎる
 
-        ```
-        【過学習のサイン】
-        train_loss ↓↓  val_loss ↑↑  （train と val が乖離）
-        train_acc  ↑↑  val_acc  停滞または低下
-        ```
-        """
-    )
+    ```
+    【過学習のサイン】
+    train_loss ↓↓  val_loss ↑↑  （train と val が乖離）
+    train_acc  ↑↑  val_acc  停滞または低下
+    ```
+    """)
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _():
-    import sys
-
-    sys.path.insert(0, ".")
-
     import numpy as np
     import matplotlib.pyplot as plt
     import torch
@@ -60,44 +54,41 @@ def _():
     from src.model import OversizedFCNet, FCNet
     from src.evaluate import (
         TrainingHistory,
+        evaluate,
         train_model,
         plot_learning_curves,
         compare_learning_curves,
     )
 
+
     return (
-        sys,
-        np,
-        plt,
-        torch,
+        FCNet,
+        OversizedFCNet,
+        compare_learning_curves,
+        evaluate,
+        load_iris_dataloaders,
         nn,
         optim,
-        load_iris_dataloaders,
-        OversizedFCNet,
-        FCNet,
-        TrainingHistory,
-        train_model,
         plot_learning_curves,
-        compare_learning_curves,
+        torch,
+        train_model,
     )
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ---
 
-        ## Step 1: 過学習を意図的に起こす
+    ## Step 1: 過学習を意図的に起こす
 
-        ### 戦略
-        - **データ削減**: 学習データを 30 サンプルに限定
-        - **モデル肥大化**: Iris には不釣り合いな大型ネットワーク（512×3層）
-        - **エポック増加**: 300 エポック学習
+    ### 戦略
+    - **データ削減**: 学習データを 30 サンプルに限定
+    - **モデル肥大化**: Iris には不釣り合いな大型ネットワーク（512×3層）
+    - **エポック増加**: 300 エポック学習
 
-        → train_loss はほぼ 0 になるが、val_loss は悪化する（過学習）
-        """
-    )
+    → train_loss はほぼ 0 になるが、val_loss は悪化する（過学習）
+    """)
     return
 
 
@@ -129,19 +120,19 @@ def _(load_iris_dataloaders, mo):
         30 サンプルはかなり少ない → 過学習しやすい設定です。
         """
     )
-    return (
-        SUBSET_SIZE,
-        train_loader_ov,
-        val_loader_ov,
-        test_loader_ov,
-        class_names,
-        n_train_ov,
-        n_val_ov,
-    )
+    return test_loader_ov, train_loader_ov, val_loader_ov
 
 
 @app.cell
-def _(OversizedFCNet, nn, optim, torch, train_loader_ov, val_loader_ov, train_model):
+def _(
+    OversizedFCNet,
+    nn,
+    optim,
+    torch,
+    train_loader_ov,
+    train_model,
+    val_loader_ov,
+):
     EPOCHS_OV = 300  # Many epochs
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -164,20 +155,18 @@ def _(OversizedFCNet, nn, optim, torch, train_loader_ov, val_loader_ov, train_mo
         verbose=True,
         verbose_interval=50,
     )
-    return EPOCHS_OV, device, model_ov, criterion_ov, optimizer_ov, history_ov
+    return criterion_ov, device, history_ov, model_ov
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ### 過学習の確認
+    mo.md(r"""
+    ### 過学習の確認
 
-        - `train_loss` が急速に低下している
-        - `val_loss` はある時点から上昇 or 停滞している
-        - この乖離が **過学習（overfitting）**
-        """
-    )
+    - `train_loss` が急速に低下している
+    - `val_loss` はある時点から上昇 or 停滞している
+    - この乖離が **過学習（overfitting）**
+    """)
     return
 
 
@@ -187,46 +176,61 @@ def _(history_ov, plot_learning_curves):
         history_ov, title="Oversized Model (No Regularization)"
     )
     fig_ov
-    return (fig_ov,)
+    return
+
+
+@app.cell
+def _(criterion_ov, device, evaluate, mo, model_ov, test_loader_ov):
+    test_loss_ov, test_acc_ov = evaluate(model_ov, test_loader_ov, criterion_ov, device)
+
+    mo.md(
+        f"""
+        ### 過学習モデルのテスト評価
+
+        | 指標 | 値 |
+        |---|---|
+        | Test Loss | **{test_loss_ov:.4f}** |
+        | Test Accuracy | **{test_acc_ov:.2%}** |
+        | 学習エポック数 | **300** |
+
+        過学習しているため、テスト精度が低い可能性があります。
+        """
+    )
+    return test_acc_ov, test_loss_ov
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ## Step 2: 対策1 - Early Stopping
 
-        ## Step 2: 対策1 - Early Stopping
+    `val_loss` が **`patience` エポック連続で改善しない**場合、学習を打ち切ります。
 
-        `val_loss` が **`patience` エポック連続で改善しない**場合、学習を打ち切ります。
+    ```python
+    if val_loss < best_val_loss:
+        best_val_loss = val_loss
+        patience_counter = 0
+    else:
+        patience_counter += 1
+        if patience_counter >= patience:
+            break  # Early stopping!
+    ```
 
-        ```python
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            patience_counter = 0
-        else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                break  # Early stopping!
-        ```
-
-        - **メリット**: 過学習が始まった直後に停止 → 最良の汎化性能を保持
-        - **注意**: `patience` が小さすぎると学習が早く終わりすぎる
-        """
-    )
+    - **メリット**: 過学習が始まった直後に停止 → 最良の汎化性能を保持
+    - **注意**: `patience` が小さすぎると学習が早く終わりすぎる
+    """)
     return
 
 
 @app.cell
 def _(
     OversizedFCNet,
+    device,
     nn,
     optim,
-    torch,
     train_loader_ov,
-    val_loader_ov,
-    device,
     train_model,
+    val_loader_ov,
 ):
     PATIENCE = 20  # Edit: early stopping patience
 
@@ -249,47 +253,76 @@ def _(
         verbose_interval=20,
     )
     print(f"Stopped at epoch: {len(history_es.val_losses)}")
-    return PATIENCE, model_es, criterion_es, optimizer_es, history_es
+    return criterion_es, history_es, model_es
 
 
 @app.cell
 def _(history_es, plot_learning_curves):
     fig_es = plot_learning_curves(history_es, title="Early Stopping")
     fig_es
-    return (fig_es,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        ---
-
-        ## Step 3: 対策2 - Dropout + Weight Decay
-
-        ### Dropout
-        学習時にランダムにニューロンを **無効化**（確率 `p` で出力を 0 に）。
-
-        ```
-        [o o o o o] → [o 0 o 0 o]  # 推論時は全ニューロンを使用
-        ```
-
-        - 部分的なサブネットワークで学習 → アンサンブル効果
-        - `model.train()` 時のみ有効 → `model.eval()` 時は全ニューロンが使われる
-
-        ### Weight Decay（L2 正則化）
-        損失に **パラメータのノルム**を加算 → 重みが大きくなりすぎることを防ぐ。
-
-        ```python
-        optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
-        ```
-        """
-    )
     return
 
 
 @app.cell
-def _(FCNet, nn, optim, torch, train_loader_ov, val_loader_ov, device, train_model):
+def _(
+    criterion_es,
+    device,
+    evaluate,
+    history_es,
+    mo,
+    model_es,
+    test_acc_ov,
+    test_loader_ov,
+    test_loss_ov,
+):
+    stopped_epoch = len(history_es.val_losses)
+    test_loss_es, test_acc_es = evaluate(model_es, test_loader_ov, criterion_es, device)
+
+    mo.md(
+        f"""
+        ### Early Stopping モデルのテスト評価
+
+        | 指標 | 過学習モデル | Early Stopping |
+        |---|---|---|
+        | 停止エポック | 300 | **{stopped_epoch}** |
+        | Test Loss | {test_loss_ov:.4f} | **{test_loss_es:.4f}** |
+        | Test Accuracy | {test_acc_ov:.2%} | **{test_acc_es:.2%}** |
+
+        Early Stopping により学習を早期に打ち切ることで、汎化性能が改善されているか確認しましょう。
+        """
+    )
+    return test_acc_es, test_loss_es
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ## Step 3: 対策2 - Dropout + Weight Decay
+
+    ### Dropout
+    学習時にランダムにニューロンを **無効化**（確率 `p` で出力を 0 に）。
+
+    ```
+    [o o o o o] → [o 0 o 0 o]  # 推論時は全ニューロンを使用
+    ```
+
+    - 部分的なサブネットワークで学習 → アンサンブル効果
+    - `model.train()` 時のみ有効 → `model.eval()` 時は全ニューロンが使われる
+
+    ### Weight Decay（L2 正則化）
+    損失に **パラメータのノルム**を加算 → 重みが大きくなりすぎることを防ぐ。
+
+    ```python
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
+    ```
+    """)
+    return
+
+
+@app.cell
+def _(FCNet, device, nn, optim, train_loader_ov, train_model, val_loader_ov):
     # Regularized model: smaller FC net + dropout + weight decay
     DROPOUT = 0.4  # Edit: dropout probability
     WD = 1e-3  # Edit: weight decay (L2 regularization strength)
@@ -316,32 +349,51 @@ def _(FCNet, nn, optim, torch, train_loader_ov, val_loader_ov, device, train_mod
         verbose=True,
         verbose_interval=50,
     )
-    return DROPOUT, WD, model_reg, criterion_reg, optimizer_reg, history_reg
+    return criterion_reg, history_reg, model_reg
 
 
 @app.cell
 def _(history_reg, plot_learning_curves):
     fig_reg = plot_learning_curves(history_reg, title="Dropout + Weight Decay")
     fig_reg
-    return (fig_reg,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        ---
-
-        ## Step 4: 3 つのアプローチを比較
-
-        同じ val_loss スケールで比較することで、各対策の効果を確認します。
-        """
-    )
     return
 
 
 @app.cell
-def _(compare_learning_curves, history_ov, history_es, history_reg):
+def _(criterion_reg, device, evaluate, mo, model_reg, test_loader_ov):
+    test_loss_reg, test_acc_reg = evaluate(
+        model_reg, test_loader_ov, criterion_reg, device
+    )
+
+    mo.md(
+        f"""
+        ### Dropout + Weight Decay モデルのテスト評価
+
+        | 指標 | 値 |
+        |---|---|
+        | Test Loss | **{test_loss_reg:.4f}** |
+        | Test Accuracy | **{test_acc_reg:.2%}** |
+
+        正則化によってテスト精度が改善されているか確認しましょう。
+        """
+    )
+    return test_acc_reg, test_loss_reg
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ## Step 4: 3 つのアプローチを比較
+
+    同じ val_loss スケールで比較することで、各対策の効果を確認します。
+    """)
+    return
+
+
+@app.cell
+def _(compare_learning_curves, history_es, history_ov, history_reg):
     # Compare validation loss
     comparison_histories = {
         "No regularization": history_ov,
@@ -351,114 +403,75 @@ def _(compare_learning_curves, history_ov, history_es, history_reg):
 
     fig_compare_loss = compare_learning_curves(comparison_histories, metric="val_loss")
     fig_compare_loss
-    return (comparison_histories, fig_compare_loss)
+    return (comparison_histories,)
 
 
 @app.cell
 def _(compare_learning_curves, comparison_histories):
     fig_compare_acc = compare_learning_curves(comparison_histories, metric="val_acc")
     fig_compare_acc
-    return (fig_compare_acc,)
-
-
-@app.cell(hide_code=True)
-def _():
-    import lightning.pytorch as pl
-    from lightning.pytorch.callbacks import EarlyStopping as LitEarlyStopping
-    from src.lightning_model import ClassifierModule, MetricsCallback
-
-    return pl, LitEarlyStopping, ClassifierModule, MetricsCallback
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        ---
-
-        ## PyTorch Lightning 版: EarlyStopping
-
-        Step 2 で手動実装した EarlyStopping を、Lightning コールバックで置き換えます。
-
-        | 比較項目 | PyTorch（手動） | PyTorch Lightning |
-        |---|---|---|
-        | EarlyStopping | `if val_loss < best_val_loss:` 手動 | `EarlyStopping` コールバック1行 |
-        | コード量 | ~10行 | 1行 |
-        | オプション | 基本のみ | patience / min_delta / mode など |
-
-        学習曲線は TensorBoard で確認できます（`uv run tensorboard --logdir runs`）。
-        """
-    )
     return
 
 
 @app.cell
 def _(
-    OversizedFCNet,
-    ClassifierModule,
-    pl,
-    MetricsCallback,
-    LitEarlyStopping,
-    train_loader_ov,
-    val_loader_ov,
-    PATIENCE,
+    history_es,
+    history_ov,
+    history_reg,
+    mo,
+    test_acc_es,
+    test_acc_ov,
+    test_acc_reg,
+    test_loss_es,
+    test_loss_ov,
+    test_loss_reg,
 ):
-    # 同じ設定: 大きいモデル + 小データセット + Lightning EarlyStopping
-    lit_ov_backbone = OversizedFCNet(input_dim=4, num_classes=3)
-    lit_ov_model = ClassifierModule(lit_ov_backbone, learning_rate=0.001)
+    mo.md(f"""
+    ### テストセットでの総合比較
 
-    lit_ov_trainer = pl.Trainer(
-        max_epochs=300,
-        accelerator="auto",
-        callbacks=[
-            LitEarlyStopping(
-                monitor="val_loss", patience=PATIENCE, mode="min", verbose=True
-            ),
-        ],
-        enable_progress_bar=True,
-        log_every_n_steps=1,
-    )
+    | 手法 | エポック数 | Test Loss | Test Accuracy |
+    |---|---|---|---|
+    | No Regularization | {len(history_ov.val_losses)} | {test_loss_ov:.4f} | {test_acc_ov:.2%} |
+    | Early Stopping | {len(history_es.val_losses)} | {test_loss_es:.4f} | {test_acc_es:.2%} |
+    | Dropout + Weight Decay | {len(history_reg.val_losses)} | {test_loss_reg:.4f} | {test_acc_reg:.2%} |
 
-    print(f"Lightning EarlyStopping で学習開始 (patience={PATIENCE})...")
-    lit_ov_trainer.fit(lit_ov_model, train_loader_ov, val_loader_ov)
-    lit_ov_stopped_epoch = lit_ov_trainer.current_epoch
-    print(f"停止エポック: {lit_ov_stopped_epoch}")
-    return lit_ov_backbone, lit_ov_model, lit_ov_trainer, lit_ov_stopped_epoch
+    テストセットは学習にもバリデーションにも使われていない **未知データ** です。
+    この結果が各手法の真の汎化性能を表しています。
+    """)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ---
 
-        ## まとめ
+    ## まとめ
 
-        ### 各手法の特徴
+    ### 各手法の特徴
 
-        | 手法 | 概要 | 効果 | 注意点 |
-        |---|---|---|---|
-        | **Early Stopping** | val_loss が改善しなければ停止 | 最良の汎化点で学習終了 | patience の設定が必要 |
-        | **Dropout** | 学習時にニューロンをランダム無効化 | アンサンブル効果・汎化改善 | p が大きすぎると学習が遅い |
-        | **Weight Decay** | 重みが大きくなりすぎることを防ぐ | モデルの複雑さを制限 | 強すぎると underfitting |
+    | 手法 | 概要 | 効果 | 注意点 |
+    |---|---|---|---|
+    | **Early Stopping** | val_loss が改善しなければ停止 | 最良の汎化点で学習終了 | patience の設定が必要 |
+    | **Dropout** | 学習時にニューロンをランダム無効化 | アンサンブル効果・汎化改善 | p が大きすぎると学習が遅い |
+    | **Weight Decay** | 重みが大きくなりすぎることを防ぐ | モデルの複雑さを制限 | 強すぎると underfitting |
 
-        ### PyTorch Lightning での EarlyStopping
+    ### PyTorch Lightning での EarlyStopping
 
-        手動実装と Lightning コールバックは同じロジックですが、
-        Lightning 版は `patience`, `min_delta`, `mode` などのオプションが充実しています。
+    手動実装と Lightning コールバックは同じロジックですが、
+    Lightning 版は `patience`, `min_delta`, `mode` などのオプションが充実しています。
 
-        ### 試してみよう
+    ### 試してみよう
 
-        1. `PATIENCE` を 5 や 50 に変えて Early Stopping の挙動を確認
-        2. `DROPOUT` を 0.0 〜 0.5 で変えて効果の違いを観察
-        3. `WD` を 0.0 や 1e-2 に変えて Weight Decay の影響を確認
-        4. `SUBSET_SIZE` を 60 に増やすと過学習は軽減されるか確認
+    1. `PATIENCE` を 5 や 50 に変えて Early Stopping の挙動を確認
+    2. `DROPOUT` を 0.0 〜 0.5 で変えて効果の違いを観察
+    3. `WD` を 0.0 や 1e-2 に変えて Weight Decay の影響を確認
+    4. `SUBSET_SIZE` を 60 に増やすと過学習は軽減されるか確認
 
-        ### 次のノートブック
+    ### 次のノートブック
 
-        `notebook_03_transfer.py` で事前学習済み ResNet18 を使った転移学習を実践します。
-        """
-    )
+    `notebook_03_transfer.py` で事前学習済み ResNet18 を使った転移学習を実践します。
+    """)
     return
 
 

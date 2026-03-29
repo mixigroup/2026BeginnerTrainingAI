@@ -1,0 +1,104 @@
+<mxfile>
+  <diagram name="LightGBM Decision Tree" id="lgbm-tree">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title" value="LightGBM 決定木（勾配ブースティング）" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="450" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="120本の決定木（3クラス × 40ラウンド）のアンサンブル" style="text;html=0;align=center;verticalAlign=middle;fontSize=12;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="350" y="55" width="450" height="25" as="geometry"/>
+        </mxCell>
+
+        <!-- Single Tree Example -->
+        <mxCell id="tree_title" value="決定木の例（Tree 119 - 最大深さ5）" style="text;html=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=5;fontColor=#1E40AF;" vertex="1" parent="1">
+          <mxGeometry x="350" y="90" width="450" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Root node -->
+        <mxCell id="root" value="Column_3 ≤ 0.465&#xa;gain: 0.328&#xa;count: 90" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#DBEAFE;strokeColor=#2563EB;fontStyle=1;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="490" y="130" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Level 1 Left -->
+        <mxCell id="n1_left" value="Column_2 ≤ 0.567&#xa;gain: 0.160&#xa;count: 60" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#DBEAFE;strokeColor=#2563EB;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="250" y="240" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Level 1 Right -->
+        <mxCell id="n1_right" value="Column_3 ≤ 0.333&#xa;gain: 0.000&#xa;count: 57" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#DBEAFE;strokeColor=#2563EB;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="640" y="240" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Level 2 leaves and nodes -->
+        <mxCell id="leaf_1" value="Leaf: 0.029" style="ellipse;whiteSpace=wrap;html=0;fillColor=#FEF3C7;strokeColor=#D97706;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="370" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="leaf_2" value="Leaf: 0.158" style="ellipse;whiteSpace=wrap;html=0;fillColor=#FEF3C7;strokeColor=#D97706;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="370" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="leaf_3" value="Leaf: 0.000" style="ellipse;whiteSpace=wrap;html=0;fillColor=#FEF3C7;strokeColor=#D97706;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="540" y="370" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="n2_rr" value="Column_3 ≤ 0.000&#xa;gain: 0.000&#xa;count: 53" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#DBEAFE;strokeColor=#2563EB;fontSize=10;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="800" y="370" width="160" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Level 3 leaves -->
+        <mxCell id="leaf_4" value="Leaf: -0.067" style="ellipse;whiteSpace=wrap;html=0;fillColor=#D1FAE5;strokeColor=#059669;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="720" y="490" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="leaf_5" value="Leaf: -0.067" style="ellipse;whiteSpace=wrap;html=0;fillColor=#D1FAE5;strokeColor=#059669;fontStyle=1;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="900" y="490" width="120" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" value="yes" style="rounded=1;strokeColor=#059669;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#059669;" edge="1" source="root" target="n1_left" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="no" style="rounded=1;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#DC2626;" edge="1" source="root" target="n1_right" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="yes" style="rounded=1;strokeColor=#059669;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#059669;" edge="1" source="n1_left" target="leaf_1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="no" style="rounded=1;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#DC2626;" edge="1" source="n1_left" target="leaf_2" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="yes" style="rounded=1;strokeColor=#059669;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#059669;" edge="1" source="n1_right" target="leaf_3" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="no" style="rounded=1;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#DC2626;" edge="1" source="n1_right" target="n2_rr" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="yes" style="rounded=1;strokeColor=#059669;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#059669;" edge="1" source="n2_rr" target="leaf_4" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="no" style="rounded=1;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontSize=10;fontColor=#DC2626;" edge="1" source="n2_rr" target="leaf_5" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#F9FAFB;strokeColor=#E5E7EB;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="570" width="350" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_title" value="凡例" style="text;html=0;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="50" y="575" width="100" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_split" value="" style="rounded=1;fillColor=#DBEAFE;strokeColor=#2563EB;arcSize=20;" vertex="1" parent="1">
+          <mxGeometry x="50" y="605" width="30" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_split_t" value="分岐ノード（特徴量 ≤ 閾値で分岐）" style="text;html=0;align=left;verticalAlign=middle;fontSize=10;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="90" y="605" width="250" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_leaf" value="" style="ellipse;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="50" y="635" width="30" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_leaf_t" value="葉ノード（予測値を出力）" style="text;html=0;align=left;verticalAlign=middle;fontSize=10;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="90" y="635" width="250" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_yes_t" value="yes = 条件を満たす / no = 満たさない" style="text;html=0;align=left;verticalAlign=middle;fontSize=10;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="50" y="665" width="300" height="20" as="geometry"/>
+        </mxCell>
+
+        <!-- Ensemble info -->
+        <mxCell id="ensemble_box" value="" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#FEF3C7;strokeColor=#D97706;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="450" y="570" width="500" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="ens_title" value="アンサンブル（勾配ブースティング）" style="text;html=0;align=left;verticalAlign=middle;fontSize=12;fontStyle=1;fontColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="470" y="575" width="300" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="ens_text" value="Tree₁ + Tree₂ + ... + Tree₁₂₀ → 最終予測&#xa;&#xa;各ラウンドで前のラウンドの「残差」を学習する新しい木を追加。&#xa;120本 = 3クラス × 40ラウンド&#xa;各木の予測値を合算して最終的な確率を算出。" style="text;html=0;align=left;verticalAlign=top;fontSize=10;fontColor=#333333;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="470" y="600" width="460" height="80" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
