@@ -13,10 +13,6 @@ def _():
 
 @app.cell
 def _():
-    import sys
-
-    sys.path.insert(0, ".")
-
     import torch
     import matplotlib.pyplot as plt
 
@@ -26,70 +22,68 @@ def _():
     from src.utils import download_sample_image, get_label_name, build_label_map
 
     return (
-        sys,
-        torch,
-        plt,
-        load_image,
-        get_processor,
-        preprocess_image,
-        load_model,
-        run_inference,
-        postprocess_results,
-        visualize_results,
-        download_sample_image,
-        get_label_name,
         build_label_map,
+        download_sample_image,
+        get_processor,
+        load_model,
+        plt,
+        postprocess_results,
+        preprocess_image,
+        run_inference,
+        visualize_results,
     )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        # Object Detection ハンズオン：画像のML推論
+    import pathlib
 
-        このノートブックでは、**DETR（Detection Transformer）** を使って、
-        画像中の物体を検出するObject Detectionを体験します。
+    _pipeline_img = mo.image(src=str(pathlib.Path("imgs/inference-pipeline-flow.svg").resolve()))
 
-        ## 推論の3つの共通フェーズ
+    mo.md(rf"""
+    # Object Detection ハンズオン：画像のML推論
 
-        どんなモデルでも、推論は以下の3フェーズで構成されます。
+    このノートブックでは、**DETR（Detection Transformer）** を使って、
+    画像中の物体を検出するObject Detectionを体験します。
 
-        | フェーズ | 内容 |
-        |---|---|
-        | **1. Preprocess** | 画像を tensor（多次元配列）に変換・正規化 |
-        | **2. Forward** | モデルに tensor を入れて、出力 tensor を得る |
-        | **3. Postprocess** | 出力 tensor から bounding box とクラスを取り出す |
+    ## 推論の3つの共通フェーズ
 
-        ## 今回扱うモデル
+    どんなモデルでも、推論は以下の3フェーズで構成されます。
 
-        - **`facebook/detr-resnet-50`**（DETR: Detection Transformer）
-          - Transformer ベースの Object Detection モデル
-          - COCO データセット（80クラス）で学習済み
-          - HuggingFace `transformers` で簡単に利用可能
-        """
-    )
+    {_pipeline_img}
+
+    | フェーズ | 内容 |
+    |---|---|
+    | **1. Preprocess** | 画像を tensor（多次元配列）に変換・正規化 |
+    | **2. Forward** | モデルに tensor を入れて、出力 tensor を得る |
+    | **3. Postprocess** | 出力 tensor から bounding box とクラスを取り出す |
+
+    ## 今回扱うモデル
+
+    - **`facebook/detr-resnet-50`**（DETR: Detection Transformer）
+      - Transformer ベースの Object Detection モデル
+      - COCO データセット（80クラス）で学習済み
+      - HuggingFace `transformers` で簡単に利用可能
+    """)
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ---
 
-        ## Phase 1: Preprocess（前処理）
+    ## Phase 1: Preprocess（前処理）
 
-        生の画像データをモデルが受け付ける形式に変換します。
+    生の画像データをモデルが受け付ける形式に変換します。
 
-        ### 前処理で行うこと
+    ### 前処理で行うこと
 
-        1. **画像の読み込み** - URL またはローカルパスから PIL Image として読み込む
-        2. **リサイズ** - モデルが期待するサイズに変換（DETR は短辺 800px を基準）
-        3. **正規化** - ピクセル値を ImageNet の mean/std で標準化
-        4. **テンソル変換** - NumPy/PIL → PyTorch Tensor（形状: `[1, 3, H, W]`）
-        """
-    )
+    1. **画像の読み込み** - URL またはローカルパスから PIL Image として読み込む
+    2. **リサイズ** - モデルが期待するサイズに変換（DETR は短辺 800px を基準）
+    3. **正規化** - ピクセル値を ImageNet の mean/std で標準化
+    4. **テンソル変換** - NumPy/PIL → PyTorch Tensor（形状: `[1, 3, H, W]`）
+    """)
     return
 
 
@@ -98,7 +92,7 @@ def _():
     # --- Settings: Edit these to experiment! ---
     MODEL_NAME = "facebook/detr-resnet-50"
     IMAGE_URL = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    return MODEL_NAME, IMAGE_URL
+    return IMAGE_URL, MODEL_NAME
 
 
 @app.cell
@@ -123,7 +117,7 @@ def _(plt, sample_image):
     ax_original.axis("off")
     ax_original.set_title("Input Image")
     fig_original
-    return ax_original, fig_original
+    return
 
 
 @app.cell
@@ -163,31 +157,29 @@ def _(mo, preprocess_image, processor, sample_image):
         > これは ImageNet の mean/std で標準化されているためです。
         """
     )
-    return inputs, pixel_values
+    return (inputs,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ---
 
-        ## Phase 2: Forward（推論）
+    ## Phase 2: Forward（推論）
 
-        前処理済みの tensor をモデルに入力し、生の出力（logits）を得ます。
+    前処理済みの tensor をモデルに入力し、生の出力（logits）を得ます。
 
-        ### DETR の出力
+    ### DETR の出力
 
-        DETR は Transformer ベースのモデルで、以下を出力します：
+    DETR は Transformer ベースのモデルで、以下を出力します：
 
-        | 出力 | 形状 | 内容 |
-        |---|---|---|
-        | `logits` | `[1, 100, 92]` | 各クエリのクラス スコア（92 = 80クラス + "no object" + padding） |
-        | `pred_boxes` | `[1, 100, 4]` | 各クエリの bounding box（cx, cy, w, h、正規化済み [0, 1]） |
+    | 出力 | 形状 | 内容 |
+    |---|---|---|
+    | `logits` | `[1, 100, 92]` | 各クエリのクラス スコア（92 = 80クラス + "no object" + padding） |
+    | `pred_boxes` | `[1, 100, 4]` | 各クエリの bounding box（cx, cy, w, h、正規化済み [0, 1]） |
 
-        > DETR は 100 個のオブジェクトクエリを使って同時に複数の物体を検出します。
-        """
-    )
+    > DETR は 100 個のオブジェクトクエリを使って同時に複数の物体を検出します。
+    """)
     return
 
 
@@ -239,27 +231,25 @@ def _(inputs, mo, model, run_inference):
         > 次フェーズの後処理で confidence 閾値を使って絞り込みます。
         """
     )
-    return logits, outputs, pred_boxes
+    return (outputs,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ---
+    mo.md(r"""
+    ---
 
-        ## Phase 3: Postprocess（後処理）
+    ## Phase 3: Postprocess（後処理）
 
-        生の出力 tensor から、人間が理解できる検出結果に変換します。
+    生の出力 tensor から、人間が理解できる検出結果に変換します。
 
-        ### 後処理で行うこと
+    ### 後処理で行うこと
 
-        1. **Softmax** - logits を確率に変換
-        2. **閾値フィルタリング** - confidence スコアが閾値以上の検出のみ残す
-        3. **座標変換** - 正規化 [0, 1] の相対座標 → 画像上のピクセル座標
-        4. **ラベル変換** - クラスid → クラス名（"cat"、"dog" など）
-        """
-    )
+    1. **Softmax** - logits を確率に変換
+    2. **閾値フィルタリング** - confidence スコアが閾値以上の検出のみ残す
+    3. **座標変換** - 正規化 [0, 1] の相対座標 → 画像上のピクセル座標
+    4. **ラベル変換** - クラスid → クラス名（"cat"、"dog" など）
+    """)
     return
 
 
@@ -278,8 +268,8 @@ def _(
     model,
     outputs,
     postprocess_results,
-    sample_image,
     processor,
+    sample_image,
 ):
     label_map = build_label_map(model)
     detections = postprocess_results(
@@ -309,39 +299,57 @@ def _(
         > **閾値を変えて試してみよう**: `CONFIDENCE_THRESHOLD` を 0.5 にすると、より多くの検出が現れます。
         """
     )
-    return detections, label_map, rows
+    return detections, label_map
 
 
 @app.cell
 def _(detections, label_map, sample_image, visualize_results):
     result_fig = visualize_results(sample_image, detections, label_names=label_map)
     result_fig
-    return (result_fig,)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    import pathlib as _pathlib
+
+    _iou_img = mo.image(src=str(_pathlib.Path("imgs/iou-explanation.svg").resolve()))
+
+    mo.md(rf"""
+    ---
+
+    ## まとめ
+
+    このハンズオンで体験した3フェーズをふり返ります。
+
+    | フェーズ | 処理 | 入出力 |
+    |---|---|---|
+    | **Preprocess** | 画像 → tensor | `PIL.Image` → `{{pixel_values: Tensor[1,3,H,W]}}` |
+    | **Forward** | tensor → 生出力 | `{{pixel_values}}` → `{{logits: [1,100,92], pred_boxes: [1,100,4]}}` |
+    | **Postprocess** | 生出力 → 検出結果 | `logits + pred_boxes` → `[{{label, score, box}}, ...]` |
+
+    ### 評価指標：IoU と mAP
+
+    Object Detection の精度は **IoU（Intersection over Union）** で測ります。
+
+    {_iou_img}
+
+    - **IoU** = 予測 bbox と正解 bbox の重なり度合い（0〜1）
+    - **AP50**: IoU ≥ 0.5 で「正解」とみなす（検出漏れを見る指標）
+    - **AP75**: IoU ≥ 0.75 で「正解」とみなす（位置精度を見る指標）
+    - **mAP@[.50:.95]**: 10段階の IoU 閾値で平均した総合評価（COCO標準）
+
+    ### 発展課題
+
+    - `CONFIDENCE_THRESHOLD` を変えて検出数の変化を確認する
+    - `IMAGE_URL` を別の画像に変えて試す
+    - `MODEL_NAME` を `facebook/detr-resnet-101` に変えて精度を比較する
+    """)
+    return
 
 
 @app.cell
-def _(mo):
-    mo.md(
-        r"""
-        ---
-
-        ## まとめ
-
-        このハンズオンで体験した3フェーズをふり返ります。
-
-        | フェーズ | 処理 | 入出力 |
-        |---|---|---|
-        | **Preprocess** | 画像 → tensor | `PIL.Image` → `{pixel_values: Tensor[1,3,H,W]}` |
-        | **Forward** | tensor → 生出力 | `{pixel_values}` → `{logits: [1,100,92], pred_boxes: [1,100,4]}` |
-        | **Postprocess** | 生出力 → 検出結果 | `logits + pred_boxes` → `[{label, score, box}, ...]` |
-
-        ### 発展課題
-
-        - `CONFIDENCE_THRESHOLD` を変えて検出数の変化を確認する
-        - `IMAGE_URL` を別の画像に変えて試す
-        - `MODEL_NAME` を `facebook/detr-resnet-101` に変えて精度を比較する
-        """
-    )
+def _():
     return
 
 
