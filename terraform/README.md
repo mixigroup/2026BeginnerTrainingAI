@@ -23,12 +23,16 @@ GCPプロジェクト `hr-mixi` のインフラをTerraformで管理します。
 ### ユーザーの追加
 
 `terraform.tfvars` にメールアドレスを追加します。
+`terraform.tfvars.example` をコピーして作成してください。
+
+```bash
+cp terraform.tfvars.example terraform.tfvars
+```
 
 ```hcl
 workbench_emails = [
-  "takahiro.kinouchi@mixi.co.jp",
-  "taro.yamada@mixi.co.jp",      # 追加
-  "hanako.suzuki@mixi.co.jp",    # 追加
+  "taro.yamada@mixi.co.jp",
+  "hanako.suzuki@mixi.co.jp",
 ]
 ```
 
@@ -54,7 +58,8 @@ terraform apply
 
 | 項目 | 値 |
 |------|-----|
-| マシンタイプ | e2-standard-4 |
+| マシンタイプ | n1-standard-4 |
+| GPU | NVIDIA Tesla T4 × 1 |
 | ブートディスク | 150GB |
 | データディスク | 100GB |
 | リージョン | asia-northeast1-a |
