@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.4"
+__generated_with = "0.20.1"
 app = marimo.App(width="medium")
 
 
@@ -59,13 +59,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import sys
-
-    sys.path.insert(0, ".")
-
-    import numpy as np
-    import torch
-    import matplotlib.pyplot as plt
     from transformers import pipeline
 
     from src.preprocess import (
@@ -81,25 +74,21 @@ def _():
     from src.evaluate import compute_cer, compute_wer, evaluate_batch
 
     return (
-        sys,
-        np,
-        torch,
-        plt,
-        pipeline,
-        load_sample_audio,
-        load_feature_extractor,
-        resample_audio,
-        extract_features,
-        visualize_mel_spectrogram,
         TARGET_SAMPLING_RATE,
-        load_model,
-        encode_audio,
-        generate_tokens,
-        load_processor,
-        decode_tokens,
         compute_cer,
         compute_wer,
+        decode_tokens,
+        encode_audio,
         evaluate_batch,
+        extract_features,
+        generate_tokens,
+        load_feature_extractor,
+        load_model,
+        load_processor,
+        load_sample_audio,
+        pipeline,
+        resample_audio,
+        visualize_mel_spectrogram,
     )
 
 
@@ -114,15 +103,23 @@ def _(mo):
 
 
 @app.cell
-def _(load_sample_audio, pipeline):
-    MODEL_NAME = "openai/whisper-small"
-
-    # サンプル音声をロード（FLEURS 日本語データセット）
+def _(load_sample_audio, mo):
+    # サンプル音声をロード（JSUT 日本語データセット）
     audio_array, sampling_rate, reference_text = load_sample_audio(index=0)
 
-    print(f"音声の長さ: {len(audio_array) / sampling_rate:.1f} 秒")
-    print(f"サンプリングレート: {sampling_rate} Hz")
-    print(f"正解テキスト: {reference_text}")
+    mo.md(
+        f"""
+        音声の長さ: {len(audio_array) / sampling_rate:.1f} 秒\n
+        サンプリングレート: {sampling_rate} Hz\n
+        正解テキスト: {reference_text}
+        """
+    )
+    return audio_array, reference_text, sampling_rate
+
+
+@app.cell
+def _(audio_array, pipeline, sampling_rate):
+    MODEL_NAME = "openai/whisper-small"
 
     # pipeline で1行実行
     pipe = pipeline(
@@ -132,8 +129,7 @@ def _(load_sample_audio, pipeline):
     )
     result = pipe({"array": audio_array, "sampling_rate": sampling_rate})
     print(f"\npipeline の出力: {result['text']}")
-
-    return MODEL_NAME, audio_array, sampling_rate, reference_text
+    return (MODEL_NAME,)
 
 
 @app.cell(hide_code=True)
@@ -161,12 +157,12 @@ def _(mo):
 
 @app.cell
 def _(
+    MODEL_NAME,
+    TARGET_SAMPLING_RATE,
     audio_array,
     load_feature_extractor,
     resample_audio,
     sampling_rate,
-    MODEL_NAME,
-    TARGET_SAMPLING_RATE,
 ):
     # Step 1: リサンプリング
     print(f"元のサンプリングレート: {sampling_rate} Hz")
@@ -182,12 +178,16 @@ def _(
     print(f"\nFeature Extractor: {type(feature_extractor).__name__}")
     print(f"期待するサンプリングレート: {feature_extractor.sampling_rate} Hz")
     print(f"mel 帯域数: {feature_extractor.feature_size}")
-
     return feature_extractor, resampled_audio
 
 
 @app.cell
-def _(extract_features, feature_extractor, resampled_audio, TARGET_SAMPLING_RATE):
+def _(
+    TARGET_SAMPLING_RATE,
+    extract_features,
+    feature_extractor,
+    resampled_audio,
+):
     inputs = extract_features(feature_extractor, resampled_audio, TARGET_SAMPLING_RATE)
     input_features = inputs["input_features"]
 
@@ -198,8 +198,7 @@ def _(extract_features, feature_extractor, resampled_audio, TARGET_SAMPLING_RATE
     )
     print("  → 80 mel帯域 × 3000フレーム（30秒分）")
     print(f"dtype: {input_features.dtype}")
-
-    return inputs, input_features
+    return input_features, inputs
 
 
 @app.cell(hide_code=True)
@@ -218,14 +217,13 @@ def _(mo):
 
 
 @app.cell
-def _(input_features, visualize_mel_spectrogram, reference_text):
+def _(input_features, reference_text, visualize_mel_spectrogram):
     fig = visualize_mel_spectrogram(
         input_features,
         title=f"Log-Mel Spectrogram\n（音声: 「{reference_text}」）",
     )
     fig
-
-    return (fig,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -258,7 +256,7 @@ def _(mo):
 
 
 @app.cell
-def _(MODEL_NAME, inputs, encode_audio, load_model):
+def _(MODEL_NAME, encode_audio, inputs, load_model):
     # モデルのロード
     model = load_model(MODEL_NAME)
     num_params = sum(p.numel() for p in model.parameters())
@@ -271,19 +269,17 @@ def _(MODEL_NAME, inputs, encode_audio, load_model):
     hidden_states = encoder_outputs.last_hidden_state
     print(f"encoder hidden states shape: {tuple(hidden_states.shape)}")
     print(f"  → (batch_size=1, seq_len=1500, hidden_size={hidden_states.shape[-1]})")
-
-    return model, encoder_outputs, hidden_states
+    return (model,)
 
 
 @app.cell
-def _(inputs, model, generate_tokens):
+def _(generate_tokens, inputs, model):
     # Decoder フェーズ（自己回帰生成）
     print("--- Decoder（自己回帰生成）---")
     predicted_ids = generate_tokens(model, inputs, language="japanese")
     print(f"token ids shape: {tuple(predicted_ids.shape)}")
     print(f"token ids: {predicted_ids.tolist()}")
     print(f"生成トークン数: {predicted_ids.shape[1]}")
-
     return (predicted_ids,)
 
 
@@ -309,7 +305,7 @@ def _(mo):
 
 
 @app.cell
-def _(MODEL_NAME, predicted_ids, load_processor, decode_tokens):
+def _(MODEL_NAME, decode_tokens, load_processor, predicted_ids):
     processor = load_processor(MODEL_NAME)
 
     # 特殊トークンを含む raw デコード結果（教育用）
@@ -319,7 +315,6 @@ def _(MODEL_NAME, predicted_ids, load_processor, decode_tokens):
     # 特殊トークンを除去した最終テキスト
     transcription = decode_tokens(processor, predicted_ids)
     print(f"\n最終テキスト: {transcription}")
-
     return processor, transcription
 
 
@@ -329,7 +324,6 @@ def _(reference_text, transcription):
     print(f"正解テキスト: {reference_text}")
     print(f"予測テキスト: {transcription}")
     print("\npipeline の出力と同じ結果になっているはず！")
-
     return
 
 
@@ -370,18 +364,16 @@ def _(mo):
 
 
 @app.cell
-def _(reference_text, transcription, compute_cer, compute_wer):
+def _(compute_cer, compute_wer, reference_text, transcription):
     # レベル1（直感的）: 1件の正誤判定
     cer = compute_cer(reference_text, transcription)
     wer = compute_wer(reference_text, transcription)
 
-    mark = "✅" if cer == 0.0 else "❌"
-    print(f"{mark} 正解: {reference_text}")
-    print(f"   予測: {transcription}")
-    print(f"   CER: {cer:.1%}")
-    print(f"   WER: {wer:.1%}")
-
-    return (cer, wer)
+    print(f"正解: {reference_text}")
+    print(f"予測: {transcription}")
+    print(f"CER: {cer:.1%}")
+    print(f"WER: {wer:.1%}")
+    return
 
 
 @app.cell(hide_code=True)
@@ -396,15 +388,15 @@ def _(mo):
 
 @app.cell
 def _(
-    resample_audio,
-    extract_features,
-    feature_extractor,
-    model,
-    generate_tokens,
-    processor,
+    TARGET_SAMPLING_RATE,
     decode_tokens,
     evaluate_batch,
-    TARGET_SAMPLING_RATE,
+    extract_features,
+    feature_extractor,
+    generate_tokens,
+    model,
+    processor,
+    resample_audio,
 ):
     from datasets import load_dataset
 
@@ -413,7 +405,8 @@ def _(
     print("データセットをロード中...")
     # データセットを一度だけロードしてキャッシュする（毎ループ再ロードを避ける）
     eval_dataset = load_dataset(
-        "google/fleurs", "ja_jp", split=f"test[:{NUM_EVAL_SAMPLES}]"
+        "japanese-asr/ja_asr.jsut_basic5000",
+        split=f"test[:{NUM_EVAL_SAMPLES}]",
     )
 
     print(f"評価中（{NUM_EVAL_SAMPLES}件）...")
@@ -443,14 +436,10 @@ def _(
     print(f"\n{'正解テキスト':<25} {'予測テキスト':<25} {'CER':>6}")
     print("-" * 65)
     for r in results:
-        mark = "✅" if r["correct"] else "❌"
-        print(
-            f"{mark} {r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}"
-        )
+        print(f"{r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}")
 
     print(f"\n平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）")
-
-    return results, avg_wer, avg_cer, eval_references, eval_hypotheses
+    return
 
 
 @app.cell(hide_code=True)
