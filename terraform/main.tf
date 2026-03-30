@@ -66,7 +66,12 @@ resource "google_workbench_instance" "workbench" {
   project  = var.project_id
 
   gce_setup {
-    machine_type = "e2-standard-4"
+    machine_type = "n1-standard-4"
+
+    accelerator_configs {
+      type       = "NVIDIA_TESLA_T4"
+      core_count = 1
+    }
 
     boot_disk {
       disk_size_gb    = 150
