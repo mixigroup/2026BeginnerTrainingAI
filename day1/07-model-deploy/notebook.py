@@ -67,9 +67,9 @@ def _():
 
     PROJECT_ID = "hr-mixi"
     REGION = "asia-northeast1"
-    GCS_BUCKET = "mixi-ml-handson-2026"
+    GCS_BUCKET = "mixi-ml-handson-2025"
 
-    MODEL_GCS_URI = f"gs://{GCS_BUCKET}/models/{USER}/yolo.onnx"
+    MODEL_GCS_URI = f"gs://{GCS_BUCKET}/models2026/{USER}/yolo.onnx"
     IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-handson/yolo-server:{USER}"
 
     print(f"USER          : {USER}")
@@ -98,34 +98,29 @@ def _(mo):
     return
 
 
-@app.cell
-def _(GCS_BUCKET, USER, mo):
-    import subprocess
+@app.cell(hide_code=True)
+def _(GCS_BUCKET, MODEL_GCS_URI, USER, mo):
+    mo.md(f"""
+    以下のコマンドを実行してモデルをアップロードしてください：
 
-    upload_cmd = f"gsutil cp ../06-accelerate-ml-model/yolo26m-pose.onnx gs://{GCS_BUCKET}/models/{USER}/yolo.onnx"
-    mo.md(
-        f"""
-        以下のコマンドを実行してモデルをアップロードしてください：
+    ```bash
+    gcloud storage cp ../06-accelerate-ml-model/yolo26m-pose.onnx {MODEL_GCS_URI}
+    ```
 
-        ```bash
-        {upload_cmd}
-        ```
+    アップロードできたか確認：
 
-        アップロードできたか確認：
-
-        ```bash
-        gsutil ls gs://{GCS_BUCKET}/models/{USER}/
-        ```
-        """
-    )
-    return (subprocess,)
+    ```bash
+    gcloud storage ls gs://{GCS_BUCKET}/models/{USER}/
+    ```
+    """)
+    return
 
 
 @app.cell
 def _(GCS_BUCKET, USER, mo, subprocess):
     # Verify the model exists on GCS
     verify_result = subprocess.run(
-        ["gsutil", "ls", f"gs://{GCS_BUCKET}/models/{USER}/"],
+        ["gcloud", "ls", f"gs://{GCS_BUCKET}/models/{USER}/"],
         capture_output=True,
         text=True,
     )
@@ -164,12 +159,14 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
+
     with open("src/predictor.py") as f:
         predictor_code = f.read()
 
-    mo.md(f"```python\n{predictor_code}\n```")
+    mo.md(f"```\n{predictor_code}\n```")
+
     return
 
 
@@ -181,7 +178,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     with open("src/app.py") as f2:
         app_code = f2.read()
@@ -227,12 +224,10 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
     with open("Dockerfile") as f3:
         dockerfile_code = f3.read()
 
     mo.md(f"```dockerfile\n{dockerfile_code}\n```")
-    """)
     return
 
 
@@ -333,7 +328,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(IMAGE_URI, MODEL_GCS_URI, REGION, USER, mo):
     mo.md(f"""
     ```bash
