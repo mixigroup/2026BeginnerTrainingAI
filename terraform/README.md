@@ -7,6 +7,9 @@ GCPプロジェクト `hr-mixi` のインフラをTerraformで管理します。
 - **GCS バケット**
   - `ai-training-terraform-state` — Terraform stateの保存先
   - `mixi-ml-workbench-notebook-utils` — Workbench用ユーティリティスクリプト
+- **サービスアカウント**
+  - `ml-workbench-vm@hr-mixi.iam.gserviceaccount.com` — Workbench VM 用
+  - 付与ロール: `roles/notebooks.admin`, `roles/storage.admin`
 - **Vertex AI Workbench インスタンス** — メールアドレスリストから一括作成
 
 ## 前提条件
@@ -14,50 +17,6 @@ GCPプロジェクト `hr-mixi` のインフラをTerraformで管理します。
 - [Terraform](https://developer.hashicorp.com/terraform/install) >= 1.5
 - [gcloud CLI](https://cloud.google.com/sdk/docs/install)
 - GCPプロジェクト `hr-mixi` への適切な権限（Editor以上）
-
-## 初期セットアップ
-
-### 1. Stateバケットの作成
-
-Terraform backendに使用するGCSバケットを手動で作成します。
-
-```bash
-gcloud storage buckets create gs://ai-training-terraform-state \
-  --project=hr-mixi \
-  --location=asia-northeast1 \
-  --uniform-bucket-level-access
-```
-
-### 2. Terraform初期化
-
-```bash
-cd terraform
-terraform init
-```
-
-### 3. 既存リソースのインポート
-
-既に存在するリソースをTerraform管理下に置きます。
-
-```bash
-# Stateバケット自体をインポート
-terraform import google_storage_bucket.terraform_state hr-mixi/ai-training-terraform-state
-
-# notebook-utilsバケットをインポート
-terraform import google_storage_bucket.notebook_utils hr-mixi/mixi-ml-workbench-notebook-utils
-
-# 既存のWorkbenchインスタンスをインポート（例: takahiro-kinouchi）
-terraform import 'google_workbench_instance.workbench["takahiro-kinouchi"]' \
-  projects/hr-mixi/locations/asia-northeast1-a/instances/takahiro-kinouchi
-```
-
-### 4. 差分確認
-
-```bash
-terraform plan
-```
-
-`No changes` と表示されれば成功です。差分がある場合は `main.tf` を調整してください。
 
 ## 使い方
 
@@ -100,6 +59,6 @@ terraform apply
 | データディスク | 100GB |
 | リージョン | asia-northeast1-a |
 | ネットワーク | default |
-| サービスアカウント | ml-workbench-vm@hr-mixi.iam.gserviceaccount.com |
+| サービスアカウント | <ml-workbench-vm@hr-mixi.iam.gserviceaccount.com> |
 | 起動スクリプト | gs://mixi-ml-workbench-notebook-utils/entrypoint.sh |
 | アイドルタイムアウト | 3時間 (10800秒) |

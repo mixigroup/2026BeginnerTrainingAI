@@ -100,7 +100,8 @@ resource "google_workbench_instance" "workbench" {
       disable-swap-binaries        = "true"
       idle-timeout-seconds         = "10800"
 
-      # 5時間 cpuが使われてなかったら落とすcron jobを設定する
+      # 一定時間 cpuが使われてなかったら落とすcron jobを設定する
+      # 詳細はbucketの中のスクリプトを参照
       post-startup-script          = "gs://mixi-ml-workbench-notebook-utils/entrypoint.sh" 
       post-startup-script-behavior = "run_every_start"
       proxy-mode                   = "service_account"
