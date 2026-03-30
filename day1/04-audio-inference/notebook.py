@@ -106,15 +106,25 @@ def _(mo):
 
 
 @app.cell
-def _(load_sample_audio, pipeline):
-    MODEL_NAME = "openai/whisper-small"
-
+def _(load_sample_audio, mo):
     # サンプル音声をロード（JSUT 日本語データセット）
     audio_array, sampling_rate, reference_text = load_sample_audio(index=0)
 
-    print(f"音声の長さ: {len(audio_array) / sampling_rate:.1f} 秒")
-    print(f"サンプリングレート: {sampling_rate} Hz")
-    print(f"正解テキスト: {reference_text}")
+    mo.md(
+        f"""
+        音声の長さ: {len(audio_array) / sampling_rate:.1f} 秒\n
+        サンプリングレート: {sampling_rate} Hz\n
+        正解テキスト: {reference_text}
+        """
+    )
+    return audio_array, reference_text, sampling_rate
+
+
+@app.cell
+def _(audio_array, pipeline, sampling_rate):
+    MODEL_NAME = "openai/whisper-small"
+
+
 
     # pipeline で1行実行
     pipe = pipeline(
@@ -124,7 +134,7 @@ def _(load_sample_audio, pipeline):
     )
     result = pipe({"array": audio_array, "sampling_rate": sampling_rate})
     print(f"\npipeline の出力: {result['text']}")
-    return MODEL_NAME, audio_array, reference_text, sampling_rate
+    return (MODEL_NAME,)
 
 
 @app.cell(hide_code=True)
@@ -364,11 +374,10 @@ def _(compute_cer, compute_wer, reference_text, transcription):
     cer = compute_cer(reference_text, transcription)
     wer = compute_wer(reference_text, transcription)
 
-    mark = "✅" if cer == 0.0 else "❌"
-    print(f"{mark} 正解: {reference_text}")
-    print(f"   予測: {transcription}")
-    print(f"   CER: {cer:.1%}")
-    print(f"   WER: {wer:.1%}")
+    print(f"正解: {reference_text}")
+    print(f"予測: {transcription}")
+    print(f"CER: {cer:.1%}")
+    print(f"WER: {wer:.1%}")
     return
 
 
@@ -432,9 +441,8 @@ def _(
     print(f"\n{'正解テキスト':<25} {'予測テキスト':<25} {'CER':>6}")
     print("-" * 65)
     for r in results:
-        mark = "✅" if r["correct"] else "❌"
         print(
-            f"{mark} {r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}"
+            f"{r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}"
         )
 
     print(f"\n平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）")
