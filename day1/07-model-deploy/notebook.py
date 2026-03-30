@@ -67,9 +67,9 @@ def _():
 
     PROJECT_ID = "hr-mixi"
     REGION = "asia-northeast1"
-    GCS_BUCKET = "mixi-ml-handson-2025"
+    GCS_BUCKET = "hr-mixi-ml-handson"
 
-    MODEL_GCS_URI = f"gs://{GCS_BUCKET}/models2026/{USER}/yolo.onnx"
+    MODEL_GCS_URI = f"gs://{GCS_BUCKET}/2026/models/{USER}/yolo.onnx"
     IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-handson/yolo-server:{USER}"
 
     print(f"USER          : {USER}")
@@ -166,7 +166,6 @@ def _(mo):
         predictor_code = f.read()
 
     mo.md(f"```\n{predictor_code}\n```")
-
     return
 
 
