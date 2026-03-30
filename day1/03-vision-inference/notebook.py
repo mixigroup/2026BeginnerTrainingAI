@@ -13,13 +13,12 @@ def _():
 
 @app.cell
 def _():
-    import torch
     import matplotlib.pyplot as plt
 
-    from src.preprocess import load_image, get_processor, preprocess_image
+    from src.preprocess import get_processor, preprocess_image
     from src.inference import load_model, run_inference
     from src.postprocess import postprocess_results, visualize_results
-    from src.utils import download_sample_image, get_label_name, build_label_map
+    from src.utils import download_sample_image, build_label_map
 
     return (
         build_label_map,
@@ -38,7 +37,9 @@ def _():
 def _(mo):
     import pathlib
 
-    _pipeline_img = mo.image(src=str(pathlib.Path("imgs/inference-pipeline-flow.svg").resolve()))
+    _pipeline_img = mo.image(
+        src=str(pathlib.Path("imgs/inference-pipeline-flow.svg").resolve())
+    )
 
     mo.md(rf"""
     # Object Detection ハンズオン：画像のML推論

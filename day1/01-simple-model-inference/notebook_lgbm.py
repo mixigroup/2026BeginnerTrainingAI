@@ -42,7 +42,6 @@ def _(mo):
 @app.cell
 def _():
     import numpy as np
-    import pandas as pd
     import matplotlib.pyplot as plt
     import seaborn as sns
     import lightgbm as lgb
@@ -51,7 +50,6 @@ def _():
     from src.dataset import (
         load_iris_data,
         load_scaler_params,
-        normalize_features,
         prepare_test_data,
     )
     from src.evaluate import plot_confusion_matrix, format_classification_report
@@ -334,14 +332,16 @@ def _(lgbm_model):
 
 @app.cell(hide_code=True)
 def _(mo, pathlib, tree_df):
-    _tdf_img = mo.image(src=str(pathlib.Path("img/lgbm_trees_to_dataframe.png").resolve()))
+    _tdf_img = mo.image(
+        src=str(pathlib.Path("img/lgbm_trees_to_dataframe.png").resolve())
+    )
 
     mo.md(rf"""
     #### trees_to_dataframe() の概要
 
     - 全ノード数: **{len(tree_df)}**
-    - ツリー数: **{tree_df['tree_index'].nunique()}** 本（3クラス × {tree_df['tree_index'].nunique() // 3} ラウンド）
-    - 最大深さ: **{tree_df['node_depth'].max()}**
+    - ツリー数: **{tree_df["tree_index"].nunique()}** 本（3クラス × {tree_df["tree_index"].nunique() // 3} ラウンド）
+    - 最大深さ: **{tree_df["node_depth"].max()}**
 
     各行が決定木の1ノードに対応し、分岐条件（`split_feature`, `threshold`）や葉の値（`value`）を確認できます。
 

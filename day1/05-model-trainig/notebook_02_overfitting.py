@@ -44,8 +44,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import numpy as np
-    import matplotlib.pyplot as plt
     import torch
     import torch.nn as nn
     import torch.optim as optim
@@ -53,13 +51,11 @@ def _():
     from src.dataset import load_iris_dataloaders
     from src.model import OversizedFCNet, FCNet
     from src.evaluate import (
-        TrainingHistory,
         evaluate,
         train_model,
         plot_learning_curves,
         compare_learning_curves,
     )
-
 
     return (
         FCNet,

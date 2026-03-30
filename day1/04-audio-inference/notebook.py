@@ -59,9 +59,6 @@ def _(mo):
 
 @app.cell
 def _():
-    import numpy as np
-    import torch
-    import matplotlib.pyplot as plt
     from transformers import pipeline
 
     from src.preprocess import (
@@ -123,8 +120,6 @@ def _(load_sample_audio, mo):
 @app.cell
 def _(audio_array, pipeline, sampling_rate):
     MODEL_NAME = "openai/whisper-small"
-
-
 
     # pipeline で1行実行
     pipe = pipeline(
@@ -441,9 +436,7 @@ def _(
     print(f"\n{'正解テキスト':<25} {'予測テキスト':<25} {'CER':>6}")
     print("-" * 65)
     for r in results:
-        print(
-            f"{r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}"
-        )
+        print(f"{r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}")
 
     print(f"\n平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）")
     return

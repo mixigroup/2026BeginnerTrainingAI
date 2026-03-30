@@ -43,7 +43,6 @@ def _(mo):
 def _():
     import numpy as np
     import pandas as pd
-    import matplotlib.pyplot as plt
     import seaborn as sns
     import torch
     import pathlib
@@ -51,12 +50,10 @@ def _():
     from src.dataset import (
         load_iris_data,
         load_scaler_params,
-        normalize_features,
         prepare_test_data,
     )
     from src.model import FCNet
     from src.evaluate import plot_confusion_matrix, format_classification_report
-
 
     return (
         FCNet,
@@ -187,7 +184,6 @@ def _(TARGET_NAMES, X_test, mo, np, scaler_params):
 
 @app.cell(hide_code=True)
 def _(mo, pathlib):
-
 
     _dense_img = mo.image(src=str(pathlib.Path("images/dense.png").resolve()))
 
@@ -342,7 +338,7 @@ def _(TARGET_NAMES, plot_confusion_matrix, y_pred_nn, y_test):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(rf"""
+    mo.md(r"""
     ### Softmax で確率に変換
 
     logits に Softmax を適用すると、各クラスの確率（合計 = 1.0）に変換できます。
@@ -373,7 +369,7 @@ def _(mo, proba_df):
     mo.md(rf"""
     先頭5件の予測確率:
 
-    { proba_df.to_markdown(index=False, floatfmt=".4f") }
+    {proba_df.to_markdown(index=False, floatfmt=".4f")}
     """)
     return
 
