@@ -31,6 +31,14 @@ resource "google_storage_bucket" "notebook_utils" {
   }
 }
 
+resource "google_storage_bucket" "ai_trainig_bucket" {
+  name                        = "hr-mixi-handson"
+  location                    = "ASIA-NORTHEAST1"
+  project                     = var.project_id
+  public_access_prevention    = "enforced"
+  uniform_bucket_level_access = true
+}
+
 # ==============================================================================
 # Service Accounts
 # ==============================================================================
