@@ -60,7 +60,7 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: 自分の名前（英字小文字）を入れてください ---
-    USER = "your_name"
+    USER = "takahiro_kinouchi"
 
     if USER == "your_name":
         raise ValueError("USER を自分の名前（英字小文字）に変更してください！")
@@ -75,7 +75,7 @@ def _():
     print(f"USER          : {USER}")
     print(f"MODEL_GCS_URI : {MODEL_GCS_URI}")
     print(f"IMAGE_URI     : {IMAGE_URI}")
-    return GCS_BUCKET, IMAGE_URI, MODEL_GCS_URI, PROJECT_ID, REGION, USER
+    return IMAGE_URI, MODEL_GCS_URI, PROJECT_ID, REGION, USER
 
 
 @app.cell(hide_code=True)
@@ -99,7 +99,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(GCS_BUCKET, MODEL_GCS_URI, USER, mo):
+def _(MODEL_GCS_URI, mo):
     mo.md(f"""
     以下のコマンドを実行してモデルをアップロードしてください：
 
@@ -110,35 +110,9 @@ def _(GCS_BUCKET, MODEL_GCS_URI, USER, mo):
     アップロードできたか確認：
 
     ```bash
-    gcloud storage ls gs://{GCS_BUCKET}/models/{USER}/
+    gcloud storage ls {MODEL_GCS_URI}
     ```
     """)
-    return
-
-
-@app.cell
-def _(GCS_BUCKET, USER, mo, subprocess):
-    # Verify the model exists on GCS
-    verify_result = subprocess.run(
-        ["gcloud", "ls", f"gs://{GCS_BUCKET}/models/{USER}/"],
-        capture_output=True,
-        text=True,
-    )
-
-    if verify_result.returncode == 0 and verify_result.stdout.strip():
-        mo.md(f"""
-        **GCS 確認完了！**
-
-        ```
-        {verify_result.stdout.strip()}
-        ```
-        """)
-    else:
-        mo.md("""
-        > **GCS にモデルが見つかりません。**
-        >
-        > 上のコマンドを実行してからこのセルを再実行してください。
-        """)
     return
 
 
@@ -231,7 +205,7 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(MODEL_GCS_URI, mo):
+def _(MODEL_GCS_URI, PROJECT_ID, mo):
     mo.md(f"""
     ### Docker ビルドと起動
 
@@ -240,13 +214,35 @@ def _(MODEL_GCS_URI, mo):
     ```bash
     # 1. イメージをビルド
     docker build -t yolo-server .
+    ```
 
-    # 2. ローカルで起動（GCS認証をマウント）
+    #### Mac（ローカル）の場合
+
+    `~/.config/gcloud` の認証情報をマウントして使います。
+
+    ```bash
     docker run -p 8080:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
+        -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
         -v ~/.config/gcloud:/root/.config/gcloud:ro \\
         yolo-server
     ```
+
+    #### Vertex AI Workbench の場合
+
+    GCE メタデータサーバー経由で認証するため、`--network host` を指定します。
+    `~/.config/gcloud` のマウントは不要です。
+
+    ```bash
+    docker run --network host \\
+        -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
+        -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
+        yolo-server
+    ```
+
+    > `--network host` はコンテナがホストのネットワークを共有するため、`-p 8080:8080` は不要です。
+
+    ---
 
     別のターミナルで動作確認：
 
@@ -255,9 +251,11 @@ def _(MODEL_GCS_URI, mo):
     curl http://localhost:8080/health
     # 期待する結果: {{"status": "ok"}}
 
-    # 推論テスト
+    # 推論テスト（base64 JSON形式）
+    IMAGE_B64=$(base64 -i ./images/sample.jpeg)
     curl -X POST http://localhost:8080/predict \\
-        -F "file=@../06-accelerate-ml-model/images/bus.jpg"
+        -H "Content-Type: application/json" \\
+        -d '{{"instances": [{{"image": "'"$IMAGE_B64"'"}}]}}'
     ```
     """)
     return

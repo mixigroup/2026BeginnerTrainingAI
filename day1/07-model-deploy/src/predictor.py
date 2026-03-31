@@ -7,6 +7,8 @@ then runs inference using ONNX Runtime.
 
 from urllib.parse import urlparse
 
+import os
+
 import cv2
 import numpy as np
 import onnxruntime as ort
@@ -28,7 +30,8 @@ def download_model(gcs_uri: str, local_path: str) -> None:
     blob_path = parsed.path.lstrip("/")
 
     print(f"Downloading model from gs://{bucket_name}/{blob_path} → {local_path}")
-    client = storage.Client()
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    client = storage.Client(project=project)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(blob_path)
     blob.download_to_filename(local_path)
@@ -94,9 +97,9 @@ def _postprocess(
     pred = output[0].T  # (anchors, channels)
 
     channels = pred.shape[1]
-    # Detection: 4 (bbox) + 80 (COCO classes) = 84 channels
+    # Detection: 4 (bbox) + N (class scores) channels (e.g. 84 for COCO 80 classes)
     # Pose:      4 (bbox) + 1 (obj conf) + 51 (17 keypoints * 3) = 56 channels
-    is_pose = channels != 84
+    is_pose = channels == 56
 
     # --- Extract boxes and confidence scores ---
     # First 4 values: cx, cy, w, h (normalized to 640x640 space)

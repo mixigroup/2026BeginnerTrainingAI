@@ -14,7 +14,7 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    # 04 モデルのエクスポート・高速化
+    # 06 モデルのエクスポート・高速化
 
     このノートブックでは以下を学びます：
 
@@ -55,13 +55,13 @@ def _(mo):
 
 @app.cell
 def _():
-    import os
+    from pathlib import Path
 
     from ultralytics import YOLO
     from onnxruntime.quantization import quantize_dynamic, QuantType
 
     print("Libraries loaded successfully.")
-    return QuantType, YOLO, os, quantize_dynamic
+    return Path, QuantType, YOLO, quantize_dynamic
 
 
 @app.cell(hide_code=True)
@@ -86,21 +86,9 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    run_export_button = mo.ui.run_button(label="ONNX エクスポートを実行")
-    run_export_button
-    return (run_export_button,)
-
-
-@app.cell
-def _(YOLO, mo, run_export_button):
-    mo.stop(
-        not run_export_button.value,
-        mo.md("▲ ボタンを押して ONNX エクスポートを実行してください。"),
-    )
-
-    _model = YOLO("yolo26m-pose.pt")
-    _export_path = _model.export(
+def _(YOLO, mo):
+    model = YOLO("yolo26m-pose.pt")
+    export_path = model.export(
         format="onnx",
         imgsz=640,
         opset=17,
@@ -110,7 +98,7 @@ def _(YOLO, mo, run_export_button):
         nms=True,
         # half=True,  # FP16 export (disabled by default)
     )
-    mo.md(f"**エクスポート完了！** 出力先: `{_export_path}`")
+    mo.md(f"**エクスポート完了！** 出力先: `{export_path}`")
     return
 
 
@@ -130,37 +118,32 @@ def _(mo):
 
 
 @app.cell
-def _(mo, os):
-    _files = {
+def _(Path, mo):
+    files = {
         "yolo26m-pose.pt": "PyTorch (.pt)",
         # "yolo26m-pose.onnx": "ONNX (.onnx)",
         # "yolo26m-pose-quantized.onnx": "ONNX qint8 (.onnx)",
     }
 
-    _rows = []
-    for _fname, _label in _files.items():
-        if os.path.exists(_fname):
-            _size_mb = os.path.getsize(_fname) / (1024 * 1024)
-            _rows.append(
+    rows = []
+    for fname, label in files.items():
+        p = Path(fname)
+        if p.exists():
+            size_mb = p.stat().st_size / (1024 * 1024)
+            rows.append(
                 {
-                    "モデル": _label,
-                    "ファイル名": _fname,
-                    "サイズ (MB)": f"{_size_mb:.1f}",
+                    "モデル": label,
+                    "ファイル名": fname,
+                    "サイズ (MB)": f"{size_mb:.1f}",
                 }
             )
 
-    if _rows:
-        mo.md(
-            "### 現在のファイルサイズ\n\n"
-            + mo.as_html(
-                mo.ui.table(
-                    _rows,
-                    selection=None,
-                )
-            ).text
-        )
-    else:
-        mo.md("_まだモデルファイルが見つかりません。Step 2 を実行してください。_")
+    table = mo.ui.table(rows, selection=None)
+    mo.md(f"""
+    ### 現在のファイルサイズ
+    {table}
+    """)
+
     return
 
 
@@ -212,39 +195,27 @@ def _(mo):
 
 
 @app.cell
-def _(mo):
-    run_quant_button = mo.ui.run_button(label="INT8 量子化を実行")
-    run_quant_button
-    return (run_quant_button,)
+def _(Path, QuantType, mo, quantize_dynamic):
+    model_fp32 = "yolo26m-pose.onnx"
+    model_quant = "yolo26m-pose-quantized.onnx"
 
-
-@app.cell
-def _(QuantType, mo, os, quantize_dynamic, run_quant_button):
-    mo.stop(
-        not run_quant_button.value,
-        mo.md("▲ ボタンを押して INT8 量子化を実行してください。"),
-    )
-
-    _model_fp32 = "yolo26m-pose.onnx"
-    _model_quant = "yolo26m-pose-quantized.onnx"
-
-    if not os.path.exists(_model_fp32):
+    if not Path(model_fp32).exists():
         mo.stop(
             True,
             mo.callout(
                 mo.md(
-                    f"`{_model_fp32}` が見つかりません。先に Step 2 を実行してください。"
+                    f"`{model_fp32}` が見つかりません。先に Step 2 を実行してください。"
                 ),
                 kind="warn",
             ),
         )
 
     quantize_dynamic(
-        _model_fp32,
-        _model_quant,
+        model_fp32,
+        model_quant,
         weight_type=QuantType.QInt8,
     )
-    mo.md(f"**量子化完了！** 出力先: `{_model_quant}`")
+    mo.md(f"**量子化完了！** 出力先: `{model_quant}`")
     return
 
 
@@ -257,34 +228,33 @@ def _(mo):
 
 
 @app.cell
-def _(mo, os):
-    _files = [
+def _(Path, mo):
+    quant_entries = [
         ("yolo26m-pose.pt", "PyTorch (.pt)"),
         ("yolo26m-pose.onnx", "ONNX FP32 (.onnx)"),
         ("yolo26m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
     ]
 
-    _rows = []
-    _base_size = None
-    for _fname, _label in _files:
-        if os.path.exists(_fname):
-            _size_mb = os.path.getsize(_fname) / (1024 * 1024)
-            if _base_size is None:
-                _base_size = _size_mb
-            _ratio = f"{_size_mb / _base_size * 100:.0f}%" if _base_size else "-"
-            _rows.append(
+    quant_rows = []
+    quant_base = None
+    for quant_name, quant_label in quant_entries:
+        quant_path = Path(quant_name)
+        if quant_path.exists():
+            quant_size = quant_path.stat().st_size / (1024 * 1024)
+            if quant_base is None:
+                quant_base = quant_size
+            quant_ratio = f"{quant_size / quant_base * 100:.0f}%" if quant_base else "-"
+            quant_rows.append(
                 {
-                    "モデル": _label,
-                    "ファイル名": _fname,
-                    "サイズ (MB)": f"{_size_mb:.1f}",
-                    ".pt 比": _ratio,
+                    "モデル": quant_label,
+                    "ファイル名": quant_name,
+                    "サイズ (MB)": f"{quant_size:.1f}",
+                    ".pt 比": quant_ratio,
                 }
             )
 
-    if _rows:
-        mo.ui.table(_rows, selection=None)
-    else:
-        mo.md("_モデルファイルが見つかりません。Step 2・Step 5 を実行してください。_")
+    mo.ui.table(quant_rows, selection=None)
+
     return
 
 
@@ -363,8 +333,8 @@ def _(mo):
 
 
 @app.cell
-def _(mo, os):
-    _files = [
+def _(Path, mo):
+    all_entries = [
         ("yolo26m-pose.pt", "PyTorch (.pt)"),
         ("yolo26m-pose.onnx", "ONNX FP32 (.onnx)"),
         ("yolo26m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
@@ -372,27 +342,25 @@ def _(mo, os):
         ("yolo26m-pose-pruned.onnx", "Pruned ONNX (.onnx)"),
     ]
 
-    _rows = []
-    _base_size = None
-    for _fname, _label in _files:
-        if os.path.exists(_fname):
-            _size_mb = os.path.getsize(_fname) / (1024 * 1024)
-            if _base_size is None:
-                _base_size = _size_mb
-            _ratio = f"{_size_mb / _base_size * 100:.0f}%" if _base_size else "-"
-            _rows.append(
+    all_rows = []
+    all_base = None
+    for entry_name, entry_label in all_entries:
+        entry_path = Path(entry_name)
+        if entry_path.exists():
+            entry_size = entry_path.stat().st_size / (1024 * 1024)
+            if all_base is None:
+                all_base = entry_size
+            entry_ratio = f"{entry_size / all_base * 100:.0f}%" if all_base else "-"
+            all_rows.append(
                 {
-                    "モデル": _label,
-                    "ファイル名": _fname,
-                    "サイズ (MB)": f"{_size_mb:.1f}",
-                    ".pt 比": _ratio,
+                    "モデル": entry_label,
+                    "ファイル名": entry_name,
+                    "サイズ (MB)": f"{entry_size:.1f}",
+                    ".pt 比": entry_ratio,
                 }
             )
 
-    if _rows:
-        mo.ui.table(_rows, selection=None)
-    else:
-        mo.md("_モデルファイルが見つかりません。_")
+    mo.ui.table(all_rows, selection=None)
     return
 
 
