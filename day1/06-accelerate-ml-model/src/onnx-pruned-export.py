@@ -8,7 +8,7 @@
 from ultralytics import YOLO
 
 # プルーニング済みモデルをロード
-model = YOLO("yolo26m-pose-pruned.pt")
+model = YOLO("yolov8m-pose-pruned.pt")
 
 # ONNX にエクスポート
 model.export(

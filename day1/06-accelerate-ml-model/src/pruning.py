@@ -9,8 +9,8 @@ import torch.nn.utils.prune as prune
 from ultralytics import YOLO
 
 # --- 設定 ---
-INPUT_MODEL = "yolo26m-pose.pt"
-OUTPUT_MODEL = "yolo26m-pose-pruned.pt"
+INPUT_MODEL = "yolov8m-pose.pt"
+OUTPUT_MODEL = "yolov8m-pose-pruned.pt"
 PRUNE_AMOUNT = 0.30  # 30% の重みをゼロにする
 
 
@@ -53,12 +53,12 @@ def main() -> None:
     # L1 Unstructured Pruning を適用
     apply_pruning(model, amount=PRUNE_AMOUNT)
 
-    # プルーニング後のスパース率（マスク適用済み）
-    sparsity_after = calc_sparsity(model)
-    print(f"プルーニング後のスパース率: {sparsity_after:.2%}")
-
     # 再パラメータ化を除去（weight_orig + weight_mask → weight に統合）
     remove_pruning_reparametrization(model)
+
+    # プルーニング後のスパース率（remove 後に計算しないと weight_orig が返るため 0% になる）
+    sparsity_after = calc_sparsity(model)
+    print(f"プルーニング後のスパース率: {sparsity_after:.2%}")
 
     # プルーニング済みモデルを保存
     yolo.save(OUTPUT_MODEL)

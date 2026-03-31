@@ -1,8 +1,7 @@
 """
-YOLO predictor module.
+YOLOv8 物体検出の推論モジュール。
 
-Downloads the YOLO ONNX model from GCS at startup,
-then runs inference using ONNX Runtime.
+GCS から ONNX モデルをダウンロードし、ONNX Runtime で推論を行う。
 """
 
 from urllib.parse import urlparse
@@ -69,73 +68,52 @@ def _postprocess(
     conf_threshold: float = 0.25,
     iou_threshold: float = 0.45,
 ) -> list[dict]:
-    """Postprocess raw YOLO output into detection results.
+    """YOLOv8 の生出力を検出結果に変換する。
 
-    YOLO v8/v11 output shape: (1, 84, 8400) for object detection
-    where 84 = 4 (bbox) + 80 (class scores).
-
-    Pose estimation models output (1, 56, 8400)
-    where 56 = 4 (bbox) + 1 (conf) + 51 (17 keypoints * 3).
-
-    This function handles both formats by checking the channel dimension.
+    YOLOv8 の出力形状: (1, 84, 8400)
+    84 = 4 (bbox: cx, cy, w, h) + 80 (COCO クラススコア)
 
     Args:
-        output: Raw ONNX output array.
-        orig_h: Original image height before resize.
-        orig_w: Original image width before resize.
-        conf_threshold: Minimum confidence score to keep a detection.
-        iou_threshold: IoU threshold for Non-Maximum Suppression.
+        output: ONNX の生出力配列。
+        orig_h: リサイズ前の元画像の高さ。
+        orig_w: リサイズ前の元画像の幅。
+        conf_threshold: 検出を残す最小信頼度スコア。
+        iou_threshold: NMS の IoU 閾値。
 
     Returns:
-        List of dicts, each with keys:
-            - bbox: [x1, y1, x2, y2] in original image coordinates
-            - score: float confidence
-            - class_id: int class index  (detection only)
-            - keypoints: list of (x, y, conf) tuples  (pose only)
+        検出結果の辞書リスト。各辞書のキー:
+            - bbox: [x1, y1, x2, y2] 元画像座標
+            - score: float 信頼度
+            - class_id: int クラスインデックス
     """
-    # output: (1, channels, anchors)
-    pred = output[0].T  # (anchors, channels)
+    # output: (1, 84, 8400)
+    pred = output[0].T  # (8400, 84)
 
-    channels = pred.shape[1]
-    # Detection: 4 (bbox) + N (class scores) channels (e.g. 84 for COCO 80 classes)
-    # Pose:      4 (bbox) + 1 (obj conf) + 51 (17 keypoints * 3) = 56 channels
-    is_pose = channels == 56
-
-    # --- Extract boxes and confidence scores ---
-    # First 4 values: cx, cy, w, h (normalized to 640x640 space)
+    # 最初の4値: cx, cy, w, h（640x640 空間）
     boxes_xywh = pred[:, :4]
 
-    if is_pose:
-        # Pose: column 4 is objectness confidence
-        scores = pred[:, 4]
-        class_ids = np.zeros(len(pred), dtype=int)
-        keypoints_raw = pred[:, 5:]  # (N, 51) = 17 * 3
-    else:
-        # Detection: columns 4..84 are per-class probabilities (no explicit obj score)
-        class_scores = pred[:, 4:]
-        class_ids = np.argmax(class_scores, axis=1)
-        scores = class_scores[np.arange(len(pred)), class_ids]
-        keypoints_raw = None
+    # 列 4..84 はクラスごとの確率
+    class_scores = pred[:, 4:]
+    class_ids = np.argmax(class_scores, axis=1)
+    scores = class_scores[np.arange(len(pred)), class_ids]
 
-    # --- Filter by confidence ---
+    # --- 信頼度でフィルタ ---
     keep_mask = scores >= conf_threshold
     boxes_xywh = boxes_xywh[keep_mask]
     scores = scores[keep_mask]
     class_ids = class_ids[keep_mask]
-    if keypoints_raw is not None:
-        keypoints_raw = keypoints_raw[keep_mask]
 
     if len(scores) == 0:
         return []
 
-    # --- Convert cx,cy,w,h → x1,y1,x2,y2 (still in 640x640 space) ---
+    # --- cx,cy,w,h → x1,y1,x2,y2 (640x640 空間) ---
     x1 = boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2
     y1 = boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2
     x2 = boxes_xywh[:, 0] + boxes_xywh[:, 2] / 2
     y2 = boxes_xywh[:, 1] + boxes_xywh[:, 3] / 2
     boxes_xyxy = np.stack([x1, y1, x2, y2], axis=1)
 
-    # --- NMS (simple greedy) ---
+    # --- NMS (greedy) ---
     order = np.argsort(-scores)
     selected = []
     while len(order) > 0:
@@ -144,7 +122,6 @@ def _postprocess(
         if len(order) == 1:
             break
         rest = order[1:]
-        # Compute IoU of the selected box against the rest
         inter_x1 = np.maximum(boxes_xyxy[idx, 0], boxes_xyxy[rest, 0])
         inter_y1 = np.maximum(boxes_xyxy[idx, 1], boxes_xyxy[rest, 1])
         inter_x2 = np.minimum(boxes_xyxy[idx, 2], boxes_xyxy[rest, 2])
@@ -161,35 +138,22 @@ def _postprocess(
         iou = inter_area / (area_idx + area_rest - inter_area + 1e-6)
         order = rest[iou <= iou_threshold]
 
-    # --- Scale boxes back to original image size ---
+    # --- 元画像サイズにスケール ---
     scale_x = orig_w / 640.0
     scale_y = orig_h / 640.0
 
     results = []
     for i in selected:
-        bx1 = float(boxes_xyxy[i, 0] * scale_x)
-        by1 = float(boxes_xyxy[i, 1] * scale_y)
-        bx2 = float(boxes_xyxy[i, 2] * scale_x)
-        by2 = float(boxes_xyxy[i, 3] * scale_y)
-
-        entry: dict = {
-            "bbox": [bx1, by1, bx2, by2],
+        results.append({
+            "bbox": [
+                float(boxes_xyxy[i, 0] * scale_x),
+                float(boxes_xyxy[i, 1] * scale_y),
+                float(boxes_xyxy[i, 2] * scale_x),
+                float(boxes_xyxy[i, 3] * scale_y),
+            ],
             "score": float(scores[i]),
             "class_id": int(class_ids[i]),
-        }
-
-        if keypoints_raw is not None:
-            kps = keypoints_raw[i].reshape(-1, 3)  # (17, 3) = x, y, conf
-            entry["keypoints"] = [
-                {
-                    "x": float(kp[0] * scale_x),
-                    "y": float(kp[1] * scale_y),
-                    "confidence": float(kp[2]),
-                }
-                for kp in kps
-            ]
-
-        results.append(entry)
+        })
 
     return results
 

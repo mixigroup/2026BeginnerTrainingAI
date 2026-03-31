@@ -2,8 +2,8 @@
 #
 from ultralytics import YOLO
 
-# Load yolo26m-pose model (downloads automatically if not cached)
-model = YOLO("yolo26m-pose.pt")
+# Load yolov8m-pose model (downloads automatically if not cached)
+model = YOLO("yolov8m-pose.pt")
 
 # Export to ONNX
 model.export(

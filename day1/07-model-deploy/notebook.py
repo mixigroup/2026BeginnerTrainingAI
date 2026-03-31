@@ -67,10 +67,10 @@ def _():
 
     PROJECT_ID = "hr-mixi"
     REGION = "asia-northeast1"
-    GCS_BUCKET = "hr-mixi-ml-handson"
+    GCS_BUCKET = "hr-mixi-ml-hands-on"
 
     MODEL_GCS_URI = f"gs://{GCS_BUCKET}/2026/models/{USER}/yolo.onnx"
-    IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-handson/yolo-server:{USER}"
+    IMAGE_URI = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-hands-on/yolo-server:{USER}"
 
     print(f"USER          : {USER}")
     print(f"MODEL_GCS_URI : {MODEL_GCS_URI}")
@@ -104,7 +104,7 @@ def _(MODEL_GCS_URI, mo):
     以下のコマンドを実行してモデルをアップロードしてください：
 
     ```bash
-    gcloud storage cp ../06-accelerate-ml-model/yolo26m-pose.onnx {MODEL_GCS_URI}
+    gcloud storage cp ../06-accelerate-ml-model/yolov8m.onnx {MODEL_GCS_URI}
     ```
 
     アップロードできたか確認：
@@ -123,47 +123,15 @@ def _(mo):
 
     ## Step 1: FastAPI サーバのコード確認
 
+    ### コードの確認
+
+    - src/predictor.py
+    - src/app.py
+
     ### 設計のポイント
 
     コンテナ起動時（`lifespan`）に GCS からモデルをダウンロードします。
     モデルはコンテナに含まれていません。
-
-    ### `src/predictor.py` - モデルの読み込みと推論
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-
-    with open("src/predictor.py") as f:
-        predictor_code = f.read()
-
-    mo.md(f"```\n{predictor_code}\n```")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""
-    ### `src/app.py` - FastAPI サーバ
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    with open("src/app.py") as f2:
-        app_code = f2.read()
-
-    mo.md(f"```python\n{app_code}\n```")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ### ポイント：`lifespan` でモデルをダウンロード
 
     ```python
     @asynccontextmanager
@@ -190,17 +158,8 @@ def _(mo):
 
     ### Dockerfile の確認
 
-    モデルはコンテナに含まれていないことを確認してください。
+    `Dockerfile` を確認して、モデルはコンテナに含まれていないことを確認してください。
     """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    with open("Dockerfile") as f3:
-        dockerfile_code = f3.read()
-
-    mo.md(f"```dockerfile\n{dockerfile_code}\n```")
     return
 
 
@@ -543,7 +502,7 @@ def _(ENDPOINT_ID, PROJECT_ID, REGION, base64, mo):
     from PIL import Image, ImageDraw
 
     def draw_detections(image_np: np.ndarray, detections: list) -> np.ndarray:
-        """Draw bounding boxes and keypoints on the image."""
+        """検出結果のバウンディングボックスを画像に描画する。"""
         pil_img = Image.fromarray(image_np)
         draw = ImageDraw.Draw(pil_img)
 
@@ -556,11 +515,6 @@ def _(ENDPOINT_ID, PROJECT_ID, REGION, base64, mo):
                 x1, y1, x2, y2 = bbox
                 draw.rectangle([x1, y1, x2, y2], outline="red", width=3)
                 draw.text((x1, y1 - 12), f"cls={class_id} {score:.2f}", fill="red")
-
-            for kp in det.get("keypoints", []):
-                cx, cy = kp["x"], kp["y"]
-                r = 4
-                draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill="lime")
 
         return np.array(pil_img)
 

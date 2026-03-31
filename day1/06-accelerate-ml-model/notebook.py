@@ -80,14 +80,14 @@ def _(mo):
     | `end2end=True` | エンドツーエンドモデルとしてエクスポート |
     | `nms=True` | NMS をモデルに組み込む |
 
-    下のセルを実行すると `yolo26m-pose.onnx` が生成されます（初回は `.pt` のダウンロードが走ります）。
+    下のセルを実行すると `yolov8m-pose.onnx` が生成されます（初回は `.pt` のダウンロードが走ります）。
     """)
     return
 
 
 @app.cell
 def _(YOLO, mo):
-    model = YOLO("yolo26m-pose.pt")
+    model = YOLO("yolov8m-pose.pt")
     export_path = model.export(
         format="onnx",
         imgsz=640,
@@ -120,9 +120,9 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     files = {
-        "yolo26m-pose.pt": "PyTorch (.pt)",
-        # "yolo26m-pose.onnx": "ONNX (.onnx)",
-        # "yolo26m-pose-quantized.onnx": "ONNX qint8 (.onnx)",
+        "yolov8m-pose.pt": "PyTorch (.pt)",
+        # "yolov8m-pose.onnx": "ONNX (.onnx)",
+        # "yolov8m-pose-quantized.onnx": "ONNX qint8 (.onnx)",
     }
 
     rows = []
@@ -143,7 +143,6 @@ def _(Path, mo):
     ### 現在のファイルサイズ
     {table}
     """)
-
     return
 
 
@@ -160,8 +159,8 @@ def _(mo):
 
     ```python
     MODEL_FILES = {
-        "PyTorch (.pt)": "yolo26m-pose.pt",
-        "ONNX (.onnx)": "yolo26m-pose.onnx",  # コメントアウトを外す
+        "PyTorch (.pt)": "yolov8m-pose.pt",
+        "ONNX (.onnx)": "yolov8m-pose.onnx",  # コメントアウトを外す
     }
     ```
 
@@ -189,26 +188,15 @@ def _(mo):
     - 整数演算は浮動小数点演算より高速（特に CPU 上）
     - わずかな精度低下が生じる場合がある
 
-    下のセルを実行すると `yolo26m-pose-quantized.onnx` が生成されます（`yolo26m-pose.onnx` が必要です）。
+    下のセルを実行すると `yolov8m-pose-quantized.onnx` が生成されます（`yolov8m-pose.onnx` が必要です）。
     """)
     return
 
 
 @app.cell
-def _(Path, QuantType, mo, quantize_dynamic):
-    model_fp32 = "yolo26m-pose.onnx"
-    model_quant = "yolo26m-pose-quantized.onnx"
-
-    if not Path(model_fp32).exists():
-        mo.stop(
-            True,
-            mo.callout(
-                mo.md(
-                    f"`{model_fp32}` が見つかりません。先に Step 2 を実行してください。"
-                ),
-                kind="warn",
-            ),
-        )
+def _(QuantType, mo, quantize_dynamic):
+    model_fp32 = "yolov8m-pose.onnx"
+    model_quant = "yolov8m-pose-quantized.onnx"
 
     quantize_dynamic(
         model_fp32,
@@ -230,9 +218,9 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     quant_entries = [
-        ("yolo26m-pose.pt", "PyTorch (.pt)"),
-        ("yolo26m-pose.onnx", "ONNX FP32 (.onnx)"),
-        ("yolo26m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
+        ("yolov8m-pose.pt", "PyTorch (.pt)"),
+        ("yolov8m-pose.onnx", "ONNX FP32 (.onnx)"),
+        ("yolov8m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
     ]
 
     quant_rows = []
@@ -254,7 +242,6 @@ def _(Path, mo):
             )
 
     mo.ui.table(quant_rows, selection=None)
-
     return
 
 
@@ -264,13 +251,13 @@ def _(mo):
     ## Step 6: 量子化モデルの FPS を比較する
 
     `src/gradio-demo.py` の `MODEL_FILES` に量子化モデルも追加します。
-    エクスポートしたファイルを `yolo26m-pose-quantized.onnx` にリネームしてから、コメントアウトを外してください。
+    エクスポートしたファイルを `yolov8m-pose-quantized.onnx` にリネームしてから、コメントアウトを外してください。
 
     ```python
     MODEL_FILES = {
-        "PyTorch (.pt)": "yolo26m-pose.pt",
-        "ONNX (.onnx)": "yolo26m-pose.onnx",
-        "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",  # コメントアウトを外す
+        "PyTorch (.pt)": "yolov8m-pose.pt",
+        "ONNX (.onnx)": "yolov8m-pose.onnx",
+        "ONNX qint8 (.onnx)": "yolov8m-pose-quantized.onnx",  # コメントアウトを外す
     }
     ```
 
@@ -294,16 +281,59 @@ def _(mo):
     - Conv2d / Linear 層の重みを **30%** ゼロ化します
     - 追加の依存ライブラリは不要（PyTorch 標準機能のみ）
 
-    ### 手順
+    下のセルを実行すると、プルーニング前後のスパース率が表示され、`yolov8m-pose-pruned.pt` が生成されます。
+    """)
+    return
 
-    ターミナルで以下を実行してください:
 
-    ```bash
-    uv run python src/pruning.py
-    ```
+@app.cell
+def _(Path, YOLO, mo):
+    import torch
+    import torch.nn.utils.prune as prune
 
-    実行後、`yolo26m-pose-pruned.pt` が生成されます。
-    スパース率（ゼロの重みの割合）がターミナルに表示されるので確認しましょう。
+    _INPUT_MODEL = "yolov8m-pose.pt"
+    _OUTPUT_MODEL = "yolov8m-pose-pruned.pt"
+    _PRUNE_AMOUNT = 0.30
+
+    if not Path(_INPUT_MODEL).exists():
+        raise RuntimeError(
+            f"`{_INPUT_MODEL}` が見つかりません。先に Step 2 を実行してください。"
+        )
+
+    def _calc_sparsity(m):
+        total = sum(p.numel() for p in m.parameters())
+        zeros = sum((p == 0).sum().item() for p in m.parameters())
+        return zeros / total if total > 0 else 0.0
+
+    _yolo = YOLO(_INPUT_MODEL)
+    _model = _yolo.model
+
+    _sparsity_before = _calc_sparsity(_model)
+
+    # L1 Unstructured Pruning を適用
+    for _module in _model.modules():
+        if isinstance(_module, (torch.nn.Conv2d, torch.nn.Linear)):
+            prune.l1_unstructured(_module, name="weight", amount=_PRUNE_AMOUNT)
+
+    # 再パラメータ化を除去（weight_orig + weight_mask → weight に統合）
+    for _module in _model.modules():
+        if isinstance(_module, (torch.nn.Conv2d, torch.nn.Linear)):
+            try:
+                prune.remove(_module, "weight")
+            except ValueError:
+                pass
+
+    _sparsity_after = _calc_sparsity(_model)
+
+    _yolo.save(_OUTPUT_MODEL)
+
+    mo.md(f"""
+    **プルーニング完了！** 出力先: `{_OUTPUT_MODEL}`
+
+    | | スパース率 |
+    |---|---|
+    | プルーニング前 | {_sparsity_before:.2%} |
+    | プルーニング後 | {_sparsity_after:.2%} |
     """)
     return
 
@@ -314,13 +344,25 @@ def _(mo):
     ### プルーニング済みモデルを ONNX にエクスポート
 
     プルーニング済みの `.pt` モデルも ONNX に変換しておきましょう。
-
-    ```bash
-    uv run python src/onnx-pruned-export.py
-    ```
-
-    実行後、`yolo26m-pose-pruned.onnx` が生成されます。
     """)
+    return
+
+
+@app.cell
+def _(YOLO, mo):
+    _PRUNED_MODEL = "yolov8m-pose-pruned.pt"
+
+    _pruned_yolo = YOLO(_PRUNED_MODEL)
+    _pruned_export_path = _pruned_yolo.export(
+        format="onnx",
+        imgsz=640,
+        opset=17,
+        simplify=True,
+        dynamic=False,
+        end2end=True,
+        nms=True,
+    )
+    mo.md(f"**エクスポート完了！** 出力先: `{_pruned_export_path}`")
     return
 
 
@@ -335,11 +377,11 @@ def _(mo):
 @app.cell
 def _(Path, mo):
     all_entries = [
-        ("yolo26m-pose.pt", "PyTorch (.pt)"),
-        ("yolo26m-pose.onnx", "ONNX FP32 (.onnx)"),
-        ("yolo26m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
-        ("yolo26m-pose-pruned.pt", "Pruned PyTorch (.pt)"),
-        ("yolo26m-pose-pruned.onnx", "Pruned ONNX (.onnx)"),
+        ("yolov8m-pose.pt", "PyTorch (.pt)"),
+        ("yolov8m-pose.onnx", "ONNX FP32 (.onnx)"),
+        ("yolov8m-pose-quantized.onnx", "ONNX INT8 (.onnx)"),
+        ("yolov8m-pose-pruned.pt", "Pruned PyTorch (.pt)"),
+        ("yolov8m-pose-pruned.onnx", "Pruned ONNX (.onnx)"),
     ]
 
     all_rows = []
@@ -373,10 +415,10 @@ def _(mo):
 
     ```python
     MODEL_FILES = {
-        "PyTorch (.pt)": "yolo26m-pose.pt",
-        "ONNX (.onnx)": "yolo26m-pose.onnx",
-        "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",
-        "Pruned ONNX (.onnx)": "yolo26m-pose-pruned.onnx",  # コメントアウトを外す
+        "PyTorch (.pt)": "yolov8m-pose.pt",
+        "ONNX (.onnx)": "yolov8m-pose.onnx",
+        "ONNX qint8 (.onnx)": "yolov8m-pose-quantized.onnx",
+        "Pruned ONNX (.onnx)": "yolov8m-pose-pruned.onnx",  # コメントアウトを外す
     }
     ```
 
@@ -414,6 +456,16 @@ def _(mo):
     - [Ultralytics Export ドキュメント](https://docs.ultralytics.com/ja/modes/export/)
     - [Netron（ブラウザ版）](https://netron.app)
     """)
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
     return
 
 

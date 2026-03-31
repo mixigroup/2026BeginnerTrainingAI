@@ -1,7 +1,7 @@
 from onnxruntime.quantization import quantize_dynamic, QuantType
 
-model_fp32 = "yolo26m-pose.onnx"
-model_quant = "yolo26m-pose-quantized.onnx"
+model_fp32 = "yolov8m-pose.onnx"
+model_quant = "yolov8m-pose-quantized.onnx"
 quantized_model = quantize_dynamic(
     model_fp32,
     model_quant,
