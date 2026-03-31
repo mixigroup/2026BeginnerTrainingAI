@@ -10,17 +10,9 @@ locals {
 # GCS Buckets
 # ==============================================================================
 
-resource "google_storage_bucket" "terraform_state" {
-  name                        = "ai-training-terraform-state"
-  location                    = "ASIA-NORTHEAST1"
-  project                     = var.project_id
-  public_access_prevention    = "enforced"
-  uniform_bucket_level_access = true
-}
-
 resource "google_storage_bucket" "notebook_utils" {
   name                        = "mixi-ml-workbench-notebook-utils"
-  location                    = "ASIA"
+  location                    = "ASIA-NORTHEAST1"
   project                     = var.project_id
   storage_class               = "STANDARD"
   public_access_prevention    = "enforced"
@@ -32,9 +24,10 @@ resource "google_storage_bucket" "notebook_utils" {
 }
 
 resource "google_storage_bucket" "ai_trainig_bucket" {
-  name                        = "hr-mixi-ml-handson"
+  name                        = "hr-mixi-ml-hands-on"
   location                    = "ASIA-NORTHEAST1"
   project                     = var.project_id
+  storage_class               = "STANDARD"
   public_access_prevention    = "enforced"
   uniform_bucket_level_access = true
 }
@@ -43,10 +36,10 @@ resource "google_storage_bucket" "ai_trainig_bucket" {
 # Artifact Registry
 # ==============================================================================
 
-resource "google_artifact_registry_repository" "ml_handson" {
+resource "google_artifact_registry_repository" "ml_hands_on" {
   project       = var.project_id
   location      = var.region
-  repository_id = "ml-handson"
+  repository_id = "ml-hands-on"
   description   = "ML研修用コンテナイメージリポジトリ"
   format        = "DOCKER"
 }
@@ -83,7 +76,7 @@ resource "google_project_iam_member" "ml_workbench_vm_aiplatform_user" {
 resource "google_artifact_registry_repository_iam_member" "ml_workbench_vm_ar_writer" {
   project    = var.project_id
   location   = var.region
-  repository = google_artifact_registry_repository.ml_handson.name
+  repository = google_artifact_registry_repository.ml_hands_on.name
   role       = "roles/artifactregistry.writer"
   member     = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
 }
