@@ -40,6 +40,18 @@ resource "google_storage_bucket" "ai_trainig_bucket" {
 }
 
 # ==============================================================================
+# Artifact Registry
+# ==============================================================================
+
+resource "google_artifact_registry_repository" "ml_handson" {
+  project       = var.project_id
+  location      = var.region
+  repository_id = "ml-handson"
+  description   = "ML研修用コンテナイメージリポジトリ"
+  format        = "DOCKER"
+}
+
+# ==============================================================================
 # Service Accounts
 # ==============================================================================
 
@@ -60,6 +72,20 @@ resource "google_project_iam_member" "ml_workbench_vm_storage_admin" {
   project = var.project_id
   role    = "roles/storage.admin"
   member  = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
+}
+
+resource "google_project_iam_member" "ml_workbench_vm_aiplatform_user" {
+  project = var.project_id
+  role    = "roles/aiplatform.user"
+  member  = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
+}
+
+resource "google_artifact_registry_repository_iam_member" "ml_workbench_vm_ar_writer" {
+  project    = var.project_id
+  location   = var.region
+  repository = google_artifact_registry_repository.ml_handson.name
+  role       = "roles/artifactregistry.writer"
+  member     = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
 }
 
 # ==============================================================================
@@ -109,13 +135,13 @@ resource "google_workbench_instance" "workbench" {
     tags = ["deeplearning-vm", "notebook-instance"]
 
     metadata = {
-      disable-mixer                = "false"
-      disable-swap-binaries        = "true"
-      idle-timeout-seconds         = "10800"
+      disable-mixer         = "false"
+      disable-swap-binaries = "true"
+      idle-timeout-seconds  = "10800"
 
       # 一定時間 cpuが使われてなかったら落とすcron jobを設定する
       # 詳細はbucketの中のスクリプトを参照
-      post-startup-script          = "gs://mixi-ml-workbench-notebook-utils/entrypoint.sh" 
+      post-startup-script          = "gs://mixi-ml-workbench-notebook-utils/entrypoint.sh"
       post-startup-script-behavior = "run_every_start"
       proxy-mode                   = "service_account"
       serial-port-logging-enable   = "true"
