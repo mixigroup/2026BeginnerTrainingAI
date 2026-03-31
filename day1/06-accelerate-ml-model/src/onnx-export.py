@@ -1,19 +1,28 @@
-# ref: https://docs.ultralytics.com/ja/tasks/pose/
+# ref: https://huggingface.co/facebook/sam-vit-base
 #
-from ultralytics import YOLO
+# SAM Image Encoder を ONNX にエクスポートするスクリプト
+#
+# 使い方:
+#   uv run python src/onnx-export.py
+#
+import torch
+from transformers import SamModel
 
-# Load yolov8m-pose model (downloads automatically if not cached)
-model = YOLO("yolov8m-pose.pt")
+model = SamModel.from_pretrained("facebook/sam-vit-base")
+model.eval()
 
-# Export to ONNX
-model.export(
-    format="onnx",
-    imgsz=640,  # 入力画像サイズ
-    opset=17,  # ONNX opset バージョン
-    simplify=True,  # onnxslim でモデルグラフを最適化
-    dynamic=False,  # 固定バッチサイズ（動的バッチにする場合は True）
-    end2end=True,  # エンドツーエンドモデルとしてエクスポート（モデルのみの場合はデフォルト False）
-    nms=True,  # NMS をモデルに組み込んでエクスポート（モデルのみの場合はデフォルト False）
-    # 高速化手法
-    # half=True,  # FP16 モデルとしてエクスポート（フル精度の場合はデフォルト False）
-)
+encoder = model.vision_encoder
+dummy_input = torch.randn(1, 3, 1024, 1024)
+
+with torch.no_grad():
+    torch.onnx.export(
+        encoder,
+        dummy_input,
+        "sam-vit-b-encoder.onnx",
+        input_names=["pixel_values"],
+        output_names=["image_embeddings"],
+        opset_version=18,
+        do_constant_folding=True,
+    )
+
+print("ONNX エクスポート完了: sam-vit-b-encoder.onnx")

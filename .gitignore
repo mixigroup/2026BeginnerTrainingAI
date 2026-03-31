@@ -217,4 +217,5 @@ __marimo__/
 
 *.pt
 *.onnx
+*.onnx.data
 *.tflite
