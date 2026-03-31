@@ -21,4 +21,5 @@ dependencies = [
     # Gradio demo (Step 7: optional)
     "gradio>=5.0.0",
     "Pillow>=10.0.0",
+    "pyzmq>=27.1.0",
 ]

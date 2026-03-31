@@ -13,6 +13,7 @@ dependencies = [
     "onnxslim>=0.1.85",
     "onnxruntime>=1.24.2",
     "marimo>=0.20.1",
+    "pyzmq>=27.1.0",
 ]
 
 [tool.uv.sources]

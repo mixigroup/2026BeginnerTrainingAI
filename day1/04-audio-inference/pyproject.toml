@@ -13,4 +13,5 @@ dependencies = [
     "jiwer>=3.0.0",
     "matplotlib>=3.0.0",
     "torchcodec>=0.11.0",
+    "pyzmq>=27.1.0",
 ]

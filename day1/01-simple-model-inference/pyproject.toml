@@ -15,4 +15,5 @@ dependencies = [
     "lightgbm>=4.0",
     "graphviz>=0.20",
     "tabulate>=0.10.0",
+    "pyzmq>=27.1.0",
 ]
