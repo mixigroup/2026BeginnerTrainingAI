@@ -8,4 +8,5 @@ dependencies = [
     "marimo>=0.20.1",
     "transformers>=4.40.0",
     "torch>=2.2.0",
+    "pyzmq>=27.1.0",
 ]

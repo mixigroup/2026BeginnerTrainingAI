@@ -1,5 +1,5 @@
 """
-FastAPI inference server for YOLO ONNX model.
+FastAPI inference server for SAM (Segment Anything Model).
 
 The model is downloaded from GCS at startup (not baked into the container).
 
@@ -11,7 +11,11 @@ Vertex AI custom container requirements:
 Vertex AI sends prediction requests in JSON format:
   {
     "instances": [
-      {"image": "<base64-encoded image bytes>"},
+      {
+        "image": "<base64-encoded image bytes>",
+        "input_points": [[x1, y1], [x2, y2]],
+        "input_labels": [1, 0]
+      },
       ...
     ]
   }
@@ -19,36 +23,36 @@ Vertex AI sends prediction requests in JSON format:
 And expects a response in the format:
   {
     "predictions": [
-      {"detections": [...]},
+      {"mask_b64": "<base64 PNG>", "iou_score": 0.95},
       ...
     ]
   }
 
 Environment variables:
-  MODEL_GCS_URI  - GCS URI of the ONNX model, e.g.
-                   gs://my-bucket/models/alice/yolo.onnx
+  MODEL_GCS_URI  - GCS URI of the model directory, e.g.
+                   gs://my-bucket/models/alice/sam-model/
 """
 
 import base64
+import io
 import os
 import sys
 from contextlib import asynccontextmanager
 
-import cv2
-import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
+from PIL import Image
 from pydantic import BaseModel
 
 # Resolve sibling module (predictor.py lives next to app.py in src/)
 sys.path.insert(0, os.path.dirname(__file__))
-from predictor import YOLOPredictor, download_model
+from predictor import SAMPredictor, download_model
 
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
 MODEL_GCS_URI = os.environ.get("MODEL_GCS_URI", "")
-LOCAL_MODEL_PATH = "/tmp/model.onnx"
+LOCAL_MODEL_DIR = "/tmp/sam-model"
 MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
@@ -59,6 +63,8 @@ class Instance(BaseModel):
     """A single prediction instance sent by Vertex AI."""
 
     image: str  # base64-encoded image bytes
+    input_points: list[list[int]]  # [[x, y], ...]
+    input_labels: list[int]  # [1, 0, ...] (1=foreground, 0=background)
 
 
 class PredictRequest(BaseModel):
@@ -76,15 +82,15 @@ async def lifespan(app: FastAPI):
     if not MODEL_GCS_URI:
         raise RuntimeError(
             "Environment variable MODEL_GCS_URI is not set. "
-            "Pass it with -e MODEL_GCS_URI=gs://bucket/path/model.onnx"
+            "Pass it with -e MODEL_GCS_URI=gs://bucket/path/to/sam-model/"
         )
-    download_model(MODEL_GCS_URI, LOCAL_MODEL_PATH)
-    app.state.predictor = YOLOPredictor(LOCAL_MODEL_PATH)
+    download_model(MODEL_GCS_URI, LOCAL_MODEL_DIR)
+    app.state.predictor = SAMPredictor(LOCAL_MODEL_DIR)
     yield
     # Nothing to clean up, but resources could be released here if needed.
 
 
-app = FastAPI(title="YOLO Inference Server", lifespan=lifespan)
+app = FastAPI(title="SAM Inference Server", lifespan=lifespan)
 
 
 # ---------------------------------------------------------------------------
@@ -104,19 +110,19 @@ def health() -> dict:
 
 @app.post("/predict")
 async def predict(request: PredictRequest) -> JSONResponse:
-    """Run YOLO inference on a batch of images.
+    """Run SAM inference on a batch of images.
 
     Accepts the Vertex AI prediction request format:
-      {"instances": [{"image": "<base64>"}, ...]}
+      {"instances": [{"image": "<base64>", "input_points": [[x,y]], "input_labels": [1]}, ...]}
 
     Returns:
-      {"predictions": [{"detections": [...]}, ...]}
+      {"predictions": [{"mask_b64": "<base64 PNG>", "iou_score": 0.95}, ...]}
 
     Example curl (local test):
       IMAGE_B64=$(base64 -i sample.jpg)
       curl -X POST http://localhost:8080/predict \\
            -H "Content-Type: application/json" \\
-           -d '{"instances": [{"image": "'"$IMAGE_B64"'"}]}'
+           -d '{"instances": [{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}]}'
     """
     predictions = []
 
@@ -133,14 +139,18 @@ async def predict(request: PredictRequest) -> JSONResponse:
                 detail=f"Image too large. Max size is {MAX_IMAGE_BYTES // (1024 * 1024)} MB.",
             )
 
-        nparr = np.frombuffer(image_bytes, np.uint8)
-        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if image is None:
+        try:
+            image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        except Exception:
             raise HTTPException(status_code=400, detail="Could not decode image.")
 
         # --- Run inference ---
         try:
-            result = app.state.predictor.predict(image)
+            result = app.state.predictor.predict(
+                image=image,
+                input_points=instance.input_points,
+                input_labels=instance.input_labels,
+            )
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
 

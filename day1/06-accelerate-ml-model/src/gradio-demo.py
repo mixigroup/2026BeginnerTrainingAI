@@ -1,86 +1,186 @@
+"""SAM (Segment Anything Model) Gradio デモ。
+
+画像をアップロードしてクリックした箇所をセグメントします。
+Encoder の実装（PyTorch / ONNX / INT8 / Pruned）を切り替えて推論時間を比較できます。
+"""
+
 import os
 import time
 
 import gradio as gr
 import numpy as np
-from ultralytics import YOLO  # type: ignore[reportPrivateImportUsage]
+import onnxruntime as ort
+import torch
+from PIL import Image
+from transformers import SamModel, SamProcessor
 
-# Pre-load all available models at startup
-MODEL_FILES = {
-    "PyTorch (.pt)": "yolo26m-pose.pt",
-    # "ONNX (.onnx)": "yolo26m-pose.onnx",
-    # "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",
-    # "Pruned ONNX (.onnx)": "yolo26m-pose-pruned.onnx",
-    # export 済みモデルを追加する場合はここにパスを追加
-    # "LiteRT (.tflite)": "yolo26m-pose.tflite",
+# --- モデル設定 ---
+MODEL_ID = "facebook/sam-vit-base"
+
+# 使用する Encoder バリアント（コメントアウトを外して追加）
+MODEL_FILES: dict[str, str | None] = {
+    "PyTorch": None,  # PyTorch の vision_encoder を直接使用
+    "ONNX FP32": "sam-vit-b-encoder.onnx",
+    "ONNX INT8": "sam-vit-b-encoder-quantized.onnx",
+    "Pruned ONNX": "sam-vit-b-encoder-pruned.onnx",
 }
 
-loaded_models: dict[str, YOLO] = {}
-for _name, _path in MODEL_FILES.items():
-    # .pt is downloaded automatically; .onnx must be exported beforehand
-    if _path.endswith(".pt") or os.path.exists(_path):
-        loaded_models[_name] = YOLO(_path)
+# --- モデルのロード ---
+print("SAM モデルをロード中...")
+sam_model = SamModel.from_pretrained(MODEL_ID)
+sam_model.eval()
+processor = SamProcessor.from_pretrained(MODEL_ID)
 
-available = list(loaded_models.keys())
+# ONNX セッションのプリロード
+ort_sessions: dict[str, ort.InferenceSession] = {}
+available_models: list[str] = ["PyTorch"]
+
+for name, path in MODEL_FILES.items():
+    if path is None:
+        continue
+    if os.path.exists(path):
+        ort_sessions[name] = ort.InferenceSession(path)
+        available_models.append(name)
+
+if not available_models:
+    raise RuntimeError("利用可能なモデルが見つかりません。")
+
+print(f"利用可能なモデル: {available_models}")
 
 
-def predict(image: np.ndarray | None, model_name: str) -> tuple[np.ndarray | None, str]:
-    """Run pose estimation with the selected model and return annotated image + perf stats."""
-    if image is None:
-        return None, ""
+def run_encoder_pytorch(pixel_values: torch.Tensor) -> np.ndarray:
+    """PyTorch で Image Encoder を実行する。"""
+    with torch.no_grad():
+        embeddings = sam_model.get_image_embeddings(pixel_values=pixel_values)
+    return embeddings.numpy()
 
-    model = loaded_models.get(model_name)
-    if model is None:
-        return None, f"Model '{model_name}' is not loaded."
 
-    t_start = time.perf_counter()
-    results = model(image, verbose=False)
-    t_total_ms = (time.perf_counter() - t_start) * 1000
+def run_encoder_onnx(
+    pixel_values: torch.Tensor, session: ort.InferenceSession
+) -> np.ndarray:
+    """ONNX Runtime で Image Encoder を実行する。"""
+    inputs = {"pixel_values": pixel_values.numpy()}
+    (embeddings,) = session.run(None, inputs)
+    return embeddings
 
-    annotated = results[0].plot()[:, :, ::-1]  # BGR -> RGB
 
-    # results[0].speed: {"preprocess": ms, "inference": ms, "postprocess": ms}
-    speed = results[0].speed
-    fps = 1000.0 / t_total_ms if t_total_ms > 0 else 0.0
+def segment(
+    input_image: Image.Image | None,
+    model_name: str,
+    evt: gr.SelectData,
+) -> tuple[Image.Image | None, str]:
+    """画像上のクリック位置をもとにセグメントを実行する。"""
+    if input_image is None:
+        return None, "画像をアップロードしてください。"
 
-    perf = (
-        f"FPS        : {fps:.1f}\n"
-        f"Total      : {t_total_ms:.1f} ms\n"
-        f"Preprocess : {speed['preprocess']:.1f} ms\n"
-        f"Inference  : {speed['inference']:.1f} ms\n"
-        f"Postprocess: {speed['postprocess']:.1f} ms"
+    # クリック座標を取得
+    click_x, click_y = evt.index
+
+    # 前処理
+    input_points = [[[click_x, click_y]]]
+    inputs = processor(
+        images=input_image,
+        input_points=input_points,
+        return_tensors="pt",
+    )
+    pixel_values = inputs["pixel_values"]
+
+    # --- Encoder ---
+    t_enc_start = time.perf_counter()
+
+    if model_name == "PyTorch":
+        image_embeddings = run_encoder_pytorch(pixel_values)
+    else:
+        session = ort_sessions.get(model_name)
+        if session is None:
+            return None, f"モデル '{model_name}' がロードされていません。"
+        image_embeddings = run_encoder_onnx(pixel_values, session)
+
+    t_enc_ms = (time.perf_counter() - t_enc_start) * 1000
+
+    # --- Decoder (PyTorch) ---
+    t_dec_start = time.perf_counter()
+
+    image_embeddings_tensor = torch.tensor(image_embeddings)
+
+    with torch.no_grad():
+        outputs = sam_model(
+            pixel_values=None,
+            input_points=inputs["input_points"],
+            image_embeddings=image_embeddings_tensor,
+        )
+
+    t_dec_ms = (time.perf_counter() - t_dec_start) * 1000
+    t_total_ms = t_enc_ms + t_dec_ms
+
+    # マスクの後処理
+    masks = processor.post_process_masks(
+        outputs.pred_masks,
+        inputs["original_sizes"],
+        inputs["reshaped_input_sizes"],
     )
 
-    return annotated, perf
+    # IoU スコアが最も高いマスクを選択
+    iou_scores = outputs.iou_scores[0, 0]
+    best_idx = iou_scores.argmax().item()
+    mask = masks[0][0, best_idx].numpy()
+
+    # マスクを画像にオーバーレイ
+    img_array = np.array(input_image)
+    overlay = img_array.copy()
+    overlay[mask > 0] = (
+        overlay[mask > 0] * 0.5 + np.array([30, 144, 255]) * 0.5
+    ).astype(np.uint8)
+
+    # クリック位置にマーカーを描画
+    cy, cx = click_y, click_x
+    radius = max(5, min(img_array.shape[:2]) // 80)
+    y_min = max(0, cy - radius)
+    y_max = min(img_array.shape[0], cy + radius)
+    x_min = max(0, cx - radius)
+    x_max = min(img_array.shape[1], cx + radius)
+    overlay[y_min:y_max, x_min:x_max] = [255, 0, 0]
+
+    result_image = Image.fromarray(overlay)
+
+    # パフォーマンス情報
+    perf = (
+        f"Encoder ({model_name}): {t_enc_ms:.1f} ms\n"
+        f"Decoder (PyTorch)    : {t_dec_ms:.1f} ms\n"
+        f"Total                : {t_total_ms:.1f} ms\n"
+        f"IoU Score            : {iou_scores[best_idx]:.3f}"
+    )
+
+    return result_image, perf
 
 
+# --- Gradio UI ---
 with gr.Blocks() as demo:
-    gr.Markdown("## YOLO26m Pose Estimation — Real-time Webcam")
+    gr.Markdown("## SAM (Segment Anything) — クリックでセグメント")
+    gr.Markdown(
+        "画像をアップロードしてクリックすると、その箇所のセグメントが表示されます。"
+    )
 
     model_radio = gr.Radio(
-        choices=available,
-        value=available[0],
-        label="Model",
+        choices=available_models,
+        value=available_models[0],
+        label="Encoder モデル",
     )
 
     with gr.Row():
         with gr.Column():
             input_image = gr.Image(
-                sources="webcam",
-                streaming=True,
-                type="numpy",
-                label="Webcam Input",
+                type="pil",
+                label="入力画像（クリックでポイント指定）",
             )
         with gr.Column():
-            output_image = gr.Image(type="numpy", label="Pose Estimation")
-            perf_text = gr.Textbox(label="Performance", lines=5)
+            output_image = gr.Image(type="pil", label="セグメント結果")
+            perf_text = gr.Textbox(label="Performance", lines=4)
 
-    input_image.stream(
-        predict,
+    input_image.select(
+        segment,
         inputs=[input_image, model_radio],
         outputs=[output_image, perf_text],
-        stream_every=0.033,  # request a new frame every ~33 ms (target 30 fps)
-        concurrency_limit=1,  # process one frame at a time to avoid queue buildup
     )
 
 if __name__ == "__main__":

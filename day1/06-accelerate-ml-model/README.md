@@ -39,7 +39,7 @@ uv sync
 uv run python src/onnx-export.py
 ```
 
-実行後、`src/` ディレクトリに `yolo26m-pose.onnx` が生成されます。
+実行後、プロジェクトルートに `yolov8m-pose.onnx` が生成されます。
 
 ---
 
@@ -62,8 +62,8 @@ uv run python src/onnx-export.py
 
 ```python
 MODEL_FILES = {
-    "PyTorch (.pt)": "yolo26m-pose.pt",
-    "ONNX (.onnx)": "yolo26m-pose.onnx",  # コメントアウトを外す
+    "PyTorch (.pt)": "yolov8m-pose.pt",
+    "ONNX (.onnx)": "yolov8m-pose.onnx",  # コメントアウトを外す
 }
 ```
 
@@ -99,13 +99,13 @@ uv run python src/onnx-export.py
 
 ### 6. 動作確認（量子化モデルの FPS を比較する）
 
-`src/gradio-demo.py` の `MODEL_FILES` に量子化モデルも追加します。エクスポートしたファイルを `yolo26m-pose-quantized.onnx` にリネームしてから、コメントアウトを外してください。
+`src/gradio-demo.py` の `MODEL_FILES` に量子化モデルも追加します。エクスポートしたファイルを `yolov8m-pose-quantized.onnx` にリネームしてから、コメントアウトを外してください。
 
 ```python
 MODEL_FILES = {
-    "PyTorch (.pt)": "yolo26m-pose.pt",
-    "ONNX (.onnx)": "yolo26m-pose.onnx",
-    "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",  # コメントアウトを外す
+    "PyTorch (.pt)": "yolov8m-pose.pt",
+    "ONNX (.onnx)": "yolov8m-pose.onnx",
+    "ONNX qint8 (.onnx)": "yolov8m-pose-quantized.onnx",  # コメントアウトを外す
 }
 ```
 
@@ -125,7 +125,7 @@ uv run python src/gradio-demo.py
 uv run python src/pruning.py
 ```
 
-実行後、`yolo26m-pose-pruned.pt` が生成されます。スパース率（ゼロの重みの割合）がターミナルに表示されるので確認しましょう。
+実行後、`yolov8m-pose-pruned.pt` が生成されます。スパース率（ゼロの重みの割合）がターミナルに表示されるので確認しましょう。
 
 ---
 
@@ -141,10 +141,10 @@ uv run python src/onnx-pruned-export.py
 
 ```python
 MODEL_FILES = {
-    "PyTorch (.pt)": "yolo26m-pose.pt",
-    "ONNX (.onnx)": "yolo26m-pose.onnx",
-    "ONNX qint8 (.onnx)": "yolo26m-pose-quantized.onnx",
-    "Pruned ONNX (.onnx)": "yolo26m-pose-pruned.onnx",  # コメントアウトを外す
+    "PyTorch (.pt)": "yolov8m-pose.pt",
+    "ONNX (.onnx)": "yolov8m-pose.onnx",
+    "ONNX qint8 (.onnx)": "yolov8m-pose-quantized.onnx",
+    "Pruned ONNX (.onnx)": "yolov8m-pose-pruned.onnx",  # コメントアウトを外す
 }
 ```
 

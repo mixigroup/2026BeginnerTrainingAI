@@ -20,108 +20,14 @@ Object Detection（物体検出）モデルを使って、推論の3フェーズ
 
 ## 実行方法
 
-### 方法 1：marimo ノートブック（推奨）
-
 ブラウザ上でインタラクティブに各フェーズを確認できます。
 
 ```bash
 cd day1/03-vision-inference
-uv run marimo run notebook.py
+uv run marimo edit notebook.py
 ```
 
 ブラウザが開き、ノートブックを上から順に実行できます。
-
----
-
-### 方法 2：スクリプト単体実行（marimo 不要）
-
-`run.py` を使ってコマンドラインから直接実行できます。
-
-```bash
-cd day1/03-vision-inference
-
-# デフォルト設定で実行（結果は result.png に保存）
-uv run python run.py
-
-# オプションを指定して実行
-uv run python run.py \
-  --image http://images.cocodataset.org/val2017/000000039769.jpg \
-  --threshold 0.7 \
-  --output result.png
-```
-
-**実行結果の例：**
-
-```
-[Phase 1] Preprocess
-  Loading image: http://images.cocodataset.org/val2017/000000039769.jpg
-  Image size: 640 x 480 px
-  Loading processor: facebook/detr-resnet-50
-  pixel_values shape : (1, 3, 800, 1066)
-  pixel_values range : [-2.118, 2.640]
-
-[Phase 2] Forward
-  Loading model: facebook/detr-resnet-50
-  Parameters: 41,540,424
-  Running inference ...
-  logits shape    : (1, 100, 92)
-  pred_boxes shape: (1, 100, 4)
-
-[Phase 3] Postprocess  (threshold=0.9)
-  Detected 4 object(s)
-    cat: score=0.998  box=(1, 54, 314, 474)
-    cat: score=0.994  box=(341, 21, 638, 476)
-    remote: score=0.994  box=(334, 74, 368, 188)
-    remote: score=0.992  box=(39, 70, 75, 177)
-
-[Result] Saving visualization -> result.png
-Done.
-```
-
----
-
-### 方法 3：Python インタープリタで1行ずつ実行
-
-`src/` 内の各モジュールを直接 import して使えます。
-
-```bash
-cd day1/03-vision-inference
-uv run python3
-```
-
-```python
-from src.preprocess import get_processor, preprocess_image
-from src.inference import load_model, run_inference
-from src.postprocess import postprocess_results, visualize_results
-from src.utils import download_sample_image, build_label_map
-
-# Phase 1: Preprocess
-image = download_sample_image("http://images.cocodataset.org/val2017/000000039769.jpg")
-processor = get_processor("facebook/detr-resnet-50")
-inputs = preprocess_image(image, processor)
-
-# pixel_values の中身を確認
-pv = inputs["pixel_values"]
-print(pv.shape)   # torch.Size([1, 3, 800, 1066])
-print(pv.min(), pv.max())   # 正規化後の値域
-
-# Phase 2: Forward
-model = load_model("facebook/detr-resnet-50")
-outputs = run_inference(model, inputs)
-print(outputs.logits.shape)     # torch.Size([1, 100, 92])
-print(outputs.pred_boxes.shape) # torch.Size([1, 100, 4])
-
-# Phase 3: Postprocess
-label_map = build_label_map(model)
-detections = postprocess_results(outputs, processor,
-                                 image_size=(image.width, image.height),
-                                 threshold=0.9)
-print(detections)
-
-# 可視化して保存
-fig = visualize_results(image, detections, label_names=label_map)
-fig.savefig("result.png")
-```
 
 ---
 
@@ -170,7 +76,6 @@ DETR は Transformer ベースのモデルで、100 個のオブジェクトク�
 03-vision-inference/
 ├── README.md           # このファイル
 ├── notebook.py         # marimoノートブック（インタラクティブなハンズオン）
-├── run.py              # スクリプト単体実行用エントリポイント
 ├── pyproject.toml      # 依存ライブラリ定義
 └── src/
     ├── preprocess.py   # load_image / get_processor / preprocess_image
@@ -185,11 +90,13 @@ DETR は Transformer ベースのモデルで、100 個のオブジェクトク�
 
 ### パラメータを変える
 
+ノートブック内の変数を変更して、結果の違いを観察できます。
+
 | パラメータ | デフォルト値 | 変更の効果 |
 |---|---|---|
-| `--threshold` / `CONFIDENCE_THRESHOLD` | `0.9` | 小さくすると検出数が増える（ノイズも増える） |
-| `--image` / `IMAGE_URL` | COCO サンプル画像 | 好きな画像 URL やローカルパスに変えて試せる |
-| `--model` / `MODEL_NAME` | `facebook/detr-resnet-50` | `facebook/detr-resnet-101` に変えると精度が上がる |
+| `CONFIDENCE_THRESHOLD` | `0.9` | 小さくすると検出数が増える（ノイズも増える） |
+| `IMAGE_URL` | COCO サンプル画像 | 好きな画像 URL やローカルパスに変えて試せる |
+| `MODEL_NAME` | `facebook/detr-resnet-50` | `facebook/detr-resnet-101` に変えると精度が上がる |
 
 ### 確認ポイント
 
