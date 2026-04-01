@@ -1,3 +1,7 @@
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
 locals {
   # "takahiro.kinouchi@mixi.co.jp" → "takahiro-kinouchi"
   workbench_instances = {
@@ -73,6 +77,13 @@ resource "google_project_iam_member" "ml_workbench_vm_aiplatform_user" {
   member  = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
 }
 
+# Vertex AI が artifact_uri で指定されたモデルを管理バケットにコピーするために必要
+resource "google_storage_bucket_iam_member" "ai_training_bucket_vertex_ai_reader" {
+  bucket = google_storage_bucket.ai_trainig_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
+}
+
 resource "google_artifact_registry_repository_iam_member" "ml_workbench_vm_ar_writer" {
   project    = var.project_id
   location   = var.region
@@ -111,8 +122,8 @@ resource "google_workbench_instance" "workbench" {
     }
 
     network_interfaces {
-      network = "default"
-      subnet  = "default"
+      network = "projects/${var.project_id}/global/networks/default"
+      subnet  = "projects/${var.project_id}/regions/${var.region}/subnetworks/default"
     }
 
     service_accounts {

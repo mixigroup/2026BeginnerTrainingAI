@@ -29,8 +29,10 @@ And expects a response in the format:
   }
 
 Environment variables:
-  MODEL_GCS_URI  - GCS URI of the model directory, e.g.
-                   gs://my-bucket/models/alice/sam-model/
+  AIP_STORAGE_URI - (Vertex AI が自動設定) モデルアーティファクトのコピー先 GCS URI。
+                    artifact_uri を指定して Model を登録すると自動で設定される。
+  MODEL_GCS_URI   - (ローカルテスト用フォールバック) GCS URI of the model directory, e.g.
+                    gs://my-bucket/models/alice/sam-model/
 """
 
 import base64
@@ -51,7 +53,8 @@ from predictor import SAMPredictor, download_model
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
-MODEL_GCS_URI = os.environ.get("MODEL_GCS_URI", "")
+AIP_STORAGE_URI = os.environ.get("AIP_STORAGE_URI", "")
+MODEL_GCS_URI = os.environ.get("MODEL_GCS_URI", "")  # ローカルテスト用フォールバック
 LOCAL_MODEL_DIR = "/tmp/sam-model"
 MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
 
@@ -78,16 +81,28 @@ class PredictRequest(BaseModel):
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Download the model from GCS once at startup, then serve requests."""
-    if not MODEL_GCS_URI:
+    """Download the model from GCS once at startup, then serve requests.
+
+    Vertex AI 上では AIP_STORAGE_URI（Vertex AI 管理バケットのコピー）から、
+    ローカルテスト時は MODEL_GCS_URI からモデルをダウンロードする。
+    """
+    if AIP_STORAGE_URI:
+        # Vertex AI が artifact_uri のコピーを管理バケットに作成し、
+        # その gs:// URI を AIP_STORAGE_URI に設定する。
+        # コンテナのデフォルト SA にはこの URI への読み取り権限が自動付与される。
+        gcs_uri = AIP_STORAGE_URI
+    elif MODEL_GCS_URI:
+        # ローカル Docker テスト用フォールバック
+        gcs_uri = MODEL_GCS_URI
+    else:
         raise RuntimeError(
-            "Environment variable MODEL_GCS_URI is not set. "
-            "Pass it with -e MODEL_GCS_URI=gs://bucket/path/to/sam-model/"
+            "Neither AIP_STORAGE_URI nor MODEL_GCS_URI is set. "
+            "On Vertex AI, AIP_STORAGE_URI is set automatically via artifact_uri. "
+            "For local testing, pass -e MODEL_GCS_URI=gs://bucket/path/to/sam-model/"
         )
-    download_model(MODEL_GCS_URI, LOCAL_MODEL_DIR)
+    download_model(gcs_uri, LOCAL_MODEL_DIR)
     app.state.predictor = SAMPredictor(LOCAL_MODEL_DIR)
     yield
-    # Nothing to clean up, but resources could be released here if needed.
 
 
 app = FastAPI(title="SAM Inference Server", lifespan=lifespan)

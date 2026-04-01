@@ -60,7 +60,7 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: 自分の名前（英字小文字）を入れてください ---
-    USER = "your_name"
+    USER = "takahiro_kinouchi"
 
     if USER == "your_name":
         raise ValueError("USER を自分の名前（英字小文字）に変更してください！")
@@ -75,7 +75,7 @@ def _():
     print(f"USER          : {USER}")
     print(f"MODEL_GCS_URI : {MODEL_GCS_URI}")
     print(f"IMAGE_URI     : {IMAGE_URI}")
-    return IMAGE_URI, MODEL_GCS_URI, PROJECT_ID, REGION, USER
+    return GCS_BUCKET, IMAGE_URI, MODEL_GCS_URI, PROJECT_ID, REGION, USER
 
 
 @app.cell(hide_code=True)
@@ -93,7 +93,9 @@ def _(mo):
     - GCS に置くことで、モデルの更新はファイルのアップロードだけで完結
     - コンテナはサービングロジックのみ管理 → 責務の明確化
 
-    > Vertex AI も公式にこのパターンを推奨しており、`AIP_STORAGE_URI` という環境変数でモデルパスを渡す仕組みがあります。
+    > Vertex AI も公式にこのパターンを推奨しています。モデル登録時に `artifact_uri` を指定すると、
+    > Vertex AI がモデルを管理バケットにコピーし、コンテナに `AIP_STORAGE_URI` 環境変数（`gs://` URI）を自動設定します。
+    > コンテナのデフォルト SA にはこの URI への読み取り権限が自動付与されるため、権限設定が不要です。
 
     ### SAM モデルの保存
 
@@ -153,13 +155,19 @@ def _(mo):
     ```python
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        # サーバ起動時に GCS からモデルをダウンロード
-        download_model(MODEL_GCS_URI, LOCAL_MODEL_DIR)
+        if AIP_STORAGE_URI:
+            # Vertex AI が管理バケットにコピーした URI を使用
+            gcs_uri = AIP_STORAGE_URI
+        elif MODEL_GCS_URI:
+            # ローカル Docker テスト用フォールバック
+            gcs_uri = MODEL_GCS_URI
+        download_model(gcs_uri, LOCAL_MODEL_DIR)
         app.state.predictor = SAMPredictor(LOCAL_MODEL_DIR)
         yield
     ```
 
-    - `MODEL_GCS_URI` は**環境変数**で渡す → コンテナを変えずにモデルを切り替えられる
+    - Vertex AI 上では `AIP_STORAGE_URI` が自動設定される（`artifact_uri` 経由）
+    - ローカルテスト時は `MODEL_GCS_URI` 環境変数で GCS URI を直接渡す
     - `/health` エンドポイント → Vertex AI のヘルスチェックに必要
     - `/predict` エンドポイント → 画像 + ポイント座標を受け取り、セグメンテーションマスクをJSONで返す
 
@@ -216,7 +224,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     ```bash
     # 1. イメージをビルド
-    docker build -t sam-server .
+    docker build -t sam-server --platform linux/amd64 .
     ```
 
     #### Mac（ローカル）の場合
@@ -224,7 +232,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` の認証情報をマウントして使います。
 
     ```bash
-    docker run -p 8080:8080 \\
+    docker run --platform linux/amd64 -p 8080:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
         -v ~/.config/gcloud:/root/.config/gcloud:ro \\
@@ -258,7 +266,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     IMAGE_B64=$(base64 -i ./images/sample.jpeg)
     curl -X POST http://localhost:8080/predict \\
         -H "Content-Type: application/json" \\
-        -d '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}}]}}'
+        -d '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1050, 400]], "input_labels": [1]}}]}}'
     ```
     """)
     return
@@ -398,6 +406,9 @@ def _(mo):
 def _(IMAGE_URI, mo):
     mo.md(f"""
     ```bash
+    # Docker の認証設定（Artifact Registry に push するために必要）
+    gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+
     # タグをつける
     docker tag sam-server {IMAGE_URI}
 
@@ -425,7 +436,9 @@ def _(mo):
 
     ### 4-1. モデルをモデルレジストリに登録
 
-    コンテナイメージと環境変数（モデルのGCSパス）を組み合わせて登録します。
+    コンテナイメージと `artifact-uri`（モデルの GCS パス）を組み合わせて登録します。
+    `artifact-uri` を指定すると、Vertex AI がモデルを管理バケットにコピーし、
+    コンテナに `AIP_STORAGE_URI` 環境変数を自動設定します。
     """)
     return
 
@@ -437,8 +450,8 @@ def _(IMAGE_URI, MODEL_GCS_URI, REGION, USER, mo):
     gcloud ai models upload \\
         --region={REGION} \\
         --display-name=sam-server-{USER} \\
+        --artifact-uri={MODEL_GCS_URI} \\
         --container-image-uri={IMAGE_URI} \\
-        --container-env-vars=MODEL_GCS_URI={MODEL_GCS_URI} \\
         --container-health-route=/health \\
         --container-predict-route=/predict \\
         --container-ports=8080
@@ -498,8 +511,8 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: gcloud コマンドの出力から ID を入力してください ---
-    ENDPOINT_ID = "___"  # TODO: gcloud ai endpoints create の出力から
-    MODEL_ID = "___"  # TODO: gcloud ai models upload の出力から
+    ENDPOINT_ID = "2737636618604118016"  # TODO: gcloud ai endpoints create の出力から
+    MODEL_ID = "5642865197560365056"  # TODO: gcloud ai models upload の出力から
     return ENDPOINT_ID, MODEL_ID
 
 
@@ -643,18 +656,18 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(ENDPOINT_ID, REGION, USER, mo):
+def _(ENDPOINT_ID, GCS_BUCKET, IMAGE_URI, REGION, USER, mo):
     mo.md(f"""
     ```bash
     # v2 モデルを GCS にアップロード（再学習モデルや別バリアント）
-    gcloud storage cp -r sam-vit-base-v2/* gs://mixi-ml-handson-2026/models/{USER}/sam-model-v2/
+    gcloud storage cp -r sam-vit-base-v2/* gs://{GCS_BUCKET}/2026/models/{USER}/sam-model-v2/
 
     # v2 をモデルレジストリに登録
     gcloud ai models upload \\
         --region={REGION} \\
         --display-name=sam-server-v2-{USER} \\
-        --container-image-uri=IMAGE_URI \\
-        --container-env-vars=MODEL_GCS_URI=gs://mixi-ml-handson-2026/models/{USER}/sam-model-v2/ \\
+        --artifact-uri=gs://{GCS_BUCKET}/2026/models/{USER}/sam-model-v2/ \\
+        --container-image-uri={IMAGE_URI} \\
         --container-health-route=/health \\
         --container-predict-route=/predict \\
         --container-ports=8080
@@ -806,7 +819,7 @@ def _(mo):
     >
     > - コンテナ：サービングロジックのみ（再利用性が高い）
     > - モデル：GCSで管理（更新が独立している）
-    > - 環境変数：2つをつなぐインターフェース
+    > - `artifact_uri` + `AIP_STORAGE_URI`：Vertex AI 推奨のモデル受け渡しパターン
     """)
     return
 

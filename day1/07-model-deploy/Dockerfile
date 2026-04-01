@@ -2,13 +2,11 @@
 # SAM Inference Server - Custom Container for Vertex AI
 #
 # Key design decision: the model is NOT copied into the image.
-# At container startup, the model is downloaded from GCS via
-# the MODEL_GCS_URI environment variable.
+# On Vertex AI, artifact_uri で指定したモデルが Vertex AI 管理バケットにコピーされ、
+# AIP_STORAGE_URI 環境変数 (gs:// URI) として自動設定される。
+# コンテナ起動時にこの URI からモデルをダウンロードする。
 #
-# This means:
-#   - Updating the model → only update GCS, no docker rebuild needed
-#   - Container stays focused on serving logic
-#   - Follows the Vertex AI recommended pattern (AIP_STORAGE_URI)
+# ローカルテスト時は MODEL_GCS_URI 環境変数で GCS URI を直接指定する。
 # ============================================================
 
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim

@@ -41,8 +41,8 @@ gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 export USER=your_name          # TODO: 自分の名前（英字小文字）に変更
 export PROJECT_ID=hr-mixi
 export REGION=asia-northeast1
-export GCS_BUCKET=mixi-ml-handson-2026
-export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-handson/sam-server:${USER}"
+export GCS_BUCKET=hr-mixi-ml-hands-on
+export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-hands-on/sam-server:${USER}"
 ```
 
 ---
@@ -63,7 +63,7 @@ processor.save_pretrained('sam-vit-base')
 
 # GCS にアップロード
 gcloud storage cp -r sam-vit-base/* \
-    gs://${GCS_BUCKET}/models/${USER}/sam-model/
+    gs://${GCS_BUCKET}/2026/models/${USER}/sam-model/
 ```
 
 ---
@@ -73,7 +73,8 @@ gcloud storage cp -r sam-vit-base/* \
 `src/app.py` と `src/predictor.py` を確認してください。
 
 **設計のポイント**:
-- `MODEL_GCS_URI` 環境変数でモデルの場所を指定
+- Vertex AI 上では `artifact_uri` で指定したモデルが管理バケットにコピーされ、`AIP_STORAGE_URI` 環境変数が自動設定される
+- ローカルテスト時は `MODEL_GCS_URI` 環境変数でフォールバック
 - サーバ起動時（`lifespan`）に GCS からモデルをダウンロード
 - モデルはコンテナに含まない → コンテナを再ビルドしなくても良い
 
@@ -87,7 +88,7 @@ docker build -t sam-server .
 
 # ローカルで起動（GCS認証はホスト側の設定をマウント）
 docker run -p 8080:8080 \
-    -e MODEL_GCS_URI="gs://${GCS_BUCKET}/models/${USER}/sam-model/" \
+    -e MODEL_GCS_URI="gs://${GCS_BUCKET}/2026/models/${USER}/sam-model/" \
     -e GOOGLE_CLOUD_PROJECT="${PROJECT_ID}" \
     -v ~/.config/gcloud:/root/.config/gcloud:ro \
     sam-server
@@ -121,8 +122,8 @@ docker push ${IMAGE_URI}
 gcloud ai models upload \
     --region=${REGION} \
     --display-name=sam-server-${USER} \
+    --artifact-uri=gs://${GCS_BUCKET}/2026/models/${USER}/sam-model/ \
     --container-image-uri=${IMAGE_URI} \
-    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/sam-model/ \
     --container-health-route=/health \
     --container-predict-route=/predict \
     --container-ports=8080
@@ -164,14 +165,14 @@ gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
 
 ```bash
 # v2 モデルを GCS にアップロード
-gcloud storage cp -r sam-vit-base-v2/* gs://${GCS_BUCKET}/models/${USER}/sam-model-v2/
+gcloud storage cp -r sam-vit-base-v2/* gs://${GCS_BUCKET}/2026/models/${USER}/sam-model-v2/
 
 # 新しいモデルをモデルレジストリに登録
 gcloud ai models upload \
     --region=${REGION} \
     --display-name=sam-server-v2-${USER} \
+    --artifact-uri=gs://${GCS_BUCKET}/2026/models/${USER}/sam-model-v2/ \
     --container-image-uri=${IMAGE_URI} \
-    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/sam-model-v2/ \
     --container-health-route=/health \
     --container-predict-route=/predict \
     --container-ports=8080
@@ -211,5 +212,5 @@ gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
 |---|---|
 | プロジェクト ID | `hr-mixi` |
 | リージョン | `asia-northeast1`（東京） |
-| GCS バケット | `gs://mixi-ml-handson-2026/` |
-| Artifact Registry | `asia-northeast1-docker.pkg.dev/hr-mixi/ml-handson` |
+| GCS バケット | `gs://hr-mixi-ml-hands-on/` |
+| Artifact Registry | `asia-northeast1-docker.pkg.dev/hr-mixi/ml-hands-on` |

@@ -32,8 +32,8 @@ from google.cloud import aiplatform, storage
 # ---------------------------------------------------------------------------
 PROJECT_ID = "hr-mixi"
 REGION = "asia-northeast1"
-GCS_BUCKET = "mixi-ml-handson-2026"
-AR_REPO = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-handson"
+GCS_BUCKET = "hr-mixi-ml-hands-on"
+AR_REPO = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-hands-on"
 LOCAL_MODEL_DIR = "../06-accelerate-ml-model/sam-vit-base"
 MACHINE_TYPE = "n1-standard-2"
 
@@ -69,7 +69,7 @@ def run_output(cmd: list[str]) -> str:
 # ---------------------------------------------------------------------------
 def upload_model(user: str) -> str:
     """Upload the SAM model directory to GCS and return the GCS URI."""
-    gcs_prefix = f"models/{user}/sam-model"
+    gcs_prefix = f"2026/models/{user}/sam-model"
     gcs_uri = f"gs://{GCS_BUCKET}/{gcs_prefix}/"
     print(f"\n[Step 0] Uploading model to GCS: {gcs_uri}")
 
@@ -121,8 +121,8 @@ def upload_vertex_model(user: str, image_uri: str, gcs_uri: str) -> str:
 
     model = aiplatform.Model.upload(
         display_name=f"sam-server-{user}",
+        artifact_uri=gcs_uri,
         serving_container_image_uri=image_uri,
-        serving_container_environment_variables={"MODEL_GCS_URI": gcs_uri},
         serving_container_health_route="/health",
         serving_container_predict_route="/predict",
         serving_container_ports=[8080],
@@ -197,7 +197,7 @@ def main() -> None:
     args = parse_args()
     user = args.user.lower()
 
-    gcs_uri = f"gs://{GCS_BUCKET}/models/{user}/sam-model/"
+    gcs_uri = f"gs://{GCS_BUCKET}/2026/models/{user}/sam-model/"
     image_uri = f"{AR_REPO}/sam-server:{user}"
 
     print("=" * 60)
