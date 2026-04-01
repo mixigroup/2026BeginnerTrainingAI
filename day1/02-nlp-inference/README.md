@@ -28,8 +28,7 @@ HuggingFace の `pipeline` は、前処理・推論・後処理を1行で実行�
 ```
 02-nlp-inference/
 ├── src/
-│   ├── sentiment.py  # 前処理・推論・後処理の関数 + 評価サンプルデータ
-│   └── main.py       # スクリプト版（notebookと同等の処理をCLIで実行）
+│   └── sentiment.py  # 前処理・推論・後処理の関数 + 評価サンプルデータ
 ├── notebook.py        # marimo ノートブック（インタラクティブ版）
 ├── pyproject.toml     # 依存パッケージ定義
 └── README.md
@@ -61,21 +60,11 @@ uv sync
 
 ## 実行方法
 
-### ノートブック版（インタラクティブ）
-
 ```bash
 uv run marimo edit notebook.py
 ```
 
 ブラウザが自動的に開きます。上から順にセルを実行してください。インタラクティブデモでは任意のテキストを入力して結果をリアルタイム確認できます。
-
-### スクリプト版（CLI）
-
-```bash
-uv run python -m src.main
-```
-
-ノートブックと同じ処理（pipeline比較 → 3フェーズ分解 → 20件評価）をターミナルで実行します。
 
 ---
 

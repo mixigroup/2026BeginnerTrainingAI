@@ -94,7 +94,7 @@ source .venv/bin/activate
 deactivate
 ```
 
-> **ポイント**: `uv run python main.py` のように `uv run` を使えば activate なしでも実行できます。
+> **ポイント**: `uv run marimo edit notebook.py` のように `uv run` を使えば activate なしでも実行できます。
 
 ---
 
@@ -121,20 +121,16 @@ uvx ruff check .
 ├── pyproject.toml     # プロジェクト設定・依存パッケージ
 ├── uv.lock            # 依存パッケージのバージョン固定（自動生成）
 ├── .venv/             # 仮想環境（自動生成）
-├── src/               # ソースコード
-│   └── sample.py      # サンプルコード
 └── notebook.py        # marimo ノートブック（Jupyter Notebook の代替）
 ```
 
 ### 基本的な使い方
 
-`src/` にコードを書いて `uv run` で実行するのが基本です。
+marimo notebook を起動して、ブラウザ上でインタラクティブにコードを実行します。
 
 ```bash
-uv run src/sample.py
+uv run marimo edit notebook.py
 ```
-
-`notebook.py` は marimo を使ったインタラクティブな実行環境です（後述）。
 
 ---
 
@@ -199,9 +195,6 @@ uv run marimo edit notebook.py
 # 1. 仮想環境のセットアップ（初回のみ）
 uv sync
 
-# 2. サンプルコードを実行
-uv run src/sample.py
-
-# 3. ノートブックを開く
+# 2. ノートブックを開く
 uv run marimo edit notebook.py
 ```
