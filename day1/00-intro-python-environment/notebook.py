@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.4"
+__generated_with = "0.21.1"
 app = marimo.App(width="medium")
 
 
@@ -341,6 +341,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
+
     user_info = mo.ui.dictionary(
         {
             "名前": mo.ui.text(placeholder="名前を入力..."),

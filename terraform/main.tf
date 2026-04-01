@@ -1,3 +1,7 @@
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
 locals {
   # "takahiro.kinouchi@mixi.co.jp" → "takahiro-kinouchi"
   workbench_instances = {
@@ -71,6 +75,13 @@ resource "google_project_iam_member" "ml_workbench_vm_aiplatform_user" {
   project = var.project_id
   role    = "roles/aiplatform.user"
   member  = "serviceAccount:${google_service_account.ml_workbench_vm.email}"
+}
+
+# Vertex AI が artifact_uri で指定されたモデルを管理バケットにコピーするために必要
+resource "google_storage_bucket_iam_member" "ai_training_bucket_vertex_ai_reader" {
+  bucket = google_storage_bucket.ai_trainig_bucket.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-aiplatform.iam.gserviceaccount.com"
 }
 
 resource "google_artifact_registry_repository_iam_member" "ml_workbench_vm_ar_writer" {
