@@ -1,7 +1,7 @@
 [project]
 name = "07-model-deploy"
 version = "0.1.0"
-description = "YOLO model deployment hands-on with Vertex AI custom container"
+description = "SAM model deployment hands-on with Vertex AI custom container"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -11,15 +11,27 @@ dependencies = [
     "uvicorn[standard]>=0.30.0",
     "python-multipart>=0.0.12",
     # Model inference
-    "onnxruntime>=1.20.0",
-    "opencv-python-headless>=4.10.0",
+    "torch>=2.10.0",
+    "torchvision>=0.22.0",
+    "transformers>=4.40",
     "numpy>=1.26.0",
+    "Pillow>=10.0.0",
     # GCS access
     "google-cloud-storage>=2.18.0",
     # Vertex AI SDK (for Step 5: endpoint inference test)
     "google-cloud-aiplatform>=1.70.0",
+    # Local test (Step 2: request to local server)
+    "requests>=2.31.0",
     # Gradio demo (Step 7: optional)
     "gradio>=5.0.0",
-    "Pillow>=10.0.0",
     "pyzmq>=27.1.0",
 ]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
