@@ -60,7 +60,7 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: 自分の名前（英字小文字）を入れてください ---
-    USER = "takahiro_kinouchi"
+    USER = "___"
 
     if USER == "your_name":
         raise ValueError("USER を自分の名前（英字小文字）に変更してください！")
@@ -511,8 +511,8 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: gcloud コマンドの出力から ID を入力してください ---
-    ENDPOINT_ID = "2737636618604118016"  # TODO: gcloud ai endpoints create の出力から
-    MODEL_ID = "5642865197560365056"  # TODO: gcloud ai models upload の出力から
+    ENDPOINT_ID = "___"  # TODO: gcloud ai endpoints create の出力から
+    MODEL_ID = "___"  # TODO: gcloud ai models upload の出力から
     return ENDPOINT_ID, MODEL_ID
 
 
