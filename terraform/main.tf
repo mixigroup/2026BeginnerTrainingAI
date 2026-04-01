@@ -122,8 +122,8 @@ resource "google_workbench_instance" "workbench" {
     }
 
     network_interfaces {
-      network = "default"
-      subnet  = "default"
+      network = "projects/${var.project_id}/global/networks/default"
+      subnet  = "projects/${var.project_id}/regions/${var.region}/subnetworks/default"
     }
 
     service_accounts {
