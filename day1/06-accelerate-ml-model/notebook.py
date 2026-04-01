@@ -27,6 +27,10 @@ def _(mo):
     > エクスポートとは何か・量子化・枝刈りなどの高速化手法については、スライドを参照してください。
 
     今回は **SAM（Segment Anything Model）** の Image Encoder を題材にします。
+
+    ![SAM セグメンテーション例](https://github.com/facebookresearch/segment-anything/raw/main/assets/masks2.jpg)
+
+    *画像出典: [facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything) (Apache 2.0 License)*
     """)
     return
 
@@ -45,6 +49,10 @@ def _(mo):
     |---|---|---|
     | **Image Encoder（ViT）** | 画像から特徴量を抽出（重い） | ~358 MB |
     | **Mask Decoder** | プロンプトからマスクを生成（軽い） | ~16 MB |
+
+    ![SAM モデルアーキテクチャ](https://github.com/facebookresearch/segment-anything/blob/main/assets/model_diagram.png?raw=true)
+
+    *画像出典: [facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything) (Apache 2.0 License)*
 
     推論のボトルネックは **Image Encoder** です。
     このノートブックでは **Encoder 部分を ONNX 化・量子化・プルーニング**して高速化を体験します。
@@ -82,10 +90,10 @@ def _():
 
     import torch
     from onnxruntime.quantization import QuantType, quantize_dynamic
-    from transformers import SamModel, SamProcessor
+    from transformers import SamModel
 
     print("Libraries loaded successfully.")
-    return Path, QuantType, SamModel, SamProcessor, quantize_dynamic, torch
+    return Path, QuantType, SamModel, quantize_dynamic, torch
 
 
 @app.cell(hide_code=True)
@@ -99,9 +107,8 @@ def _(mo):
 
 
 @app.cell
-def _(SamModel, SamProcessor, mo):
+def _(SamModel, mo):
     sam_model = SamModel.from_pretrained("facebook/sam-vit-base")
-    sam_processor = SamProcessor.from_pretrained("facebook/sam-vit-base")
     sam_model.eval()
 
     # パラメータ数を表示
@@ -536,9 +543,26 @@ def _(mo):
     ## 参考リンク
 
     - [SAM 論文 (Segment Anything)](https://arxiv.org/abs/2304.02643)
+    - [SAM GitHub リポジトリ](https://github.com/facebookresearch/segment-anything)
     - [facebook/sam-vit-base (Hugging Face)](https://huggingface.co/facebook/sam-vit-base)
     - [Netron（ブラウザ版）](https://netron.app)
     - [ONNX Runtime 量子化ドキュメント](https://onnxruntime.ai/docs/performance/model-optimizations/quantization.html)
+
+    ## Citation
+
+    このノートブックで使用している SAM（Segment Anything Model）および画像は、Meta AI Research が公開しているものです。
+
+    ```
+    @article{kirillov2023segment,
+      title={Segment Anything},
+      author={Kirillov, Alexander and Mintun, Eric and Ravi, Nikhila and Mao, Hanzi and Rolland, Chloe and Gustafson, Laura and Xiao, Tete and Whitehead, Spencer and Berg, Alexander C. and Lo, Wan-Yen and Dollar, Piotr and Girshick, Ross},
+      journal={arXiv:2304.02643},
+      year={2023}
+    }
+    ```
+
+    - **リポジトリ**: [https://github.com/facebookresearch/segment-anything](https://github.com/facebookresearch/segment-anything)
+    - **ライセンス**: Apache 2.0
     """)
     return
 
