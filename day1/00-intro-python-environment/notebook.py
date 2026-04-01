@@ -143,21 +143,17 @@ def _():
 
 @app.cell
 def _(changed, mo):
-    (
-        mo.md(
-            f"""
-            **変更を検知しました！** `changed` の値は `{changed}` です。
+    mo.md(
+        f"""
+        **変更を検知しました！** `changed` の値は `{changed}` です。
 
-            `changed` の値を更新すると、この変数を参照しているこのセルが
-            **自動的に再実行**されました。これがリアクティブ実行です。
-            """
-        )
+        `changed` の値を更新すると、この変数を参照しているこのセルが
+        **自動的に再実行**されました。これがリアクティブ実行です。
+        """
         if changed
-        else mo.md(
-            """
-            上のセルで `changed` を `True` に変更し、`Ctrl/Cmd + Enter` で実行してください。
-            """
-        )
+        else """
+        上のセルで `changed` を `True` に変更し、`Ctrl/Cmd + Enter` で実行してください。
+        """
     )
     return
 
@@ -328,10 +324,7 @@ def _(mo):
 @app.cell
 def _(color_dropdown, is_bold, mo, repeat_count):
     _text = f"{color_dropdown.value} " * repeat_count.value
-    if is_bold.value:
-        mo.md(f"**{_text}**")
-    else:
-        mo.md(_text)
+    mo.md(f"**{_text}**" if is_bold.value else _text)
     return
 
 

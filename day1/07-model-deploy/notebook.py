@@ -60,7 +60,7 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: 自分の名前（英字小文字）を入れてください ---
-    USER = "takahiro_kinouchi"
+    USER = "your_name"
 
     if USER == "your_name":
         raise ValueError("USER を自分の名前（英字小文字）に変更してください！")
@@ -314,8 +314,9 @@ def _(mo):
     _img.save(_buf, format="JPEG")
     _image_b64 = _b64.b64encode(_buf.getvalue()).decode("utf-8")
 
-    # 画像の中心付近をポイントとして指定
-    _cx, _cy = _img.width // 2, _img.height // 2
+    # sample.jpeg (2118x718) の中央の人物（ピンクの服）の胴体付近を指定
+    # 画像中心だと人物の隙間に当たりセグメントされないため、固定座標を使用
+    _cx, _cy = 1050, 400
 
     # ローカルサーバにリクエスト送信
     _resp = _requests.post(
@@ -336,23 +337,47 @@ def _(mo):
 
     # マスクをデコードしてオーバーレイ
     _mask_bytes = _b64.b64decode(_pred["mask_b64"])
-    _mask_array = _np.array(_Image.open(_io.BytesIO(_mask_bytes)))
+    _mask_image = _Image.open(_io.BytesIO(_mask_bytes))
+    _mask_array = _np.array(_mask_image)
     _img_array = _np.array(_img)
     _overlay = _img_array.copy()
+    _mask_pixels = int(_np.sum(_mask_array > 0))
+    _total_pixels = _mask_array.shape[0] * _mask_array.shape[1]
     _overlay[_mask_array > 0] = (
         _overlay[_mask_array > 0] * 0.5 + _np.array([30, 144, 255]) * 0.5
     ).astype(_np.uint8)
     _result_image = _Image.fromarray(_overlay)
 
-    mo.md(
-        f"""
+    mo.vstack(
+        [
+            mo.md(
+                f"""
     ### ローカルテスト推論結果
 
     - ポイント座標: ({_cx}, {_cy})
-    - IoU スコア: **{_pred["iou_score"]:.3f}**
+    - マスク信頼度スコア: **{_pred["iou_score"]:.3f}**（SAM が自己評価したマスク品質。Ground Truth との IoU ではない）
+    - マスク領域: {_mask_pixels:,} / {_total_pixels:,} ピクセル ({_mask_pixels / _total_pixels * 100:.1f}%)
     """
+            ),
+            mo.hstack(
+                [
+                    mo.vstack(
+                        [
+                            mo.md("**元画像 + マスクオーバーレイ**"),
+                            mo.image(_result_image),
+                        ]
+                    ),
+                    mo.vstack(
+                        [
+                            mo.md("**マスク画像（白=セグメント領域）**"),
+                            mo.image(_mask_image),
+                        ]
+                    ),
+                ],
+                justify="start",
+            ),
+        ]
     )
-    mo.image(_result_image)
     return
 
 
@@ -420,6 +445,14 @@ def _(IMAGE_URI, MODEL_GCS_URI, REGION, USER, mo):
     ```
 
     コマンド実行後、出力された `MODEL_ID` をメモしておいてください。
+
+    もし `MODEL_ID` を忘れた場合は、以下のコマンドで確認できます：
+
+    ```bash
+    gcloud ai models list \\
+        --region={REGION} \\
+        --filter="displayName=sam-server-{USER}"
+    ```
     """)
     return
 
@@ -442,6 +475,14 @@ def _(REGION, USER, mo):
     ```
 
     コマンド実行後、出力された `ENDPOINT_ID` をメモしておいてください。
+
+    もし `ENDPOINT_ID` を忘れた場合は、以下のコマンドで確認できます：
+
+    ```bash
+    gcloud ai endpoints list \\
+        --region={REGION} \\
+        --filter="displayName=sam-endpoint-{USER}"
+    ```
     """)
     return
 
@@ -457,8 +498,8 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: gcloud コマンドの出力から ID を入力してください ---
-    ENDPOINT_ID = "1572330215022002176"  # TODO: gcloud ai endpoints create の出力から
-    MODEL_ID = "5209393733425954816"  # TODO: gcloud ai models upload の出力から
+    ENDPOINT_ID = "___"  # TODO: gcloud ai endpoints create の出力から
+    MODEL_ID = "___"  # TODO: gcloud ai models upload の出力から
     return ENDPOINT_ID, MODEL_ID
 
 
@@ -556,15 +597,19 @@ def _(ENDPOINT_ID, aiplatform, base64, mo):
     ).astype(np.uint8)
     result_image = Image.fromarray(overlay)
 
-    mo.md(
-        f"""
-        ### 推論結果
+    mo.vstack(
+        [
+            mo.md(
+                f"""
+    ### 推論結果
 
-        - ポイント座標: ({cx}, {cy})
-        - IoU スコア: **{pred["iou_score"]:.3f}**
-        """
+    - ポイント座標: ({cx}, {cy})
+    - マスク信頼度スコア: **{pred["iou_score"]:.3f}**
+    """
+            ),
+            mo.image(result_image),
+        ]
     )
-    mo.image(result_image)
     return
 
 
