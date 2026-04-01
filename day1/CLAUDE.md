@@ -28,9 +28,6 @@ uv sync
 # marimo notebook を起動（ブラウザで対話的に実行）
 uv run marimo edit notebook.py
 
-# CLI でスクリプトを直接実行
-uv run src/<script>.py
-
 # Lint & Format
 uvx ruff check .
 uvx ruff format .
@@ -44,7 +41,7 @@ uvx ruff format .
 
 - `pyproject.toml` — そのハンズオン固有の依存定義
 - `notebook.py` — marimo notebook 本体（`@app.cell` デコレータでセルを定義）
-- `src/` — CLI から直接実行可能なスクリプト群（notebook と同じロジックを含む）
+- `src/` — notebook から import して使うユーティリティモジュール（一部ハンズオンのみ）
 
 ### marimo notebook の書き方
 
