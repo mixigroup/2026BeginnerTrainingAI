@@ -95,7 +95,10 @@ def upload_model(user: str) -> str:
 def build_image(image_uri: str) -> None:
     """Build the Docker image locally."""
     print(f"\n[Step 1] Building Docker image: {image_uri}")
-    run(["docker", "build", "-t", image_uri, "."], "docker build")
+    run(
+        ["docker", "build", "--platform", "linux/amd64", "-t", image_uri, "."],
+        "docker build",
+    )
 
 
 # ---------------------------------------------------------------------------
