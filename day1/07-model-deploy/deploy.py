@@ -2,7 +2,7 @@
 deploy.py - One-shot deployment script for Vertex AI custom container.
 
 Automates the following steps:
-  1. Upload the ONNX model to GCS
+  1. Upload the SAM model to GCS
   2. Build and push the Docker image to Artifact Registry
   3. Register the model in Vertex AI Model Registry
   4. Create an endpoint
@@ -17,10 +17,11 @@ Requirements:
   - gcloud CLI authenticated (gcloud auth application-default login)
   - Docker configured for Artifact Registry:
       gcloud auth configure-docker asia-northeast1-docker.pkg.dev
-  - ONNX model file at ../06-accelerate-ml-model/yolo26m-pose.onnx
+  - SAM model saved with save_pretrained() at ../06-accelerate-ml-model/sam-vit-base/
 """
 
 import argparse
+import os
 import subprocess
 import sys
 
@@ -33,7 +34,7 @@ PROJECT_ID = "hr-mixi"
 REGION = "asia-northeast1"
 GCS_BUCKET = "mixi-ml-handson-2026"
 AR_REPO = f"{REGION}-docker.pkg.dev/{PROJECT_ID}/ml-handson"
-LOCAL_ONNX = "../06-accelerate-ml-model/yolo26m-pose.onnx"
+LOCAL_MODEL_DIR = "../06-accelerate-ml-model/sam-vit-base"
 MACHINE_TYPE = "n1-standard-2"
 
 
@@ -67,16 +68,24 @@ def run_output(cmd: list[str]) -> str:
 # Step 0: Upload model to GCS
 # ---------------------------------------------------------------------------
 def upload_model(user: str) -> str:
-    """Upload the ONNX model to GCS and return the GCS URI."""
-    gcs_uri = f"gs://{GCS_BUCKET}/models/{user}/yolo.onnx"
+    """Upload the SAM model directory to GCS and return the GCS URI."""
+    gcs_prefix = f"models/{user}/sam-model"
+    gcs_uri = f"gs://{GCS_BUCKET}/{gcs_prefix}/"
     print(f"\n[Step 0] Uploading model to GCS: {gcs_uri}")
 
     client = storage.Client(project=PROJECT_ID)
     bucket = client.bucket(GCS_BUCKET)
-    blob = bucket.blob(f"models/{user}/yolo.onnx")
-    blob.upload_from_filename(LOCAL_ONNX)
 
-    print(f"  Uploaded: {LOCAL_ONNX} → {gcs_uri}")
+    for root, _dirs, files in os.walk(LOCAL_MODEL_DIR):
+        for filename in files:
+            local_path = os.path.join(root, filename)
+            relative_path = os.path.relpath(local_path, LOCAL_MODEL_DIR)
+            blob_path = f"{gcs_prefix}/{relative_path}"
+            blob = bucket.blob(blob_path)
+            blob.upload_from_filename(local_path)
+            print(f"  Uploaded: {relative_path}")
+
+    print(f"  Upload complete: {gcs_uri}")
     return gcs_uri
 
 
@@ -108,7 +117,7 @@ def upload_vertex_model(user: str, image_uri: str, gcs_uri: str) -> str:
     aiplatform.init(project=PROJECT_ID, location=REGION)
 
     model = aiplatform.Model.upload(
-        display_name=f"yolo-server-{user}",
+        display_name=f"sam-server-{user}",
         serving_container_image_uri=image_uri,
         serving_container_environment_variables={"MODEL_GCS_URI": gcs_uri},
         serving_container_health_route="/health",
@@ -128,7 +137,7 @@ def create_endpoint(user: str) -> str:
     print("\n[Step 4] Creating Vertex AI endpoint...")
 
     endpoint = aiplatform.Endpoint.create(
-        display_name=f"yolo-endpoint-{user}",
+        display_name=f"sam-endpoint-{user}",
     )
 
     print(f"  Endpoint created: {endpoint.resource_name}")
@@ -147,7 +156,7 @@ def deploy_model(model_name: str, endpoint_name: str, user: str) -> None:
 
     _ = endpoint.deploy(
         model=model,
-        deployed_model_display_name=f"yolo-{user}",
+        deployed_model_display_name=f"sam-{user}",
         machine_type=MACHINE_TYPE,
         traffic_percentage=100,
     )
@@ -161,7 +170,7 @@ def deploy_model(model_name: str, endpoint_name: str, user: str) -> None:
 # ---------------------------------------------------------------------------
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Deploy YOLO model to Vertex AI custom container."
+        description="Deploy SAM model to Vertex AI custom container."
     )
     parser.add_argument(
         "--user",
@@ -185,8 +194,8 @@ def main() -> None:
     args = parse_args()
     user = args.user.lower()
 
-    gcs_uri = f"gs://{GCS_BUCKET}/models/{user}/yolo.onnx"
-    image_uri = f"{AR_REPO}/yolo-server:{user}"
+    gcs_uri = f"gs://{GCS_BUCKET}/models/{user}/sam-model/"
+    image_uri = f"{AR_REPO}/sam-server:{user}"
 
     print("=" * 60)
     print("Vertex AI Deployment")

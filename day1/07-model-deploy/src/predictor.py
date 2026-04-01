@@ -1,191 +1,118 @@
 """
-YOLOv8 物体検出の推論モジュール。
+SAM (Segment Anything Model) の推論モジュール。
 
-GCS から ONNX モデルをダウンロードし、ONNX Runtime で推論を行う。
+GCS からモデルをダウンロードし、PyTorch で推論を行う。
+エンコーダ + デコーダのフルパイプラインを実行し、セグメンテーションマスクを返す。
 """
 
+import base64
+import io
+import os
 from urllib.parse import urlparse
 
-import os
-
-import cv2
 import numpy as np
-import onnxruntime as ort
+import torch
 from google.cloud import storage
+from PIL import Image
+from transformers import SamModel, SamProcessor
 
 
-def download_model(gcs_uri: str, local_path: str) -> None:
-    """Download model file from GCS to local filesystem.
+def download_model(gcs_uri: str, local_dir: str) -> None:
+    """GCS からモデルディレクトリをダウンロードする。
 
     Args:
-        gcs_uri: GCS URI in the form gs://bucket/path/to/model.onnx
-        local_path: Destination path on the local filesystem.
+        gcs_uri: GCS URI (gs://bucket/path/to/model-dir/)
+        local_dir: ローカルの保存先ディレクトリ
     """
     parsed = urlparse(gcs_uri)
     if parsed.scheme != "gs":
         raise ValueError(f"Expected a gs:// URI, got: {gcs_uri}")
 
     bucket_name = parsed.netloc
-    blob_path = parsed.path.lstrip("/")
+    prefix = parsed.path.lstrip("/").rstrip("/") + "/"
 
-    print(f"Downloading model from gs://{bucket_name}/{blob_path} → {local_path}")
+    print(f"Downloading model from gs://{bucket_name}/{prefix} → {local_dir}")
     project = os.environ.get("GOOGLE_CLOUD_PROJECT")
     client = storage.Client(project=project)
     bucket = client.bucket(bucket_name)
-    blob = bucket.blob(blob_path)
-    blob.download_to_filename(local_path)
+
+    os.makedirs(local_dir, exist_ok=True)
+
+    blobs = list(bucket.list_blobs(prefix=prefix))
+    for blob in blobs:
+        # prefix 以降の相対パスを取得
+        relative_path = blob.name[len(prefix) :]
+        if not relative_path:
+            continue
+
+        local_path = os.path.join(local_dir, relative_path)
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        blob.download_to_filename(local_path)
+        print(f"  Downloaded: {relative_path}")
+
     print("Download complete.")
 
 
-def _preprocess(image: np.ndarray) -> np.ndarray:
-    """Preprocess a raw image for YOLO inference.
+class SAMPredictor:
+    """SAM モデルのラッパー。PyTorch でフルパイプライン推論を行う。"""
 
-    Steps:
-    1. Resize to 640x640 (letterbox-free, simple resize)
-    2. BGR -> RGB channel swap
-    3. HWC -> CHW layout
-    4. Normalize to [0, 1]
-    5. Add batch dimension
-
-    Args:
-        image: H x W x 3 uint8 numpy array (BGR, as returned by cv2).
-
-    Returns:
-        1 x 3 x 640 x 640 float32 numpy array.
-    """
-    resized = cv2.resize(image, (640, 640))
-    rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-    chw = rgb.transpose(2, 0, 1)  # HWC -> CHW
-    normalized = chw.astype(np.float32) / 255.0
-    batched = np.expand_dims(normalized, axis=0)  # 1 x C x H x W
-    return batched
-
-
-def _postprocess(
-    output: np.ndarray,
-    orig_h: int,
-    orig_w: int,
-    conf_threshold: float = 0.25,
-    iou_threshold: float = 0.45,
-) -> list[dict]:
-    """YOLOv8 の生出力を検出結果に変換する。
-
-    YOLOv8 の出力形状: (1, 84, 8400)
-    84 = 4 (bbox: cx, cy, w, h) + 80 (COCO クラススコア)
-
-    Args:
-        output: ONNX の生出力配列。
-        orig_h: リサイズ前の元画像の高さ。
-        orig_w: リサイズ前の元画像の幅。
-        conf_threshold: 検出を残す最小信頼度スコア。
-        iou_threshold: NMS の IoU 閾値。
-
-    Returns:
-        検出結果の辞書リスト。各辞書のキー:
-            - bbox: [x1, y1, x2, y2] 元画像座標
-            - score: float 信頼度
-            - class_id: int クラスインデックス
-    """
-    # output: (1, 84, 8400)
-    pred = output[0].T  # (8400, 84)
-
-    # 最初の4値: cx, cy, w, h（640x640 空間）
-    boxes_xywh = pred[:, :4]
-
-    # 列 4..84 はクラスごとの確率
-    class_scores = pred[:, 4:]
-    class_ids = np.argmax(class_scores, axis=1)
-    scores = class_scores[np.arange(len(pred)), class_ids]
-
-    # --- 信頼度でフィルタ ---
-    keep_mask = scores >= conf_threshold
-    boxes_xywh = boxes_xywh[keep_mask]
-    scores = scores[keep_mask]
-    class_ids = class_ids[keep_mask]
-
-    if len(scores) == 0:
-        return []
-
-    # --- cx,cy,w,h → x1,y1,x2,y2 (640x640 空間) ---
-    x1 = boxes_xywh[:, 0] - boxes_xywh[:, 2] / 2
-    y1 = boxes_xywh[:, 1] - boxes_xywh[:, 3] / 2
-    x2 = boxes_xywh[:, 0] + boxes_xywh[:, 2] / 2
-    y2 = boxes_xywh[:, 1] + boxes_xywh[:, 3] / 2
-    boxes_xyxy = np.stack([x1, y1, x2, y2], axis=1)
-
-    # --- NMS (greedy) ---
-    order = np.argsort(-scores)
-    selected = []
-    while len(order) > 0:
-        idx = order[0]
-        selected.append(idx)
-        if len(order) == 1:
-            break
-        rest = order[1:]
-        inter_x1 = np.maximum(boxes_xyxy[idx, 0], boxes_xyxy[rest, 0])
-        inter_y1 = np.maximum(boxes_xyxy[idx, 1], boxes_xyxy[rest, 1])
-        inter_x2 = np.minimum(boxes_xyxy[idx, 2], boxes_xyxy[rest, 2])
-        inter_y2 = np.minimum(boxes_xyxy[idx, 3], boxes_xyxy[rest, 3])
-        inter_area = np.maximum(0, inter_x2 - inter_x1) * np.maximum(
-            0, inter_y2 - inter_y1
-        )
-        area_idx = (boxes_xyxy[idx, 2] - boxes_xyxy[idx, 0]) * (
-            boxes_xyxy[idx, 3] - boxes_xyxy[idx, 1]
-        )
-        area_rest = (boxes_xyxy[rest, 2] - boxes_xyxy[rest, 0]) * (
-            boxes_xyxy[rest, 3] - boxes_xyxy[rest, 1]
-        )
-        iou = inter_area / (area_idx + area_rest - inter_area + 1e-6)
-        order = rest[iou <= iou_threshold]
-
-    # --- 元画像サイズにスケール ---
-    scale_x = orig_w / 640.0
-    scale_y = orig_h / 640.0
-
-    results = []
-    for i in selected:
-        results.append({
-            "bbox": [
-                float(boxes_xyxy[i, 0] * scale_x),
-                float(boxes_xyxy[i, 1] * scale_y),
-                float(boxes_xyxy[i, 2] * scale_x),
-                float(boxes_xyxy[i, 3] * scale_y),
-            ],
-            "score": float(scores[i]),
-            "class_id": int(class_ids[i]),
-        })
-
-    return results
-
-
-class YOLOPredictor:
-    """Wrapper around an ONNX YOLO model for inference."""
-
-    def __init__(self, model_path: str) -> None:
-        """Load the ONNX model.
+    def __init__(self, model_dir: str) -> None:
+        """モデルをロードする。
 
         Args:
-            model_path: Local path to the .onnx file.
+            model_dir: save_pretrained() で保存したモデルディレクトリのパス。
         """
-        providers = ["CPUExecutionProvider"]
-        self.session = ort.InferenceSession(model_path, providers=providers)
-        self.input_name = self.session.get_inputs()[0].name
-        print(f"Model loaded: input='{self.input_name}'")
+        self.model = SamModel.from_pretrained(model_dir)
+        self.processor = SamProcessor.from_pretrained(model_dir)
+        self.model.eval()
+        print(f"SAM model loaded from {model_dir}")
 
-    def predict(self, image: np.ndarray) -> dict:
-        """Run YOLO inference on a single image.
+    def predict(
+        self,
+        image: Image.Image,
+        input_points: list[list[int]],
+        input_labels: list[int],
+    ) -> dict:
+        """画像とポイント座標からセグメンテーションマスクを生成する。
 
         Args:
-            image: H x W x 3 uint8 numpy array (BGR).
+            image: 入力画像 (PIL Image)。
+            input_points: ポイント座標のリスト [[x, y], ...]。
+            input_labels: 各ポイントのラベル (1=前景, 0=背景)。
 
         Returns:
-            Dict with key 'detections': list of detection dicts.
+            {"mask_b64": "<base64 PNG>", "iou_score": float} 形式の辞書。
         """
-        orig_h, orig_w = image.shape[:2]
-        input_tensor = _preprocess(image)
+        # 前処理
+        inputs = self.processor(
+            images=image,
+            input_points=[input_points],
+            input_labels=[input_labels],
+            return_tensors="pt",
+        )
 
-        raw_outputs = self.session.run(None, {self.input_name: input_tensor})
-        output = raw_outputs[0]  # shape: (1, channels, anchors)
+        # 推論
+        with torch.no_grad():
+            outputs = self.model(**inputs)
 
-        detections = _postprocess(output, orig_h, orig_w)
-        return {"detections": detections}
+        # マスクの後処理
+        masks = self.processor.post_process_masks(
+            outputs.pred_masks,
+            inputs["original_sizes"],
+            inputs["reshaped_input_sizes"],
+        )
+
+        # IoU スコアが最も高いマスクを選択
+        iou_scores = outputs.iou_scores[0, 0]
+        best_idx = iou_scores.argmax().item()
+        mask = masks[0][0, best_idx].numpy()
+        best_iou = float(iou_scores[best_idx].item())
+
+        # マスクを PNG 画像として base64 エンコード
+        mask_uint8 = (mask * 255).astype(np.uint8)
+        mask_image = Image.fromarray(mask_uint8, mode="L")
+        buf = io.BytesIO()
+        mask_image.save(buf, format="PNG")
+        mask_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+
+        return {"mask_b64": mask_b64, "iou_score": best_iou}

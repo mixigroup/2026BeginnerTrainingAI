@@ -1,6 +1,6 @@
 # 07-model-deploy: Vertex AI デプロイ ハンズオン
 
-06で作ったYOLOモデル（ONNX形式）を **FastAPI + カスタムコンテナ** で Vertex AI にデプロイします。
+06で作ったSAM（Segment Anything Model）を **FastAPI + カスタムコンテナ** で Vertex AI にデプロイします。
 
 ## 学習目標
 
@@ -42,20 +42,28 @@ export USER=your_name          # TODO: 自分の名前（英字小文字）に�
 export PROJECT_ID=hr-mixi
 export REGION=asia-northeast1
 export GCS_BUCKET=mixi-ml-handson-2026
-export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-handson/yolo-server:${USER}"
+export IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/ml-handson/sam-server:${USER}"
 ```
 
 ---
 
 ## Step 0: モデルを GCS にアップロード
 
-06で学習した YOLO モデルを GCS に置きます。
-これが MLOps における**モデルのバージョン管理の出発点**です。
+SAM モデルを `save_pretrained()` で保存し、GCS にアップロードします。
 
 ```bash
-# 06 で作った ONNX モデルを GCS にアップロード
-gsutil cp ../06-accelerate-ml-model/yolo26m-pose.onnx \
-    gs://${GCS_BUCKET}/models/${USER}/yolo.onnx
+# SAM モデルの保存（Python で実行）
+python -c "
+from transformers import SamModel, SamProcessor
+model = SamModel.from_pretrained('facebook/sam-vit-base')
+processor = SamProcessor.from_pretrained('facebook/sam-vit-base')
+model.save_pretrained('sam-vit-base')
+processor.save_pretrained('sam-vit-base')
+"
+
+# GCS にアップロード
+gcloud storage cp -r sam-vit-base/* \
+    gs://${GCS_BUCKET}/models/${USER}/sam-model/
 ```
 
 ---
@@ -75,20 +83,23 @@ gsutil cp ../06-accelerate-ml-model/yolo26m-pose.onnx \
 
 ```bash
 # イメージをビルド
-docker build -t yolo-server .
+docker build -t sam-server .
 
 # ローカルで起動（GCS認証はホスト側の設定をマウント）
 docker run -p 8080:8080 \
-    -e MODEL_GCS_URI="gs://${GCS_BUCKET}/models/${USER}/yolo.onnx" \
+    -e MODEL_GCS_URI="gs://${GCS_BUCKET}/models/${USER}/sam-model/" \
+    -e GOOGLE_CLOUD_PROJECT="${PROJECT_ID}" \
     -v ~/.config/gcloud:/root/.config/gcloud:ro \
-    yolo-server
+    sam-server
 
 # 別ターミナルでヘルスチェック
 curl http://localhost:8080/health
 
 # 推論テスト（サンプル画像で確認）
+IMAGE_B64=$(base64 -i images/sample.jpeg)
 curl -X POST http://localhost:8080/predict \
-    -F "file=@sample.jpg"
+    -H "Content-Type: application/json" \
+    -d '{"instances": [{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}]}'
 ```
 
 ---
@@ -96,7 +107,7 @@ curl -X POST http://localhost:8080/predict \
 ## Step 3: Artifact Registry にコンテナを push
 
 ```bash
-docker tag yolo-server ${IMAGE_URI}
+docker tag sam-server ${IMAGE_URI}
 docker push ${IMAGE_URI}
 ```
 
@@ -109,9 +120,9 @@ docker push ${IMAGE_URI}
 ```bash
 gcloud ai models upload \
     --region=${REGION} \
-    --display-name=yolo-server-${USER} \
+    --display-name=sam-server-${USER} \
     --container-image-uri=${IMAGE_URI} \
-    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/yolo.onnx \
+    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/sam-model/ \
     --container-health-route=/health \
     --container-predict-route=/predict \
     --container-ports=8080
@@ -122,7 +133,7 @@ gcloud ai models upload \
 ```bash
 gcloud ai endpoints create \
     --region=${REGION} \
-    --display-name=yolo-endpoint-${USER}
+    --display-name=sam-endpoint-${USER}
 ```
 
 ### デプロイ
@@ -135,7 +146,7 @@ MODEL_ID=___
 gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
     --region=${REGION} \
     --model=${MODEL_ID} \
-    --display-name=yolo-server-${USER} \
+    --display-name=sam-server-${USER} \
     --machine-type=n1-standard-2
 ```
 
@@ -152,15 +163,15 @@ gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
 新しいモデル（v2）をデプロイして、20% のトラフィックを割り当てる例:
 
 ```bash
-# v2 モデルを GCS にアップロード（例：別モデルや再学習モデル）
-gsutil cp new_model.onnx gs://${GCS_BUCKET}/models/${USER}/yolo_v2.onnx
+# v2 モデルを GCS にアップロード
+gcloud storage cp -r sam-vit-base-v2/* gs://${GCS_BUCKET}/models/${USER}/sam-model-v2/
 
 # 新しいモデルをモデルレジストリに登録
 gcloud ai models upload \
     --region=${REGION} \
-    --display-name=yolo-server-v2-${USER} \
+    --display-name=sam-server-v2-${USER} \
     --container-image-uri=${IMAGE_URI} \
-    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/yolo_v2.onnx \
+    --container-env-vars=MODEL_GCS_URI=gs://${GCS_BUCKET}/models/${USER}/sam-model-v2/ \
     --container-health-route=/health \
     --container-predict-route=/predict \
     --container-ports=8080
@@ -171,7 +182,7 @@ MODEL_V2_ID=___  # TODO: 新しいモデルのIDを入力
 gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
     --region=${REGION} \
     --model=${MODEL_V2_ID} \
-    --display-name=yolo-model-v2 \
+    --display-name=sam-model-v2 \
     --traffic-split=0=80,${MODEL_V2_DEPLOYMENT_ID}=20 \
     --machine-type=n1-standard-2
 ```
@@ -185,8 +196,9 @@ gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
 ├── notebook.py        # marimoノートブック（メインのハンズオン）
 ├── src/
 │   ├── app.py         # FastAPI推論サーバ
-│   └── predictor.py   # YOLOモデル読み込み・前後処理
+│   └── predictor.py   # SAMモデル読み込み・推論
 ├── Dockerfile         # カスタムコンテナ定義（モデルを含まない）
+├── deploy.py          # ワンショットデプロイスクリプト
 ├── pyproject.toml     # 依存関係
 └── README.md          # このファイル
 ```

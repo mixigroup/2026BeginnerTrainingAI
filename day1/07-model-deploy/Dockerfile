@@ -1,5 +1,5 @@
 # ============================================================
-# YOLO Inference Server - Custom Container for Vertex AI
+# SAM Inference Server - Custom Container for Vertex AI
 #
 # Key design decision: the model is NOT copied into the image.
 # At container startup, the model is downloaded from GCS via
@@ -7,19 +7,13 @@
 #
 # This means:
 #   - Updating the model → only update GCS, no docker rebuild needed
-#   - Container stays lightweight (no multi-hundred MB model file)
+#   - Container stays focused on serving logic
 #   - Follows the Vertex AI recommended pattern (AIP_STORAGE_URI)
 # ============================================================
 
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 WORKDIR /app
-
-# Install system dependencies needed by OpenCV
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
 
 # Avoid writing .pyc files and enable unbuffered stdout for better logging
 ENV PYTHONDONTWRITEBYTECODE=1 \
