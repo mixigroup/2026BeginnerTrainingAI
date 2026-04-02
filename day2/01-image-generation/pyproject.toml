@@ -1,0 +1,16 @@
+[project]
+name = "01-image-generation"
+version = "0.1.0"
+description = "Stable Diffusion 画像生成ハンズオン - 拡散モデルの仕組み理解とプロンプトエンジニアリング体験"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.20.2",
+    "pyzmq>=27.1.0",
+    "diffusers>=0.32.0",
+    "torch>=2.0",
+    "transformers>=4.40",
+    "accelerate>=1.0",
+    "Pillow>=10.0",
+    "matplotlib>=3.8",
+]

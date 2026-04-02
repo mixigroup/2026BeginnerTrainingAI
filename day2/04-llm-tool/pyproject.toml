@@ -1,0 +1,11 @@
+[project]
+name = "04-llm-tool"
+version = "0.1.0"
+description = "Agentic Loop と Function Calling ハンズオン - while ループによる自作 Agent"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "marimo>=0.20.2",
+    "pyzmq>=27.1.0",
+    "google-genai>=1.0.0",
+]
