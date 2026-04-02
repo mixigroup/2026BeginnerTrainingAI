@@ -219,3 +219,6 @@ __marimo__/
 *.onnx
 *.onnx.data
 *.tflite
+.playwright-mcp/
+*.png
+test-diagram*.png
