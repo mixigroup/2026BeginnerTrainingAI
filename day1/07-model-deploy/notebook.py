@@ -232,29 +232,24 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` の認証情報をマウントして使います。
 
     ```bash
-    sudo docker run --platform linux/amd64 -p 8081:8081 \\
+    sudo docker run --platform linux/amd64 -p 8081:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
         -v ~/.config/gcloud:/root/.config/gcloud:ro \\
-        sam-server \\
-        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
+        sam-server
     ```
 
     #### Vertex AI Workbench の場合
 
-    GCE メタデータサーバー経由で認証するため、`--network host` を指定します。
-    `~/.config/gcloud` のマウントは不要です。
-
     ```bash
-    sudo docker run --network host \\
+    sudo docker run -p 8081:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
-        sam-server \\
-        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
+        -v ~/.config/gcloud:/root/.config/gcloud:ro \\
+        sam-server
     ```
 
-    > `--network host` はコンテナがホストのネットワークを共有するため、`-p` によるポート転送は不要です。
-    > Workbench では 8080 が JupyterLab 等に使われているため、`--port 8081` でポートを変更しています。
+    > Workbench では 8080 が JupyterLab 等に使われているため、ホスト側のポートを 8081 にマッピングしています。
 
     ---
 

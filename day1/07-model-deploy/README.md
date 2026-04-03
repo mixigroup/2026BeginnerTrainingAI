@@ -87,12 +87,11 @@ gcloud storage cp -r sam-vit-base/* \
 sudo docker build -t sam-server .
 
 # ローカルで起動（GCS認証はホスト側の設定をマウント）
-sudo docker run -p 8081:8081 \
+sudo docker run -p 8081:8080 \
     -e MODEL_GCS_URI="gs://${GCS_BUCKET}/2026/models/${USER}/sam-model/" \
     -e GOOGLE_CLOUD_PROJECT="${PROJECT_ID}" \
     -v ~/.config/gcloud:/root/.config/gcloud:ro \
-    sam-server \
-    uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
+    sam-server
 
 # 別ターミナルでヘルスチェック
 curl http://localhost:8081/health
