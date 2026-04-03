@@ -245,13 +245,15 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` のマウントは不要です。
 
     ```bash
-    sudo docker run --network host -p 8081:8080 \\
+    sudo docker run --network host \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
-        sam-server
+        sam-server \\
+        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
     ```
 
-    > Workbench では 8080 が JupyterLab 等に使われているため、ホスト側のポートを 8081 にマッピングしています。
+    > `--network host` ではコンテナがホストのネットワークを直接共有するため、`-p` によるポートマッピングは無効です。
+    > Workbench では 8080 が JupyterLab 等に使われているため、CMD を上書きしてポートを 8081 に変更しています。
 
     ---
 
