@@ -4,10 +4,11 @@ SigLIP2（Sigmoid Loss for Language-Image Pre-training 2）を使って、テキ
 
 ## 学習内容
 
-1. **Contrastive Learning** — SigLIP2 の学習方法（Sigmoid vs Softmax）の理解
-2. **Embedding 取得** — 画像・日本語テキストの特徴ベクトル取得
-3. **コサイン類似度** — 画像↔テキスト、画像↔画像、テキスト↔テキスト の距離計測
-4. **TensorBoardX** — ベクトル空間の 3D インタラクティブ可視化
+1. **Contrastive Learning** — SigLIP2 の学習方法（Sigmoid vs Softmax）を理解
+2. **xm3600 データセット** — 多言語マルチモーダルデータの EDA
+3. **Embedding 取得** — 画像・日本語テキストの特徴ベクトルを取得
+4. **コサイン類似度** — 画像↔テキスト、画像↔画像、テキスト↔テキスト の距離を計測
+5. **TensorBoardX** — ベクトル空間を 3D で可視化
 
 ## ディレクトリ構成
 
@@ -48,10 +49,13 @@ uv run marimo edit notebook.py
 ノートブック内で埋め込みのエクスポートを実行した後：
 
 ```bash
-uv run tensorboard --logdir=runs
+uv run tensorboard --logdir=runs/siglip2_embeddings
 ```
 
-ブラウザで `http://localhost:6006` を開き、**PROJECTOR** タブで 3D 可視化を確認する。
+> ⚠️ TensorBoard は Projector のデータを再帰的に検索しないため、
+> `projector_config.pbtxt` があるディレクトリを直接指定する必要がある。
+
+ブラウザで `http://localhost:6006/#projector` を開き、PCA / t-SNE による 3D 可視化を確認する。
 
 ---
 
@@ -64,8 +68,8 @@ SigLIP2 は Google が開発したマルチモーダルモデル。画像とテ�
 | | CLIP | SigLIP2 |
 |---|---|---|
 | **損失関数** | Softmax（NxN 行列全体で正規化） | Sigmoid（各ペア独立に判定） |
-| **学習方式** | バッチ内の全ペアを比較 | 各画像-テキストペアを独立に二値分類 |
-| **多言語** | 英語中心 | 35言語以上対応（日本語含む） |
+| **学習方式** | バッチ内の全ペアを比較 | 各画像-テキストペアを独立に「一致/不一致」判定 |
+| **多言語** | 英語中心 | **35言語以上対応（日本語含む）** |
 | **効率** | 大バッチサイズが必要 | 小バッチでも安定 |
 
 ### Sigmoid Loss の直感
@@ -74,6 +78,8 @@ SigLIP2 は Google が開発したマルチモーダルモデル。画像とテ�
 CLIP:   「この画像は N 個のテキストのうち、どれに最も近い？」（多クラス分類）
 SigLIP: 「この画像とこのテキストは一致する？ Yes/No」（二値分類 × 全ペア）
 ```
+
+SigLIP のアプローチは各ペアを独立に判定するため、バッチサイズに依存しにくく、学習が安定する。
 
 ### 使用モデル
 
@@ -111,6 +117,7 @@ TensorBoardX の Embedding Projector を使うと、高次元の埋め込みベ�
 
 - 画像とテキストがどのようにクラスタを形成するか
 - 対応する画像-テキストペアが近くにあるか
+- `[IMG]` と `[TXT]` のラベルでフィルタリング
 - PCA / t-SNE を切り替えてクラスタの変化を観察
 
 ---
@@ -138,7 +145,7 @@ from src.siglip_utils import load_siglip_model, encode_texts
 
 model, processor = load_siglip_model('google/siglip2-base-patch16-224')
 texts = ['猫が座っている', '犬が走っている', '都市の風景']
-emb = encode_texts(model, processor, texts)
+emb = encode_texts(model, processor, texts, device='cpu')
 print(f'形状: {emb.shape}')
 print(f'先頭5次元: {emb[0, :5]}')
 "
@@ -149,7 +156,7 @@ print(f'先頭5次元: {emb[0, :5]}')
 ```bash
 uv run python -c "
 from datasets import load_dataset
-from src.siglip_utils import load_siglip_model, encode_images, encode_texts, cosine_similarity_matrix
+from src.siglip_utils import load_siglip_model, encode_images, encode_texts, cosine_similarity_matrix, decode_image
 
 # データセットロード
 ds = load_dataset('floschne/xm3600', split='ja')
@@ -159,10 +166,10 @@ ds = ds.select(range(10))
 model, processor = load_siglip_model('google/siglip2-base-patch16-224')
 
 # エンコード
-images = [s['image'] for s in ds]
+images = [decode_image(s['image']) for s in ds]
 texts = [s['captions'][0] for s in ds]
-img_emb = encode_images(model, processor, images)
-txt_emb = encode_texts(model, processor, texts)
+img_emb = encode_images(model, processor, images, device='cpu')
+txt_emb = encode_texts(model, processor, texts, device='cpu')
 
 # 類似度計算
 sim = cosine_similarity_matrix(img_emb, txt_emb)
@@ -171,40 +178,77 @@ print(sim.round(3))
 "
 ```
 
-### 4. TensorBoardX へのエクスポート
+### 4. テキスト → 画像検索
 
 ```bash
 uv run python -c "
+import numpy as np
+from datasets import load_dataset
+from src.siglip_utils import load_siglip_model, encode_images, encode_texts, cosine_similarity_matrix, decode_image
+
+ds = load_dataset('floschne/xm3600', split='ja')
+ds = ds.select(range(50))
+
+model, processor = load_siglip_model('google/siglip2-base-patch16-224')
+images = [decode_image(s['image']) for s in ds]
+texts = [s['captions'][0] for s in ds]
+img_emb = encode_images(model, processor, images, device='cpu')
+
+# クエリテキストで検索
+query_text = '動物の写真'
+query_emb = encode_texts(model, processor, [query_text], device='cpu')
+similarities = cosine_similarity_matrix(query_emb, img_emb)[0]
+top_indices = np.argsort(similarities)[::-1][:5]
+
+print(f'クエリ: 「{query_text}」に最も近い画像 Top-5')
+for rank, idx in enumerate(top_indices):
+    print(f'  #{rank + 1} (類似度: {similarities[idx]:.3f}): {texts[idx]}')
+"
+```
+
+### 5. TensorBoardX へのエクスポート
+
+```bash
+uv run python -c "
+import os
+import shutil
 from datasets import load_dataset
 from tensorboardX import SummaryWriter
 from src.siglip_utils import (
     load_siglip_model, encode_images, encode_texts,
-    export_embeddings_to_tensorboard,
+    export_embeddings_to_tensorboard, decode_image,
 )
 
 ds = load_dataset('floschne/xm3600', split='ja')
 ds = ds.select(range(50))
 
 model, processor = load_siglip_model('google/siglip2-base-patch16-224')
-images = [s['image'] for s in ds]
+images = [decode_image(s['image']) for s in ds]
 texts = [s['captions'][0] for s in ds]
-img_emb = encode_images(model, processor, images)
-txt_emb = encode_texts(model, processor, texts)
+img_emb = encode_images(model, processor, images, device='cpu')
+txt_emb = encode_texts(model, processor, texts, device='cpu')
 
-writer = SummaryWriter('runs/siglip2_embeddings')
+log_dir = 'runs/siglip2_embeddings'
+if os.path.exists(log_dir):
+    shutil.rmtree(log_dir)
+
+writer = SummaryWriter(log_dir)
 export_embeddings_to_tensorboard(
-    writer, img_emb, txt_emb,
+    writer=writer,
+    image_embeddings=img_emb,
+    text_embeddings=txt_emb,
     image_labels=[f'[IMG] {i}: {texts[i][:20]}' for i in range(len(images))],
     text_labels=[f'[TXT] {i}: {texts[i][:20]}' for i in range(len(texts))],
     images=images,
+    tag='siglip2_multimodal',
 )
 writer.close()
-print('エクスポート完了。tensorboard --logdir=runs で確認')
+print('エクスポート完了。tensorboard --logdir=runs/siglip2_embeddings で確認')
 "
 ```
 
 ```bash
-uv run tensorboard --logdir=runs
+uv run tensorboard --logdir=runs/siglip2_embeddings
 ```
 
 ---
@@ -216,6 +260,7 @@ uv run tensorboard --logdir=runs
 - [ ] 画像↔画像で最も類似度が高いペアを見つけ、共通点を考察する
 - [ ] 英語のテキストで同じ検索を試し、日本語との結果を比較する
 - [ ] TensorBoard で t-SNE の perplexity を変えてクラスタの変化を観察する
+- [ ] 同じ画像の複数キャプション（`captions` リスト）を使って埋め込みの安定性を検証する
 
 ## 使用モデル・データセット
 
