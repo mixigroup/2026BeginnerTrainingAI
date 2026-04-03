@@ -96,11 +96,12 @@ sudo docker run -p 8081:8080 \
 # 別ターミナルでヘルスチェック
 curl http://localhost:8081/health
 
-# 推論テスト（サンプル画像で確認）
-IMAGE_B64=$(base64 -i images/sample.jpeg)
-curl -X POST http://localhost:8081/predict \
-    -H "Content-Type: application/json" \
-    -d '{"instances": [{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}]}'
+# 推論テスト（base64 JSON形式、-d @- でstdinから渡す）
+IMAGE_B64=$(base64 -w0 images/sample.jpeg)
+echo '{"instances": [{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}]}' | \
+    curl -X POST http://localhost:8081/predict \
+        -H "Content-Type: application/json" \
+        -d @-
 ```
 
 ---

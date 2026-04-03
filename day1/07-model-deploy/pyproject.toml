@@ -25,6 +25,8 @@ dependencies = [
     # Gradio demo (Step 7: optional)
     "gradio>=5.0.0",
     "pyzmq>=27.1.0",
+    # Logging
+    "loguru>=0.7.0",
 ]
 
 [tool.uv.sources]

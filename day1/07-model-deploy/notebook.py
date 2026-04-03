@@ -264,11 +264,12 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     curl http://localhost:8081/health
     # 期待する結果: {{"status": "ok"}}
 
-    # 推論テスト（base64 JSON形式）
-    IMAGE_B64=$(base64 -i ./images/sample.jpeg)
-    curl -X POST http://localhost:8081/predict \\
-        -H "Content-Type: application/json" \\
-        -d '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1050, 400]], "input_labels": [1]}}]}}'
+    # 推論テスト（base64 JSON形式、-d @- でstdinから渡す）
+    IMAGE_B64=$(base64 -w0 ./images/sample.jpeg)
+    echo '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1300, 400]], "input_labels": [1]}}]}}' | \\
+        curl -X POST http://localhost:8081/predict \\
+            -H "Content-Type: application/json" \\
+            -d @-
     ```
     """)
     return
@@ -326,7 +327,7 @@ def _(mo):
 
     # sample.jpeg (2118x718) の中央の人物（ピンクの服）の胴体付近を指定
     # 画像中心だと人物の隙間に当たりセグメントされないため、固定座標を使用
-    _cx, _cy = 1050, 400
+    _cx, _cy = 1300, 400
 
     # ローカルサーバにリクエスト送信
     _resp = _requests.post(
