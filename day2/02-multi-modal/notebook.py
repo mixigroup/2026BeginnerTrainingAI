@@ -85,7 +85,11 @@ def _():
 
     # matplotlib で日本語フォントを使用（macOS: Hiragino Sans）
     matplotlib.rcParams["font.family"] = "sans-serif"
-    matplotlib.rcParams["font.sans-serif"] = ["Hiragino Sans", "Hiragino Kaku Gothic ProN", "sans-serif"]
+    matplotlib.rcParams["font.sans-serif"] = [
+        "Hiragino Sans",
+        "Hiragino Kaku Gothic ProN",
+        "sans-serif",
+    ]
 
     return (
         torch,
@@ -196,10 +200,12 @@ def _(xm_dataset, decode_image, mo):
         _img = decode_image(_s["image"])
         _caption = _s["captions"][0]
         items.append(
-            mo.vstack([
-                mo.image(_img, width=180),
-                mo.md(f"**#{_i}**: {_caption}"),
-            ])
+            mo.vstack(
+                [
+                    mo.image(_img, width=180),
+                    mo.md(f"**#{_i}**: {_caption}"),
+                ]
+            )
         )
 
     mo.output.append(mo.md("### データセットサンプル"))
@@ -279,7 +285,13 @@ def _(xm_dataset, np, plt, mo):
     axes_txt[0].set_ylabel("頻度")
 
     # キャプション候補数
-    axes_txt[1].hist(n_captions_per_sample, bins=range(1, max(n_captions_per_sample) + 2), color="goldenrod", edgecolor="white", align="left")
+    axes_txt[1].hist(
+        n_captions_per_sample,
+        bins=range(1, max(n_captions_per_sample) + 2),
+        color="goldenrod",
+        edgecolor="white",
+        align="left",
+    )
     axes_txt[1].set_title("1画像あたりのキャプション数")
     axes_txt[1].set_xlabel("キャプション数")
     axes_txt[1].set_ylabel("頻度")
@@ -323,7 +335,9 @@ def _(mo):
 
 
 @app.cell
-def _(xm_dataset, model, processor, DEVICE, encode_images, encode_texts, decode_image, mo):
+def _(
+    xm_dataset, model, processor, DEVICE, encode_images, encode_texts, decode_image, mo
+):
     mo.output.append(mo.md("xm3600 の画像・テキストをエンコード中..."))
 
     xm_images = [decode_image(_s["image"]) for _s in xm_dataset]
@@ -384,7 +398,14 @@ def _(mo):
 
 
 @app.cell
-def _(xm_img_emb, xm_txt_emb, xm_texts, cosine_similarity_matrix, plot_similarity_heatmap, mo):
+def _(
+    xm_img_emb,
+    xm_txt_emb,
+    xm_texts,
+    cosine_similarity_matrix,
+    plot_similarity_heatmap,
+    mo,
+):
     # 画像↔テキスト（10x10 サブセット）
     n_sub = 10
     sim_img_txt = cosine_similarity_matrix(xm_img_emb[:n_sub], xm_txt_emb[:n_sub])
@@ -435,7 +456,9 @@ def _(xm_img_emb, xm_texts, cosine_similarity_matrix, plot_similarity_heatmap, m
 
     mo.output.append(mo.as_html(fig_ii))
     mo.output.append(
-        mo.md("対角線は自分自身との類似度（= 1.0）。オフダイアゴナルで高い値のペアに注目しよう。")
+        mo.md(
+            "対角線は自分自身との類似度（= 1.0）。オフダイアゴナルで高い値のペアに注目しよう。"
+        )
     )
     return
 
@@ -488,7 +511,19 @@ def _(mo):
 
 
 @app.cell
-def _(xm_img_emb, xm_txt_emb, xm_images, xm_texts, model, processor, DEVICE, encode_texts, cosine_similarity_matrix, np, mo):
+def _(
+    xm_img_emb,
+    xm_txt_emb,
+    xm_images,
+    xm_texts,
+    model,
+    processor,
+    DEVICE,
+    encode_texts,
+    cosine_similarity_matrix,
+    np,
+    mo,
+):
     # テキスト → 画像検索
     query_text = "動物の写真"
     query_emb = encode_texts(model, processor, [query_text], DEVICE)
@@ -497,15 +532,19 @@ def _(xm_img_emb, xm_txt_emb, xm_images, xm_texts, model, processor, DEVICE, enc
     top_k = 5
     top_indices = np.argsort(similarities)[::-1][:top_k]
 
-    mo.output.append(mo.md(f'### クエリ: 「{query_text}」に最も近い画像 Top-{top_k}'))
+    mo.output.append(mo.md(f"### クエリ: 「{query_text}」に最も近い画像 Top-{top_k}"))
 
     result_items = []
     for rank, idx in enumerate(top_indices):
         result_items.append(
-            mo.vstack([
-                mo.image(xm_images[idx], width=180),
-                mo.md(f"**#{rank+1}** (類似度: {similarities[idx]:.3f})\n\n{xm_texts[idx]}"),
-            ])
+            mo.vstack(
+                [
+                    mo.image(xm_images[idx], width=180),
+                    mo.md(
+                        f"**#{rank + 1}** (類似度: {similarities[idx]:.3f})\n\n{xm_texts[idx]}"
+                    ),
+                ]
+            )
         )
     mo.output.append(mo.hstack(result_items))
 
@@ -518,7 +557,9 @@ def _(xm_img_emb, xm_txt_emb, xm_images, xm_texts, model, processor, DEVICE, enc
 
     mo.output.append(mo.image(xm_images[0], width=200))
     for rank, idx in enumerate(top_txt_indices):
-        mo.output.append(mo.md(f"**#{rank+1}** (類似度: {sim_i2t[idx]:.3f}): {xm_texts[idx]}"))
+        mo.output.append(
+            mo.md(f"**#{rank + 1}** (類似度: {sim_i2t[idx]:.3f}): {xm_texts[idx]}")
+        )
     return
 
 
@@ -544,7 +585,9 @@ def _(mo):
 
 
 @app.cell
-def _(xm_img_emb, xm_txt_emb, xm_images, xm_texts, export_embeddings_to_tensorboard, mo):
+def _(
+    xm_img_emb, xm_txt_emb, xm_images, xm_texts, export_embeddings_to_tensorboard, mo
+):
     import os
     import shutil
     from tensorboardX import SummaryWriter

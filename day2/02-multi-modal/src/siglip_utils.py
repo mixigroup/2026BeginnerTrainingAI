@@ -188,7 +188,15 @@ def plot_similarity_heatmap(
             for j in range(sim_matrix.shape[1]):
                 val = sim_matrix[i, j]
                 color = "white" if val < 0.5 else "black"
-                ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=6, color=color)
+                ax.text(
+                    j,
+                    i,
+                    f"{val:.2f}",
+                    ha="center",
+                    va="center",
+                    fontsize=6,
+                    color=color,
+                )
 
     fig.tight_layout()
     return fig
@@ -270,9 +278,7 @@ def export_embeddings_to_tensorboard(
         tag: TensorBoard 上のタグ名
     """
     # 埋め込みを結合
-    combined_embeddings = np.concatenate(
-        [image_embeddings, text_embeddings], axis=0
-    )
+    combined_embeddings = np.concatenate([image_embeddings, text_embeddings], axis=0)
 
     # メタデータ（モダリティ + ラベル）
     metadata_header = ["label", "modality"]
