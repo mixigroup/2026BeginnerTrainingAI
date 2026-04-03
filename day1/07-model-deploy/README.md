@@ -84,21 +84,22 @@ gcloud storage cp -r sam-vit-base/* \
 
 ```bash
 # イメージをビルド
-docker build -t sam-server .
+sudo docker build -t sam-server .
 
 # ローカルで起動（GCS認証はホスト側の設定をマウント）
-docker run -p 8080:8080 \
+sudo docker run -p 8081:8081 \
     -e MODEL_GCS_URI="gs://${GCS_BUCKET}/2026/models/${USER}/sam-model/" \
     -e GOOGLE_CLOUD_PROJECT="${PROJECT_ID}" \
     -v ~/.config/gcloud:/root/.config/gcloud:ro \
-    sam-server
+    sam-server \
+    uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
 
 # 別ターミナルでヘルスチェック
-curl http://localhost:8080/health
+curl http://localhost:8081/health
 
 # 推論テスト（サンプル画像で確認）
 IMAGE_B64=$(base64 -i images/sample.jpeg)
-curl -X POST http://localhost:8080/predict \
+curl -X POST http://localhost:8081/predict \
     -H "Content-Type: application/json" \
     -d '{"instances": [{"image": "'"$IMAGE_B64"'", "input_points": [[100, 100]], "input_labels": [1]}]}'
 ```
@@ -108,8 +109,8 @@ curl -X POST http://localhost:8080/predict \
 ## Step 3: Artifact Registry にコンテナを push
 
 ```bash
-docker tag sam-server ${IMAGE_URI}
-docker push ${IMAGE_URI}
+sudo docker tag sam-server ${IMAGE_URI}
+sudo docker push ${IMAGE_URI}
 ```
 
 ---
@@ -187,6 +188,15 @@ gcloud ai endpoints deploy-model ${ENDPOINT_ID} \
     --traffic-split=0=80,${MODEL_V2_DEPLOYMENT_ID}=20 \
     --machine-type=n1-standard-2
 ```
+
+---
+
+## Step 7（拡張）: Gradio デモアプリ
+
+Vertex AI エンドポイントに接続した **Gradio** デモを作ります。
+画像をアップロードしてクリックすると、その箇所のセグメンテーション結果を表示します。
+
+詳しくは `notebook.py` の Step 7 セクションを参照してください。
 
 ---
 

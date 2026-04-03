@@ -224,7 +224,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     ```bash
     # 1. イメージをビルド
-    docker build -t sam-server --platform linux/amd64 .
+    sudo docker build -t sam-server --platform linux/amd64 .
     ```
 
     #### Mac（ローカル）の場合
@@ -232,11 +232,12 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` の認証情報をマウントして使います。
 
     ```bash
-    docker run --platform linux/amd64 -p 8080:8080 \\
+    sudo docker run --platform linux/amd64 -p 8081:8081 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
         -v ~/.config/gcloud:/root/.config/gcloud:ro \\
-        sam-server
+        sam-server \\
+        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
     ```
 
     #### Vertex AI Workbench の場合
@@ -245,13 +246,15 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` のマウントは不要です。
 
     ```bash
-    docker run --network host \\
+    sudo docker run --network host \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
-        sam-server
+        sam-server \\
+        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
     ```
 
-    > `--network host` はコンテナがホストのネットワークを共有するため、`-p 8080:8080` は不要です。
+    > `--network host` はコンテナがホストのネットワークを共有するため、`-p` によるポート転送は不要です。
+    > Workbench では 8080 が JupyterLab 等に使われているため、`--port 8081` でポートを変更しています。
 
     ---
 
@@ -259,12 +262,12 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     ```bash
     # ヘルスチェック
-    curl http://localhost:8080/health
+    curl http://localhost:8081/health
     # 期待する結果: {{"status": "ok"}}
 
     # 推論テスト（base64 JSON形式）
     IMAGE_B64=$(base64 -i ./images/sample.jpeg)
-    curl -X POST http://localhost:8080/predict \\
+    curl -X POST http://localhost:8081/predict \\
         -H "Content-Type: application/json" \\
         -d '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1050, 400]], "input_labels": [1]}}]}}'
     ```
@@ -296,7 +299,7 @@ def _(mo):
     以下のセルを実行すると、ローカルサーバに Python でリクエストを送り、
     マスクを元画像にオーバーレイして表示します。
 
-    > **注意**: Docker コンテナが `localhost:8080` で起動中であることを確認してください。
+    > **注意**: Docker コンテナが `localhost:8081` で起動中であることを確認してください。
     """)
     return
 
@@ -328,7 +331,7 @@ def _(mo):
 
     # ローカルサーバにリクエスト送信
     _resp = _requests.post(
-        "http://localhost:8080/predict",
+        "http://localhost:8081/predict",
         json={
             "instances": [
                 {
@@ -410,10 +413,10 @@ def _(IMAGE_URI, mo):
     gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
     # タグをつける
-    docker tag sam-server {IMAGE_URI}
+    sudo docker tag sam-server {IMAGE_URI}
 
     # push
-    docker push {IMAGE_URI}
+    sudo docker push {IMAGE_URI}
     ```
 
     push が完了したら確認：
