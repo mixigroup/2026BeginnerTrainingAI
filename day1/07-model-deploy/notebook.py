@@ -241,11 +241,13 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     #### Vertex AI Workbench の場合
 
+    GCE メタデータサーバー経由で認証するため、`--network host` を指定します。
+    `~/.config/gcloud` のマウントは不要です。
+
     ```bash
-    sudo docker run -p 8081:8080 \\
+    sudo docker run --network host -p 8081:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
-        -v ~/.config/gcloud:/root/.config/gcloud:ro \\
         sam-server
     ```
 
