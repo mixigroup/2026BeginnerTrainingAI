@@ -14,6 +14,7 @@ LLM API は本質的に stateless（状態を持たない）であることを�
 ## 技術スタック
 
 - **Google GenAI SDK** (`google-genai`) — Gemini API を呼び出す
+- **認証**: Vertex AI (ADC) — Workbench VM のサービスアカウント認証を自動使用（API キー不要）
 - OpenAI SDK は使用しない
 
 ## 依存パッケージ
@@ -33,7 +34,7 @@ dependencies = [
 | 1 | code | `import marimo as mo` |
 | 2 | md | タイトル: LLM API の Stateless 性質理解 |
 | 3 | md | Gemini API の概要・セットアップ説明 |
-| 4 | code | `google.genai.Client` の初期化（環境変数 `GOOGLE_API_KEY` から取得） |
+| 4 | code | `google.genai.Client` の初期化（Vertex AI ADC 認証） |
 | 5 | md | 最初の API 呼び出し |
 | 6 | code | `client.models.generate_content(model="gemini-2.0-flash", contents="...")` で基本呼び出し |
 | 7 | md | Stateless の体験（名前を覚えていない） |
@@ -57,7 +58,7 @@ dependencies = [
 from google import genai
 from google.genai.types import GenerateContentConfig, Content, Part
 
-client = genai.Client(api_key="...")
+client = genai.Client(vertexai=True, project="hr-mixi", location="asia-northeast1")
 
 # 基本呼び出し
 response = client.models.generate_content(
