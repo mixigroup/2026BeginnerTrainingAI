@@ -64,5 +64,5 @@ uvx ruff format .
 | 03 | 画像を使った Object Detection の推論 | transformers, torchvision, timm |
 | 04 | 音声を使った推論 | transformers |
 | 05 | PyTorch でモデル学習・過学習・転移学習 | PyTorch, Lightning, torchvision |
-| 06 | ONNX エクスポート・INT8 量子化でモデル高速化 | ONNX, ultralytics |
+| 06 | ONNX エクスポート・INT8 量子化でモデル高速化 | ONNX, ONNX Runtime, transformers (SAM) |
 | 07 | FastAPI + カスタムコンテナで Vertex AI にデプロイ | FastAPI, ONNX Runtime, google-cloud-aiplatform |

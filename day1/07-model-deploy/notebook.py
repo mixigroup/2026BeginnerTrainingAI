@@ -60,7 +60,7 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: 自分の名前（英字小文字）を入れてください ---
-    USER = "takahiro_kinouchi"
+    USER = "___"
 
     if USER == "your_name":
         raise ValueError("USER を自分の名前（英字小文字）に変更してください！")
@@ -224,7 +224,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     ```bash
     # 1. イメージをビルド
-    docker build -t sam-server --platform linux/amd64 .
+    sudo docker build -t sam-server --platform linux/amd64 .
     ```
 
     #### Mac（ローカル）の場合
@@ -232,7 +232,7 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` の認証情報をマウントして使います。
 
     ```bash
-    docker run --platform linux/amd64 -p 8080:8080 \\
+    sudo docker run --platform linux/amd64 -p 8081:8080 \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
         -v ~/.config/gcloud:/root/.config/gcloud:ro \\
@@ -245,13 +245,15 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
     `~/.config/gcloud` のマウントは不要です。
 
     ```bash
-    docker run --network host \\
+    sudo docker run --network host \\
         -e MODEL_GCS_URI="{MODEL_GCS_URI}" \\
         -e GOOGLE_CLOUD_PROJECT="{PROJECT_ID}" \\
-        sam-server
+        sam-server \\
+        uv run uvicorn src.app:app --host 0.0.0.0 --port 8081
     ```
 
-    > `--network host` はコンテナがホストのネットワークを共有するため、`-p 8080:8080` は不要です。
+    > `--network host` ではコンテナがホストのネットワークを直接共有するため、`-p` によるポートマッピングは無効です。
+    > Workbench では 8080 が JupyterLab 等に使われているため、CMD を上書きしてポートを 8081 に変更しています。
 
     ---
 
@@ -259,14 +261,15 @@ def _(MODEL_GCS_URI, PROJECT_ID, mo):
 
     ```bash
     # ヘルスチェック
-    curl http://localhost:8080/health
+    curl http://localhost:8081/health
     # 期待する結果: {{"status": "ok"}}
 
-    # 推論テスト（base64 JSON形式）
-    IMAGE_B64=$(base64 -i ./images/sample.jpeg)
-    curl -X POST http://localhost:8080/predict \\
-        -H "Content-Type: application/json" \\
-        -d '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1050, 400]], "input_labels": [1]}}]}}'
+    # 推論テスト（base64 JSON形式、-d @- でstdinから渡す）
+    IMAGE_B64=$(base64 -w0 ./images/sample.jpeg)
+    echo '{{"instances": [{{"image": "'"$IMAGE_B64"'", "input_points": [[1300, 400]], "input_labels": [1]}}]}}' | \\
+        curl -X POST http://localhost:8081/predict \\
+            -H "Content-Type: application/json" \\
+            -d @-
     ```
     """)
     return
@@ -296,7 +299,7 @@ def _(mo):
     以下のセルを実行すると、ローカルサーバに Python でリクエストを送り、
     マスクを元画像にオーバーレイして表示します。
 
-    > **注意**: Docker コンテナが `localhost:8080` で起動中であることを確認してください。
+    > **注意**: Docker コンテナが `localhost:8081` で起動中であることを確認してください。
     """)
     return
 
@@ -313,8 +316,6 @@ def _(mo):
 
     # サンプル画像のパス
     _sample_path = _pathlib.Path("images/sample.jpeg")
-    if not _sample_path.exists():
-        _sample_path = _pathlib.Path("../06-accelerate-ml-model/images/sample.jpg")
 
     # 画像を読み込み base64 エンコード
     _img = _Image.open(_sample_path).convert("RGB")
@@ -324,11 +325,11 @@ def _(mo):
 
     # sample.jpeg (2118x718) の中央の人物（ピンクの服）の胴体付近を指定
     # 画像中心だと人物の隙間に当たりセグメントされないため、固定座標を使用
-    _cx, _cy = 1050, 400
+    _cx, _cy = 1300, 400
 
     # ローカルサーバにリクエスト送信
     _resp = _requests.post(
-        "http://localhost:8080/predict",
+        "http://localhost:8081/predict",
         json={
             "instances": [
                 {
@@ -410,10 +411,10 @@ def _(IMAGE_URI, mo):
     gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
     # タグをつける
-    docker tag sam-server {IMAGE_URI}
+    sudo docker tag sam-server {IMAGE_URI}
 
     # push
-    docker push {IMAGE_URI}
+    sudo docker push {IMAGE_URI}
     ```
 
     push が完了したら確認：
@@ -511,8 +512,8 @@ def _(mo):
 @app.cell
 def _():
     # --- TODO: gcloud コマンドの出力から ID を入力してください ---
-    ENDPOINT_ID = "2737636618604118016"  # TODO: gcloud ai endpoints create の出力から
-    MODEL_ID = "5642865197560365056"  # TODO: gcloud ai models upload の出力から
+    ENDPOINT_ID = "___"  # TODO: gcloud ai endpoints create の出力から
+    MODEL_ID = "___"  # TODO: gcloud ai models upload の出力から
     return ENDPOINT_ID, MODEL_ID
 
 
@@ -569,22 +570,17 @@ def _(ENDPOINT_ID, aiplatform, base64, mo):
     import numpy as np
     from PIL import Image
 
-    # 06 のサンプル画像を使用
-    sample_image_path = pathlib.Path("../06-accelerate-ml-model/images/sample.jpg")
+    sample_image_path = pathlib.Path("images/sample.jpeg")
 
     if ENDPOINT_ID == "___":
         raise RuntimeError("ENDPOINT_ID を設定してから実行してください。")
-    if not sample_image_path.exists():
-        raise RuntimeError(f"サンプル画像が見つかりません: {sample_image_path}")
 
     endpoint = aiplatform.Endpoint(ENDPOINT_ID)
 
     with open(sample_image_path, "rb") as img_f:
         image_b64 = base64.b64encode(img_f.read()).decode("utf-8")
 
-    # 画像の中心付近をポイントとして指定
-    img = Image.open(sample_image_path)
-    cx, cy = img.width // 2, img.height // 2
+    cx, cy = 1300, 400
 
     response = endpoint.predict(
         instances=[
@@ -603,7 +599,7 @@ def _(ENDPOINT_ID, aiplatform, base64, mo):
     mask_array = np.array(mask_image)
 
     # 元画像にマスクをオーバーレイ
-    img_array = np.array(img)
+    img_array = np.array(Image.open(sample_image_path).convert("RGB"))
     overlay = img_array.copy()
     overlay[mask_array > 0] = (
         overlay[mask_array > 0] * 0.5 + np.array([30, 144, 255]) * 0.5
@@ -701,96 +697,21 @@ def _(mo):
     return
 
 
-@app.cell
-def _(ENDPOINT_ID, PROJECT_ID, REGION, base64):
-    import numpy as _np
-    from PIL import Image as _Image
+@app.cell(hide_code=True)
+def _(ENDPOINT_ID, PROJECT_ID, REGION, mo):
+    mo.md(f"""
+    ターミナルで以下のコマンドを実行して Gradio デモを起動します：
 
-    if ENDPOINT_ID == "___":
-        raise RuntimeError("TODO: ENDPOINT_ID を設定してから実行してください。")
+    ```bash
+    uv run python scripts/gradio_demo.py \\
+        --project {PROJECT_ID} \\
+        --region {REGION} \\
+        --endpoint {ENDPOINT_ID} \\
+        --share
+    ```
 
-    import io as _io
-
-    import gradio as gr
-    from google.cloud import aiplatform as _aiplatform
-
-    _aiplatform.init(project=PROJECT_ID, location=REGION)
-    _endpoint = _aiplatform.Endpoint(ENDPOINT_ID)
-
-    def segment(input_image: _Image.Image | None, evt: gr.SelectData):
-        """画像上のクリック位置をもとにセグメントを実行する。"""
-        if input_image is None:
-            return None, "画像をアップロードしてください。"
-
-        # クリック座標を取得
-        click_x, click_y = evt.index
-
-        # 画像を base64 エンコード
-        buf = _io.BytesIO()
-        input_image.save(buf, format="JPEG")
-        img_b64 = base64.b64encode(buf.getvalue()).decode()
-
-        # Vertex AI エンドポイントに送信
-        resp = _endpoint.predict(
-            instances=[
-                {
-                    "image": img_b64,
-                    "input_points": [[click_x, click_y]],
-                    "input_labels": [1],
-                }
-            ]
-        )
-
-        pred = resp.predictions[0]
-        iou_score = pred.get("iou_score", 0.0)
-
-        # マスクをデコード
-        mask_bytes = base64.b64decode(pred["mask_b64"])
-        mask = _np.array(_Image.open(_io.BytesIO(mask_bytes)))
-
-        # マスクを画像にオーバーレイ
-        img_array = _np.array(input_image)
-        overlay = img_array.copy()
-        overlay[mask > 0] = (
-            overlay[mask > 0] * 0.5 + _np.array([30, 144, 255]) * 0.5
-        ).astype(_np.uint8)
-
-        # クリック位置にマーカーを描画
-        radius = max(5, min(img_array.shape[:2]) // 80)
-        y_min = max(0, click_y - radius)
-        y_max = min(img_array.shape[0], click_y + radius)
-        x_min = max(0, click_x - radius)
-        x_max = min(img_array.shape[1], click_x + radius)
-        overlay[y_min:y_max, x_min:x_max] = [255, 0, 0]
-
-        result_image = _Image.fromarray(overlay)
-        perf = f"IoU Score: {iou_score:.3f}"
-
-        return result_image, perf
-
-    with gr.Blocks() as demo:
-        gr.Markdown("## SAM セグメンテーションデモ (Vertex AI)")
-        gr.Markdown(
-            "画像をアップロードしてクリックすると、その箇所のセグメントが表示されます。"
-        )
-
-        with gr.Row():
-            with gr.Column():
-                input_image = gr.Image(
-                    type="pil",
-                    label="入力画像（クリックでポイント指定）",
-                )
-            with gr.Column():
-                output_image = gr.Image(type="pil", label="セグメント結果")
-                perf_text = gr.Textbox(label="結果", lines=2)
-
-        input_image.select(
-            segment,
-            inputs=[input_image],
-            outputs=[output_image, perf_text],
-        )
-
-        demo.launch(share=True)
+    ブラウザで表示される URL にアクセスし、画像をアップロードしてクリックするとセグメンテーション結果が表示されます。
+    """)
     return
 
 

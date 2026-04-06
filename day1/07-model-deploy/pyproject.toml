@@ -20,11 +20,15 @@ dependencies = [
     "google-cloud-storage>=2.18.0",
     # Vertex AI SDK (for Step 5: endpoint inference test)
     "google-cloud-aiplatform>=1.70.0",
+    # google-auth >=2.36 has a bug with GCE metadata request.session
+    "google-auth>=2.29.0,<2.36",
     # Local test (Step 2: request to local server)
     "requests>=2.31.0",
     # Gradio demo (Step 7: optional)
     "gradio>=5.0.0",
     "pyzmq>=27.1.0",
+    # Logging
+    "loguru>=0.7.0",
 ]
 
 [tool.uv.sources]
