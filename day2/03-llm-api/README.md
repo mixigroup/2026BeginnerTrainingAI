@@ -2,7 +2,7 @@
 
 LLM API は本質的に stateless（状態を持たない）であることを理解し、会話履歴を管理する重要性を学ぶ。
 
-- **モデル**: [Gemini 2.0 Flash](https://ai.google.dev/gemini-api/docs/models#gemini-2.0-flash) — Google の高速な大規模言語モデル
+- **モデル**: [Gemini 2.5 Flash](https://ai.google.dev/gemini-api/docs/models#gemini-2.5-flash) — Google の高速な大規模言語モデル
 - **SDK**: [Google GenAI SDK](https://github.com/googleapis/python-genai) (`google-genai`)
 - **認証**: Vertex AI (ADC) — Workbench のサービスアカウント認証を自動使用
 
@@ -27,7 +27,6 @@ LLM API は本質的に stateless（状態を持たない）であることを�
 │   └── chat.py        # 会話履歴のフォーマット・表示ヘルパー
 ├── notebook.py         # marimo ノートブック（インタラクティブ版）
 ├── pyproject.toml      # 依存パッケージ定義
-├── plan.md             # 実装計画
 └── README.md
 ```
 
@@ -74,7 +73,7 @@ client = genai.Client(
     project="hr-mixi",
     location="asia-northeast1",
 )
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-2.5-flash"
 ```
 
 ### 2. 基本的な API 呼び出し

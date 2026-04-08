@@ -271,7 +271,7 @@ def _(mo):
     手動で `contents` リストを組み立てる必要がなくなります。
 
     ```python
-    chat = client.chats.create(model="gemini-2.0-flash")
+    chat = client.chats.create(model="gemini-2.5-flash")
     chat.send_message("名前は太郎です")   # 内部で履歴を蓄積
     chat.send_message("名前は何？")       # 過去の履歴も自動送信
     ```
