@@ -138,12 +138,7 @@ resource "google_workbench_instance" "workbench" {
   gce_setup {
     machine_type = "n1-standard-4"
 
-    vm_image {
-      project = "deeplearning-platform-release"
-      family  = "common-cu128-ubuntu-2404-nvidia-570"
-    }
-
-    accelerator_configs {
+accelerator_configs {
       type       = "NVIDIA_TESLA_T4"
       core_count = 1
     }
