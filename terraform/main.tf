@@ -2,6 +2,17 @@ data "google_project" "current" {
   project_id = var.project_id
 }
 
+# ==============================================================================
+# API Services
+# ==============================================================================
+
+resource "google_project_service" "aiplatform_api" {
+  project = var.project_id
+  service = "aiplatform.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 locals {
   # "takahiro.kinouchi@mixi.co.jp" → "takahiro-kinouchi"
   workbench_instances = {
@@ -158,6 +169,8 @@ resource "google_workbench_instance" "workbench" {
     notebooks-product       = "workbench-instances"
     resource-name           = each.key
   }
+
+  depends_on = [google_project_service.aiplatform_api]
 
   lifecycle {
     ignore_changes = [
