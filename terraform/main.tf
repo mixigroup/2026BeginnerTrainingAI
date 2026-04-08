@@ -104,6 +104,27 @@ resource "google_artifact_registry_repository_iam_member" "ml_workbench_vm_ar_wr
 }
 
 # ==============================================================================
+# Per-User IAM (IAP + Vertex AI)
+# ==============================================================================
+
+resource "google_project_iam_member" "user_iap_access" {
+  for_each = toset(var.workbench_emails)
+
+  project = var.project_id
+  role    = "roles/iap.httpsResourceAccessor"
+  member  = "user:${each.value}"
+}
+
+# ユーザーがローカル環境（ADC）から直接 Vertex AI API を呼び出すために必要
+resource "google_project_iam_member" "user_aiplatform_user" {
+  for_each = toset(var.workbench_emails)
+
+  project = var.project_id
+  role    = "roles/aiplatform.user"
+  member  = "user:${each.value}"
+}
+
+# ==============================================================================
 # Workbench Instances
 # ==============================================================================
 
