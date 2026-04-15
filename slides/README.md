@@ -170,8 +170,139 @@ theme: mixi
 ![w:500](slides/day1-slide/imgs/example.png)
 ```
 
+## 🎯 Deckを使用したGoogle Slidesへの適用
+
+### セットアップ
+
+#### 1. deckのインストール
+
+```bash
+# プロジェクトルートまたはslidesディレクトリで実行
+mise install  # Go言語とdeck CLIがインストールされます
+```
+
+#### 2. Google OAuth認証の設定（初回のみ）
+
+deckを使用するには、Google Cloud ConsoleでOAuth認証を設定する必要があります：
+
+**手順**:
+
+1. **Google Cloud Consoleでプロジェクトを作成**
+   - https://console.cloud.google.com
+
+2. **APIを有効化**
+   - [Google Slides API](https://console.cloud.google.com/apis/library/slides.googleapis.com)
+   - [Google Drive API](https://console.cloud.google.com/apis/library/drive.googleapis.com)
+
+3. **OAuth 2.0 Client IDを作成**
+   - [認証情報ページ](https://console.cloud.google.com/apis/credentials)
+   - 「認証情報を作成」→「OAuth クライアント ID」
+   - アプリケーションの種類: **デスクトップアプリ**
+   - JSONファイルをダウンロード
+
+4. **credentials.jsonを配置**
+   ```bash
+   mkdir -p ~/.local/share/deck
+   cp ~/Downloads/client_secret_xxx.json ~/.local/share/deck/credentials.json
+   ```
+
+5. **初回認証**
+   ```bash
+   mise exec -- deck ls
+   # ブラウザが開くのでGoogleアカウントで認証
+   ```
+
+詳細は[deck公式ドキュメント](https://github.com/k1LoW/deck#get-and-set-your-oauth-client-credentials)を参照してください。
+
+#### 3. Google Slidesプレゼンテーションの準備
+
+**方法A: 手動でGoogle Slidesを作成（推奨）**
+
+1. Google Slidesで新規プレゼンテーションを作成
+2. テーマ/レイアウトを設定（表示 > テーマを編集）
+   - レイアウト名を設定（例: `title`, `section`）
+3. URLからプレゼンテーションIDをコピー
+
+**方法B: deckコマンドで作成**
+
+```bash
+# 新規プレゼンテーション作成
+mise exec -- deck new -t "AI研修 Day2"
+
+# 既存のテーマをベースに作成
+mise exec -- deck new -t "AI研修 Day2" -b {ベースプレゼンテーションID}
+```
+
+#### 4. 環境変数の設定
+
+`.env`ファイルを作成して、Google SlidesのプレゼンテーションIDを設定します：
+
+```bash
+cp .env.sample .env
+# .envファイルを編集してPRESENTATION_ID_DAY1とPRESENTATION_ID_DAY2を設定
+```
+
+Google SlidesのプレゼンテーションIDは、URLから取得できます：
+```
+https://docs.google.com/presentation/d/{PRESENTATION_ID}/edit
+```
+
+#### 5. レイアウトの確認（オプション）
+
+Google Slides側で利用可能なレイアウトを確認：
+
+```bash
+cd slides/
+source .env
+mise exec -- deck ls-layouts -i $PRESENTATION_ID_DAY2
+```
+
+### Deckの使用方法
+
+```bash
+# day1スライドをGoogle Slidesに適用
+mise run deck:day1
+
+# day2スライドをGoogle Slidesに適用
+mise run deck:day2
+
+# 全スライドを適用
+mise run deck:all
+
+# 特定のページのみを適用（例：3ページ目）
+mise run deck:page:day1 page=3
+mise run deck:page:day2 page=3
+```
+
+### Deck形式について
+
+DeckはMarkdownファイルからGoogle Slidesを直接更新できるツールです。スライドのレイアウトはHTMLコメントで指定します：
+
+```markdown
+<!-- {"layout": "title"} -->
+
+# タイトルスライド
+
+---
+
+<!-- {"layout": "section"} -->
+
+## セクション
+
+---
+
+<!-- {"layout": "title-and-body-2col"} -->
+
+# 通常のスライド
+
+コンテンツ
+```
+
+詳細は[deck公式リポジトリ](https://github.com/k1LoW/deck)を参照してください。
+
 ## 📚 参考資料
 
 - [Marp公式ドキュメント](https://marpit.marp.app/)
 - [Marp CLI](https://github.com/marp-team/marp-cli)
 - [テーマギャラリー](https://github.com/marp-team/marp-core/tree/main/themes)
+- [deck公式リポジトリ](https://github.com/k1LoW/deck)

@@ -2,6 +2,11 @@
 [tools]
 node = "20"                          # Use Node.js 20 LTS for compatibility
 "npm:@marp-team/marp-cli" = "latest"
+go = "latest"                        # Go for deck
+"go:github.com/k1LoW/deck/cmd/deck" = "latest"  # deck for Google Slides integration
+
+[env]
+_.file = "slides/.env"
 
 # Build tasks
 [tasks."build:day1"]
@@ -73,3 +78,32 @@ marp day2/main.md --pptx --allow-local-files -o public/day2.pptx
 description = "Start Marp server for preview"
 dir = "slides"
 run = "marp -s -I . -p 8080 --allow-local-files"
+
+# deck tasks for Google Slides integration
+[tasks."deck:day1"]
+description = "Apply day1 slide to Google Slides"
+dir = "slides"
+run = "deck apply $PRESENTATION_ID_DAY1 day1/main.md"
+
+[tasks."deck:day2"]
+description = "Apply day2 slide to Google Slides"
+dir = "slides"
+run = "deck apply $PRESENTATION_ID_DAY2 day2/main.md"
+
+[tasks."deck:all"]
+description = "Apply all slides to Google Slides"
+dir = "slides"
+run = """
+deck apply $PRESENTATION_ID_DAY1 day1/main.md
+deck apply $PRESENTATION_ID_DAY2 day2/main.md
+"""
+
+[tasks."deck:page:day1"]
+description = "Apply specific page of day1 slide to Google Slides"
+dir = "slides"
+run = "deck apply $PRESENTATION_ID_DAY1 day1/main.md --page {{arg(name='page')}}"
+
+[tasks."deck:page:day2"]
+description = "Apply specific page of day2 slide to Google Slides"
+dir = "slides"
+run = "deck apply $PRESENTATION_ID_DAY2 day2/main.md --page {{arg(name='page')}}"
