@@ -4,7 +4,7 @@
 
 ## LLMの深淵からエージェントの実装まで
 
-<!-- ![mixi-logo w:400px](https://webtan.impress.co.jp/sites/default/files/images/news2022/0914_mixi.png) -->
+<!-- 画像は手動で追加: imgs/mixi-logo.png -->
 
 ---
 
