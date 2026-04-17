@@ -111,9 +111,17 @@ def _(mo):
         "大阪": {"weather": "曇り", "temperature_celsius": 22, "humidity_percent": 65},
         "札幌": {"weather": "雪", "temperature_celsius": -2, "humidity_percent": 80},
         "福岡": {"weather": "雨", "temperature_celsius": 18, "humidity_percent": 85},
-        "名古屋": {"weather": "晴れ", "temperature_celsius": 23, "humidity_percent": 55},
+        "名古屋": {
+            "weather": "晴れ",
+            "temperature_celsius": 23,
+            "humidity_percent": 55,
+        },
     }
-    _DEFAULT_WEATHER = {"weather": "晴れ", "temperature_celsius": 20, "humidity_percent": 60}
+    _DEFAULT_WEATHER = {
+        "weather": "晴れ",
+        "temperature_celsius": 20,
+        "humidity_percent": 60,
+    }
 
     def get_current_location() -> dict:
         """ユーザーの現在地を取得する。
@@ -188,7 +196,9 @@ def _(MODEL_NAME, client, get_weather, mo, types):
     # SDK が自動生成するスキーマを確認する
     # from_callable() は parameters_json_schema ではなく parameters (Schema オブジェクト) を設定する
     _decl = types.FunctionDeclaration.from_callable(callable=get_weather, client=client)
-    _schema_str = json.dumps(_decl.model_dump(exclude_none=True), ensure_ascii=False, indent=2)
+    _schema_str = json.dumps(
+        _decl.model_dump(exclude_none=True), ensure_ascii=False, indent=2
+    )
 
     # ① ユーザープロンプトを送信 → function_call が返る
     _user_content = types.Content(
@@ -200,7 +210,9 @@ def _(MODEL_NAME, client, get_weather, mo, types):
         contents=[_user_content],
         config=types.GenerateContentConfig(
             tools=[get_weather],
-            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                disable=True
+            ),
         ),
     )
     _fc = _response1.function_calls[0]
@@ -211,7 +223,11 @@ def _(MODEL_NAME, client, get_weather, mo, types):
     # ③ FunctionResponse を組み立てて返送 → 最終回答を取得
     _fn_response_content = types.Content(
         role="tool",
-        parts=[types.Part.from_function_response(name=_fc.name, response={"result": _result})],
+        parts=[
+            types.Part.from_function_response(
+                name=_fc.name, response={"result": _result}
+            )
+        ],
     )
     _response2 = client.models.generate_content(
         model=MODEL_NAME,
@@ -222,7 +238,9 @@ def _(MODEL_NAME, client, get_weather, mo, types):
         ],
         config=types.GenerateContentConfig(
             tools=[get_weather],
-            automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                disable=True
+            ),
         ),
     )
 
@@ -288,7 +306,9 @@ def _(MODEL_NAME, client, get_current_location, get_weather, mo, types):
     }
 
     _user_prompt = "現在地の天気を教えて"
-    _contents = [types.Content(role="user", parts=[types.Part.from_text(text=_user_prompt)])]
+    _contents = [
+        types.Content(role="user", parts=[types.Part.from_text(text=_user_prompt)])
+    ]
     _config = types.GenerateContentConfig(
         tools=[get_current_location, get_weather],
         automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
@@ -311,11 +331,19 @@ def _(MODEL_NAME, client, get_current_location, get_weather, mo, types):
 
         _fn_parts = []
         for _fc in _response.function_calls:
-            mo.output.append(mo.md(f"**ステップ {_step} — Function Call**: `{_fc.name}({dict(_fc.args)})`"))
+            mo.output.append(
+                mo.md(
+                    f"**ステップ {_step} — Function Call**: `{_fc.name}({dict(_fc.args)})`"
+                )
+            )
             _fn = _TOOL_MAP[_fc.name]
             _result = _fn(**dict(_fc.args))
             mo.output.append(mo.md(f"**Observation**: `{_result}`"))
-            _fn_parts.append(types.Part.from_function_response(name=_fc.name, response={"result": _result}))
+            _fn_parts.append(
+                types.Part.from_function_response(
+                    name=_fc.name, response={"result": _result}
+                )
+            )
 
         _contents.append(_response.candidates[0].content)
         _contents.append(types.Content(role="tool", parts=_fn_parts))
@@ -346,7 +374,9 @@ def _(mo):
 @app.cell
 def _(MODEL_NAME, client, get_weather, mo, types):
     _user_prompt = "東京と大阪の天気を同時に教えて"
-    _user_content = types.Content(role="user", parts=[types.Part.from_text(text=_user_prompt)])
+    _user_content = types.Content(
+        role="user", parts=[types.Part.from_text(text=_user_prompt)]
+    )
     _config = types.GenerateContentConfig(
         tools=[get_weather],
         automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
@@ -365,7 +395,11 @@ def _(MODEL_NAME, client, get_weather, mo, types):
     for _fc in _response1.function_calls:
         _result = get_weather(**dict(_fc.args))
         _call_log.append(f"`{_fc.name}({dict(_fc.args)})` → `{_result}`")
-        _fn_parts.append(types.Part.from_function_response(name=_fc.name, response={"result": _result}))
+        _fn_parts.append(
+            types.Part.from_function_response(
+                name=_fc.name, response={"result": _result}
+            )
+        )
 
     # 2回目: 最終回答
     _response2 = client.models.generate_content(
