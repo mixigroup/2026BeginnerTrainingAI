@@ -1,5 +1,5 @@
 [project]
-name = "02-multi-modal"
+name = "01-multi-modal"
 version = "0.1.0"
 description = "SigLIP2 マルチモーダルハンズオン - テキストと画像のベクトル空間理解"
 readme = "README.md"

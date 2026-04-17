@@ -1,7 +1,7 @@
 [project]
-name = "05-react-agent"
+name = "02-llm-api"
 version = "0.1.0"
-description = "ReAct Agent ハンズオン - Thought/Action/Observation パターンの実装"
+description = "LLM API ハンズオン - Stateless 性質の理解と会話履歴管理"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

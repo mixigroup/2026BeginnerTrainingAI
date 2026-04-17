@@ -1,4 +1,4 @@
-# 03. LLM API の Stateless 性質
+# 02. LLM API の Stateless 性質
 
 LLM API は本質的に stateless（状態を持たない）であることを理解し、会話履歴を管理する重要性を学ぶ。
 
@@ -21,7 +21,7 @@ LLM API は本質的に stateless（状態を持たない）であることを�
 ## ディレクトリ構造
 
 ```
-03-llm-api/
+02-llm-api/
 ├── src/
 │   ├── __init__.py
 │   └── chat.py        # 会話履歴のフォーマット・表示ヘルパー

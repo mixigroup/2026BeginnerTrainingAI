@@ -1,5 +1,5 @@
 [project]
-name = "06-coding-agent"
+name = "05-coding-agent"
 version = "0.1.0"
 description = "Plan-Solve Coding Agent ハンズオン - LangGraph による状態管理とバグ修正エージェント"
 readme = "README.md"

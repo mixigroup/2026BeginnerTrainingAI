@@ -1,4 +1,4 @@
-# 04. Agentic Loop と Function Calling — 実装計画
+# 03. Agentic Loop と Function Calling — 実装計画
 
 ## 目的
 

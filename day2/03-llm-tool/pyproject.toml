@@ -1,5 +1,5 @@
 [project]
-name = "04-llm-tool"
+name = "03-llm-tool"
 version = "0.1.0"
 description = "Agentic Loop と Function Calling ハンズオン - while ループによる自作 Agent"
 readme = "README.md"
