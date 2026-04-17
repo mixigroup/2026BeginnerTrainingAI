@@ -1,4 +1,4 @@
-# 06. Plan-Solve Coding Agent — 実装計画
+# 05. Plan-Solve Coding Agent — 実装計画
 
 ## 目的
 

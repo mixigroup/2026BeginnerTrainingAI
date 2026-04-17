@@ -11,7 +11,7 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "02-multi-modal"
+name = "01-multi-modal"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

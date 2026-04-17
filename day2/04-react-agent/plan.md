@@ -1,15 +1,15 @@
-# 05. ReAct Agent — 実装計画
+# 04. ReAct Agent — 実装計画
 
 ## 目的
 
 ReAct（Reasoning + Acting）パターンを題材に、Agent の概念とループ構造を学ぶ。
-04 の Function Calling ベースとは異なり、プロンプトで推論過程を明示的に制御するアプローチを実装する。
+03 の Function Calling ベースとは異なり、プロンプトで推論過程を明示的に制御するアプローチを実装する。
 
 ## 学習内容
 
 - ReAct パターンの基本構造（Thought → Action → Observation）
 - プロンプトによる Agent の推論制御
-- Function Calling ベース（04）との比較
+- Function Calling ベース（03）との比較
 - Agent の終了条件の設計
 
 ## 技術スタック
@@ -42,16 +42,16 @@ dependencies = [
 | 10 | code | while ループ: LLM にプロンプト送信 → Thought/Action をパース → ツール実行 → Observation を追記 → 繰り返し → Final Answer で終了 |
 | 11 | md | 実行と観察 |
 | 12 | code | 実際のタスクで Agent を実行し、推論過程を表示 |
-| 13 | md | 04（Function Calling）との比較、ReAct の利点・課題 |
+| 13 | md | 03（Function Calling）との比較、ReAct の利点・課題 |
 
 ## src/ ファイル構成
 
 - `src/__init__.py`
 - `src/agent.py` — ReAct プロンプトテンプレート、出力パーサー、ツールレジストリヘルパー
 
-## 04 との差分
+## 03 との差分
 
-| 観点 | 04 (Function Calling) | 05 (ReAct) |
+| 観点 | 03 (Function Calling) | 04 (ReAct) |
 |------|----------------------|-------------|
 | ツール呼び出しの判断 | モデルの組み込み機能 | プロンプトで制御 |
 | 推論過程 | ブラックボックス | Thought で明示的に出力 |
@@ -81,5 +81,5 @@ Final Answer: [最終回答]
 
 - 新しいツールを追加して ReAct Agent を拡張する
 - 推論過程（Thought）の質をプロンプト改善で高める
-- 04 の Function Calling 版と同じタスクを実行し、結果を比較する
+- 03 の Function Calling 版と同じタスクを実行し、結果を比較する
 - Agent が無限ループに陥るケースとその対策を考える
