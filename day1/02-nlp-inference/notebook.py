@@ -65,7 +65,6 @@ def _():
         preprocess,
         forward,
         postprocess,
-        predict,
         evaluate,
         EVAL_DATA,
     )
