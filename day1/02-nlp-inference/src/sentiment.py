@@ -6,9 +6,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 
 # 評価用サンプルデータ（文章, 正解ラベル）
-# 正解ラベルは Positive / Negative の2値
+# 正解ラベルは Positive / Negative / Neutral の3値
 EVAL_DATA: list[tuple[str, str]] = [
-    # ポジティブ（10件）
+    # ポジティブ（8件）
     ("料理が美味しかった", "Positive"),
     ("また行きたい", "Positive"),
     ("スタッフがとても親切だった", "Positive"),
@@ -17,9 +17,7 @@ EVAL_DATA: list[tuple[str, str]] = [
     ("友達に勧めたい", "Positive"),
     ("盛り付けが素敵でした", "Positive"),
     ("接客が丁寧でとても良かった", "Positive"),
-    ("新鮮な食材で美味しかった", "Positive"),
-    ("また絶対来ます", "Positive"),
-    # ネガティブ（10件）
+    # ネガティブ（8件）
     ("サービスが最悪", "Negative"),
     ("待ち時間が長すぎた", "Negative"),
     ("料理が冷めていた", "Negative"),
@@ -28,8 +26,11 @@ EVAL_DATA: list[tuple[str, str]] = [
     ("予約したのに待たされた", "Negative"),
     ("料理が口に合わなかった", "Negative"),
     ("二度と行かない", "Negative"),
-    ("まあまあだった", "Negative"),  # モデルが迷いやすい例
-    ("普通でした", "Negative"),  # モデルが迷いやすい例
+    # ニュートラル（4件）
+    ("まあまあだった", "Neutral"),
+    ("普通でした", "Neutral"),
+    ("可もなく不可もなく", "Neutral"),
+    ("特に印象に残らなかった", "Neutral"),
 ]
 
 
@@ -105,13 +106,9 @@ def postprocess(
 
 
 def coarse_label(label: str) -> str:
-    """モデルの5段階ラベルを Positive / Negative / Neutral に変換"""
-    if label in {"Positive", "Very Positive"}:
-        return "Positive"
-    elif label in {"Negative", "Very Negative"}:
-        return "Negative"
-    else:
-        return "Neutral"
+    """モデルの大文字ラベル（POSITIVE/NEGATIVE/NEUTRAL）を
+    先頭大文字の表示形式（Positive/Negative/Neutral）に正規化する"""
+    return label.capitalize()
 
 
 def predict(
@@ -127,7 +124,7 @@ def predict(
         text: 入力テキスト
 
     Returns:
-        pred_label: 予測ラベル名（5段階）
+        pred_label: 予測ラベル名（3段階：POSITIVE / NEGATIVE / NEUTRAL）
         pred_score: 予測ラベルの確率
         prob_dict: 全ラベルの確率辞書
     """
