@@ -21,8 +21,9 @@ def _(mo):
     - 文章全体にポジティブ / ネガティブのラベルを付ける
     - 例：「私はとっても幸せ」→ **ポジティブ**、「私はとっても不幸」→ **ネガティブ**
 
-    **使用モデル**: `tabularisai/multilingual-sentiment-analysis`
-    - 多言語対応のBERT系モデルで、文章全体の特徴を捉えて分類する
+    **使用モデル**: `koheiduck/bert-japanese-finetuned-sentiment`
+    - 東北大 BERT base (日本語 Whole Word Masking) をファインチューニングした3クラス分類モデル
+    - ラベル：`POSITIVE` / `NEGATIVE` / `NEUTRAL`
 
     ---
 
@@ -45,9 +46,9 @@ def _(mo):
     HuggingFace の `pipeline` は、前処理・推論・後処理を1行で実行できる便利なAPI。
 
     ```python
-    pipe = pipeline("text-classification", model="tabularisai/multilingual-sentiment-analysis")
+    pipe = pipeline("text-classification", model="koheiduck/bert-japanese-finetuned-sentiment")
     pipe("あなたのことが大好きです。")
-    # → [{'label': 'Very Positive', 'score': 0.96...}]
+    # → [{'label': 'POSITIVE', 'score': 0.99...}]
     ```
 
     このノートブックでは、この `pipeline` の内部を分解して理解する。
@@ -77,14 +78,13 @@ def _():
         load_tokenizer,
         pipeline,
         postprocess,
-        predict,
         preprocess,
     )
 
 
 @app.cell
 def _(pipeline):
-    MODEL_NAME = "tabularisai/multilingual-sentiment-analysis"
+    MODEL_NAME = "koheiduck/bert-japanese-finetuned-sentiment"
     pipe = pipeline("text-classification", model=MODEL_NAME)
     pipeline_result = pipe("あなたのことが大好きです。")
 
@@ -155,7 +155,7 @@ def _(mo):
 
     3. **出力: logits**
        - shape: `(batch_size, num_labels)`
-       - 例：`(1, 5)` → 5ラベル（Very Negative / Negative / Neutral / Positive / Very Positive）
+       - 例：`(1, 3)` → 3ラベル（NEUTRAL / NEGATIVE / POSITIVE）
        - 各ラベルに対する生スコア（確率ではない）
     """)
     return
@@ -183,7 +183,7 @@ def _(mo):
 
     1. **softmax で確率に変換**
        - logitsを確率分布に変換（合計が1になる）
-       - 例：`[3.2, -1.5, 0.1, ...]` → `[0.88, 0.01, 0.05, ...]`
+       - 例：`[-1.2, -2.1, 3.8]` → `[0.01, 0.00, 0.99]`
 
     2. **argmax でラベルID取得**
        - 最大確率のインデックスを選択
@@ -221,13 +221,13 @@ def _(mo):
     ```
 
     今回は20件のサンプルデータで精度を測定する。
-    モデルの5段階ラベルは以下のように2値に変換して評価する：
+    モデルの出力ラベル（大文字）は、以下のように先頭大文字の表示形式に揃えて評価する：
 
-    | モデルのラベル | 変換後 |
+    | モデル出力 | 表示形式 |
     |---|---|
-    | Very Positive / Positive | Positive |
-    | Very Negative / Negative | Negative |
-    | Neutral | Neutral |
+    | POSITIVE | Positive |
+    | NEGATIVE | Negative |
+    | NEUTRAL | Neutral |
     """)
     return
 
@@ -242,6 +242,11 @@ def _(EVAL_DATA, evaluate, model, tokenizer):
         mark = "✅" if r[5] else "❌"
         print(f"  {mark} [{r[1]}→{r[3]}] {r[0]}  ({r[2]}, {r[4]:.0%})")
     print(f"\nAccuracy: {accuracy:.1%}（{correct_count}/{len(EVAL_DATA)}件正解）")
+    return
+
+
+@app.cell
+def _():
     return
 
 

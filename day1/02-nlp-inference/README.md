@@ -2,8 +2,10 @@
 
 日本語テキストを使った感情分析（Sentiment Analysis）で、NLP モデルの推論フローを体験します。
 
-- **モデル**: [`tabularisai/multilingual-sentiment-analysis`](https://huggingface.co/tabularisai/multilingual-sentiment-analysis)
-  - 多言語対応の BERT 系モデル（日本語テキストをそのまま入力できる）
+- **モデル**: [`koheiduck/bert-japanese-finetuned-sentiment`](https://huggingface.co/koheiduck/bert-japanese-finetuned-sentiment)
+  - 東北大 BERT base (日本語 Whole Word Masking) をファインチューニングした感情分析モデル
+  - 3クラス分類（`POSITIVE` / `NEGATIVE` / `NEUTRAL`）
+  - Tokenizer は `BertJapaneseTokenizer` を使用（`fugashi` + `unidic-lite` の依存あり）
 
 ---
 
@@ -105,7 +107,7 @@ model.eval()
 with torch.no_grad():
     outputs = model(**encoded)
 
-logits = outputs.logits  # shape: (1, 5) — 5ラベル分のスコア
+logits = outputs.logits  # shape: (1, 3) — 3ラベル分のスコア
 ```
 
 ### Phase 3: Postprocess（後処理）
@@ -120,15 +122,15 @@ pred_label = model.config.id2label[pred_id]  # ラベル名に変換
 
 ## ラベルの種類
 
-このモデルは5段階で感情を分類します。
+このモデルは3段階で感情を分類します。
 
 | ラベル | 意味 |
 |---|---|
-| Very Positive | とてもポジティブ |
-| Positive | ポジティブ |
-| Neutral | 中立 |
-| Negative | ネガティブ |
-| Very Negative | とてもネガティブ |
+| POSITIVE | ポジティブ |
+| NEUTRAL | 中立 |
+| NEGATIVE | ネガティブ |
+
+評価時は大文字ラベルを `Positive` / `Neutral` / `Negative` のように先頭大文字の表示形式に揃えて比較します（`coarse_label()` 関数）。
 
 ---
 
@@ -146,8 +148,8 @@ Accuracy = 正解数 / 全文章数
 |------|------|------|--------|
 | 料理が美味しかった | Positive | Positive | ✅ |
 | サービスが最悪 | Negative | Negative | ✅ |
-| まあまあだった | Negative | Positive | ❌ |
+| まあまあだった | Neutral | Neutral | ✅ |
 | また行きたい | Positive | Positive | ✅ |
 
-**Accuracy: 75%（3/4文章正解）**
+**Accuracy: 100%（4/4文章正解）**
 
