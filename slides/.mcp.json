@@ -1,10 +1,21 @@
 {
     "mcpServers": {
+        "drawio": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "-y",
+                "@drawio/mcp"
+            ],
+            "env": {}
+        },
         "playwright": {
+            "type": "stdio",
             "command": "npx",
             "args": [
                 "@playwright/mcp@latest"
-            ]
+            ],
+            "env": {}
         }
     }
 }
