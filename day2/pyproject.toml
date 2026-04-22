@@ -1,0 +1,5 @@
+[tool.ruff.lint.per-file-ignores]
+# marimo / jupyter notebook はリアクティブセルや export 成果による
+# 「未使用 import」「未使用変数」「未定義名」の false positive が出やすいため許容する
+"notebook*.py" = ["F401", "F811", "F821", "F841"]
+"*.ipynb" = ["F401", "F811", "F821", "F841"]
