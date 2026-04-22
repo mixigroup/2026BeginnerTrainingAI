@@ -19,8 +19,6 @@
 | 06 | `06-accelerate-ml-model`      | ONNX エクスポート・INT8 量子化でモデル高速化      |
 | 07 | `07-model-deploy`             | FastAPI + カスタムコンテナで Vertex AI にデプロイ |
 
-各ハンズオンの詳細は [`day1/README.md`](./day1/README.md) を参照してください。
-
 ### Day2: 生成 AI と LLM エージェント (`day2/`)
 
 | #  | ディレクトリ       | テーマ                   |
@@ -35,8 +33,8 @@
 
 本研修は、以下のどちらかの環境で実施できます。使いやすい方を選んでください。
 
-1. **ローカル環境**: 手元の macOS / Linux で実行。GPU なしでも進められるハンズオンが中心ですが、Day1 の `05` / `06` / `07` など **GPU を前提にするハンズオンは Workbench を推奨** します。
-2. **GCP Workbench インスタンス（T4 GPU 環境）**: Vertex AI Workbench。Day1 の GPU 依存ハンズオンまで一通り実行できます。
+1. **ローカル環境**
+2. **GCP Workbench インスタンス（T4 GPU 環境）**
 
 どちらを選んでも、[共通セットアップ](#共通セットアップ) と [ハンズオンの進め方](#ハンズオンの進め方) の手順は同じです。
 
@@ -45,80 +43,67 @@
 ### 1. Workbench インスタンスを起動
 
 [GCP の hr-mixi プロジェクトの workbench ホーム](https://console.cloud.google.com/dataproc/workbench/instances?hl=ja&project=hr-mixi&referrer=search)から利用いただけます。
-<https://console.cloud.google.com/dataproc/workbench/instances?hl=ja&project=hr-mixi&referrer=search>
 
 インスタンス名はメールアドレスの `.`を`-` に置き換えて自動生成されています（例: `taro.yamada@mixi.co.jp` → `taro-yamada`）。
 
-> [!IMPORTANT]
+> [!NOTE]
 > つけ忘れ防止のため、インスタンスは使っていないと数時間で切れるようになっています。
 > もしインスタンスが落ちてしまった場合、[GCPコンソール](https://console.cloud.google.com/vertex-ai/workbench/instances?project=hr-mixi) から再起動してください
 
 ### 2. SSH接続
 
 1. key 生成
+    初回だけ鍵登録をしないといけないため、以下のコマンドを実行してください
 
-初回だけ鍵登録をしないといけないため、以下のコマンドを実行してください
+    ```bash
+    gcloud compute ssh --project hr-mixi --zone asia-northeast1-a <インスタンス名> --tunnel-through-iap
+    ```
 
-```bash
-gcloud compute ssh --project hr-mixi --zone asia-northeast1-a <インスタンス名> --tunnel-through-iap
-```
+2. `~/.ssh/config` に以下を追加
 
-1. `~/.ssh/config` に以下を追加
+    ```
+    Host workbench
+        HostName <インスタンス名>
+        User <OS Loginユーザー名>
+        IdentityFile ~/.ssh/google_compute_engine
+        ProxyCommand gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project=hr-mixi --zone=asia-northeast1-a
+    ```
 
-```
-Host workbench
-    HostName <インスタンス名>
-    User <OS Loginユーザー名>
-    IdentityFile ~/.ssh/google_compute_engine
-    ProxyCommand gcloud compute start-iap-tunnel %h %p --listen-on-stdin --project=hr-mixi --zone=asia-northeast1-a
-```
+    - **インスタンス名**: メールアドレスの `@` より前の `.` を `-` に置換（例: `taro.yamada@mixi.co.jp` → `taro-yamada`）
+    - **OS Loginユーザー名**: メールアドレスの `.` と `@` を `_` に置換（例: `taro.yamada@mixi.co.jp` → `taro_yamada_mixi_co_jp`）
 
-- **インスタンス名**: メールアドレスの `@` より前の `.` を `-` に置換（例: `taro.yamada@mixi.co.jp` → `taro-yamada`）
-- **OS Loginユーザー名**: メールアドレスの `.` と `@` を `_` に置換（例: `taro.yamada@mixi.co.jp` → `taro_yamada_mixi_co_jp`）
+3. VS Code からリモート接続
 
-1. VS Code からリモート接続
+    VS Code の Remote - SSH 拡張機能を使って、Workbench に直接接続できます。
 
-VS Code の Remote - SSH 拡張機能を使って、Workbench に直接接続できます。
+    1. VS Code に [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) 拡張機能をインストール
+    2. VS Code のコマンドパレット（`Cmd+Shift+P`）→ `Remote-SSH: Connect to Host...` → `workbench` を選択
 
-- VS Code に [Remote - SSH](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) 拡張機能をインストール
-- VS Code のコマンドパレット（`Cmd+Shift+P`）→ `Remote-SSH: Connect to Host...` → `workbench` を選択
-- 接続後は VS Code のターミナルやエディタからリモートのファイルを直接編集できます。
+    接続後は VS Code のターミナルやエディタからリモートのファイルを直接編集できます。
 
 ### 3. GitHub CLI のインストール
 
-Workbench からリポジトリを clone するために、GitHub CLI をインストールします。
+1. Workbench からリポジトリを clone するために、GitHub CLI をインストールします。
 
-参考：<https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian>
+    参考：<https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian>
 
-```bash
-(type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
- && sudo mkdir -p -m 755 /etc/apt/keyrings \
- && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
- && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
- && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
- && sudo mkdir -p -m 755 /etc/apt/sources.list.d \
- && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
- && sudo apt update \
- && sudo apt install gh -y
-```
+    ```bash
+    (type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
+     && sudo mkdir -p -m 755 /etc/apt/keyrings \
+     && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+     && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+     && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+     && sudo mkdir -p -m 755 /etc/apt/sources.list.d \
+     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+     && sudo apt update \
+     && sudo apt install gh -y
+    ```
 
-GitHub アカウントにログイン:
+2. GitHub アカウントにログイン:
 
-```bash
-gh auth login
-```
-
-セットアップが終わったら、[共通セットアップ](#共通セットアップ) に進んでください。
-
-## ローカル環境のセットアップ
-
-手元の macOS / Linux で実施する場合の前提です。
-
-- Python 3.12 以上が使える環境
-- GPU なしで進められるのは、Day1 の `00`〜`04` と Day2 の API 系ハンズオンが中心
-- **GPU を前提にする Day1 の `05-model-trainig` / `06-accelerate-ml-model` / `07-model-deploy` は Workbench を推奨** します（ローカル実行は動作を保証しません）
-
-前提を満たしたら、[共通セットアップ](#共通セットアップ) に進んでください。
+    ```bash
+    gh auth login
+    ```
 
 ## 共通セットアップ
 
@@ -170,6 +155,3 @@ uv run marimo edit notebook.py
 ```
 
 [marimo](https://marimo.io/) は `.py` ファイルで動くリアクティブ Notebook です。ブラウザが自動で開き、セルの変数を変更すると依存する関連セルが自動で再実行されます。
-
-- Day1 のハンズオンごとの詳細・狙いは [`day1/README.md`](./day1/README.md) を参照してください
-- Day2 は各ディレクトリ配下の `notebook.py` を同じ手順（`uv sync` → `uv run marimo edit notebook.py`）で起動してください
