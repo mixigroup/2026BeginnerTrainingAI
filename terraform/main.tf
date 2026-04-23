@@ -115,6 +115,33 @@ resource "google_project_iam_member" "user_iap_access" {
   member  = "user:${each.value}"
 }
 
+# gcloud compute ssh --tunnel-through-iap で Workbench VM に SSH するために必要
+resource "google_project_iam_member" "user_iap_tunnel_access" {
+  for_each = toset(var.workbench_emails)
+
+  project = var.project_id
+  role    = "roles/iap.tunnelResourceAccessor"
+  member  = "user:${each.value}"
+}
+
+# IAP トンネル経由で OS Login により VM へ SSH ログインするために必要
+resource "google_project_iam_member" "user_os_login" {
+  for_each = toset(var.workbench_emails)
+
+  project = var.project_id
+  role    = "roles/compute.osLogin"
+  member  = "user:${each.value}"
+}
+
+# サービスアカウントがアタッチされた VM に SSH するために必要
+resource "google_service_account_iam_member" "user_workbench_sa_user" {
+  for_each = toset(var.workbench_emails)
+
+  service_account_id = google_service_account.ml_workbench_vm.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "user:${each.value}"
+}
+
 # ユーザーがローカル環境（ADC）から直接 Vertex AI API を呼び出すために必要
 resource "google_project_iam_member" "user_aiplatform_user" {
   for_each = toset(var.workbench_emails)
@@ -138,7 +165,7 @@ resource "google_workbench_instance" "workbench" {
   gce_setup {
     machine_type = "n1-standard-4"
 
-accelerator_configs {
+    accelerator_configs {
       type       = "NVIDIA_TESLA_T4"
       core_count = 1
     }
