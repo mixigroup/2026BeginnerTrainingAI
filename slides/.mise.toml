@@ -6,42 +6,42 @@ node = "20"                          # Use Node.js 20 LTS for compatibility
 # Build tasks
 [tasks."build:day1"]
 description = "Build day1 slide to HTML"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day1/main.md --html --allow-local-files -o public/day1.html"
 
 [tasks."build:day1:pdf"]
 description = "Build day1 slide to PDF"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day1/main.md --pdf --allow-local-files -o public/day1.pdf"
 
 [tasks."build:day1:pptx"]
 description = "Build day1 slide to PowerPoint"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day1/main.md --pptx --allow-local-files -o public/day1.pptx"
 
 [tasks."build:day2"]
 description = "Build day2 slide to HTML"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day2/main.md --html --allow-local-files -o public/day2.html"
 
 [tasks."build:day2:pdf"]
 description = "Build day2 slide to PDF"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day2/main.md --pdf --allow-local-files -o public/day2.pdf"
 
 [tasks."build:day2:pptx"]
 description = "Build day2 slide to PowerPoint"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day2/main.md --pptx --allow-local-files -o public/day2.pptx"
 
 [tasks."build:all"]
 description = "Build all slides to HTML"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp day*/main.md --html --allow-local-files -o public/"
 
 [tasks."export:day1"]
 description = "Export day1 slide to all formats (HTML, PDF, PPTX)"
-dir = "slides"
+dir = "{{config_root}}"
 run = """
 marp day1/main.md --html --allow-local-files -o public/day1.html
 marp day1/main.md --pdf --allow-local-files -o public/day1.pdf
@@ -50,7 +50,7 @@ marp day1/main.md --pptx --allow-local-files -o public/day1.pptx
 
 [tasks."export:day2"]
 description = "Export day2 slide to all formats (HTML, PDF, PPTX)"
-dir = "slides"
+dir = "{{config_root}}"
 run = """
 marp day2/main.md --html --allow-local-files -o public/day2.html
 marp day2/main.md --pdf --allow-local-files -o public/day2.pdf
@@ -59,7 +59,7 @@ marp day2/main.md --pptx --allow-local-files -o public/day2.pptx
 
 [tasks."export:all"]
 description = "Export all slides to all formats"
-dir = "slides"
+dir = "{{config_root}}"
 run = """
 marp day1/main.md --html --allow-local-files -o public/day1.html
 marp day1/main.md --pdf --allow-local-files -o public/day1.pdf
@@ -71,5 +71,5 @@ marp day2/main.md --pptx --allow-local-files -o public/day2.pptx
 
 [tasks."serve"]
 description = "Start Marp server for preview"
-dir = "slides"
+dir = "{{config_root}}"
 run = "marp -s -I . -p 8080 --allow-local-files"
