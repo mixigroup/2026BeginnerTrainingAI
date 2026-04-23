@@ -120,14 +120,14 @@ def _(Gemini, GeminiEmbedding, Settings):
         model="gemini-2.5-flash",
         project_id="hr-mixi",
         location="asia-northeast1",
-        temperature=0.0
+        temperature=0.0,
     )
 
     # Initialize Gemini Embeddings
     embed_model = GeminiEmbedding(
         model_name="models/text-embedding-004",
         project_id="hr-mixi",
-        location="asia-northeast1"
+        location="asia-northeast1",
     )
 
     # Set global settings
@@ -170,11 +170,7 @@ def _():
 def _(add_tool, llm, multiply_tool):
     from llama_index.core.agent import ReActAgent
 
-    calc_agent = ReActAgent.from_tools(
-        [multiply_tool, add_tool],
-        llm=llm,
-        verbose=True
-    )
+    calc_agent = ReActAgent.from_tools([multiply_tool, add_tool], llm=llm, verbose=True)
 
     return ReActAgent, calc_agent
 
@@ -239,8 +235,14 @@ def _(mo):
     os.makedirs("data/10k", exist_ok=True)
 
     files_to_download = [
-        ("https://raw.githubusercontent.com/run-llama/llama_index/main/docs/examples/data/10k/uber_2021.pdf", "data/10k/uber_2021.pdf"),
-        ("https://raw.githubusercontent.com/run-llama/llama_index/main/docs/examples/data/10k/lyft_2021.pdf", "data/10k/lyft_2021.pdf")
+        (
+            "https://raw.githubusercontent.com/run-llama/llama_index/main/docs/examples/data/10k/uber_2021.pdf",
+            "data/10k/uber_2021.pdf",
+        ),
+        (
+            "https://raw.githubusercontent.com/run-llama/llama_index/main/docs/examples/data/10k/lyft_2021.pdf",
+            "data/10k/lyft_2021.pdf",
+        ),
     ]
 
     for url, filepath in files_to_download:
@@ -262,14 +264,25 @@ def _(mo):
 def _():
     from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
-    lyft_docs = SimpleDirectoryReader(input_files=["./data/10k/lyft_2021.pdf"]).load_data()
-    uber_docs = SimpleDirectoryReader(input_files=["./data/10k/uber_2021.pdf"]).load_data()
+    lyft_docs = SimpleDirectoryReader(
+        input_files=["./data/10k/lyft_2021.pdf"]
+    ).load_data()
+    uber_docs = SimpleDirectoryReader(
+        input_files=["./data/10k/uber_2021.pdf"]
+    ).load_data()
 
     # Build indexes (this may take a while on first run)
     lyft_index = VectorStoreIndex.from_documents(lyft_docs)
     uber_index = VectorStoreIndex.from_documents(uber_docs)
 
-    return SimpleDirectoryReader, VectorStoreIndex, lyft_docs, lyft_index, uber_docs, uber_index
+    return (
+        SimpleDirectoryReader,
+        VectorStoreIndex,
+        lyft_docs,
+        lyft_index,
+        uber_docs,
+        uber_index,
+    )
 
 
 @app.cell
@@ -286,19 +299,19 @@ def _(lyft_index, mo, uber_index):
             query_engine=lyft_engine,
             metadata=ToolMetadata(
                 name="lyft_10k",
-                description="Provides information about Lyft financials for year 2021. Use a detailed plain text question as input to the tool."
-            )
+                description="Provides information about Lyft financials for year 2021. Use a detailed plain text question as input to the tool.",
+            ),
         ),
         QueryEngineTool(
             query_engine=uber_engine,
             metadata=ToolMetadata(
                 name="uber_10k",
-                description="Provides information about Uber financials for year 2021. Use a detailed plain text question as input to the tool."
-            )
-        )
+                description="Provides information about Uber financials for year 2021. Use a detailed plain text question as input to the tool.",
+            ),
+        ),
     ]
 
-    mo.md(f"""
+    mo.md("""
     ### QueryEngine Tools 作成完了
 
     - **lyft_10k**: Lyft 2021 年決算情報
@@ -313,11 +326,7 @@ def _(lyft_index, mo, uber_index):
 def _(llm, query_engine_tools):
     from llama_index.core.agent import ReActAgent as ReActAgent2
 
-    rag_agent = ReActAgent2.from_tools(
-        query_engine_tools,
-        llm=llm,
-        verbose=True
-    )
+    rag_agent = ReActAgent2.from_tools(query_engine_tools, llm=llm, verbose=True)
 
     return ReActAgent2, rag_agent
 

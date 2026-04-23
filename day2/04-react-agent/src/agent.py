@@ -27,7 +27,7 @@ def divide(a: int, b: int) -> float:
 
 def format_agent_response(response: Any) -> str:
     """Format agent response for display."""
-    sources_count = len(response.sources) if hasattr(response, 'sources') else 0
+    sources_count = len(response.sources) if hasattr(response, "sources") else 0
 
     return f"""
 ## Response
@@ -47,17 +47,14 @@ def extract_thought_action(agent_output: str) -> dict:
     Returns:
         dict with 'thought' and 'action' keys
     """
-    lines = agent_output.split('\n')
+    lines = agent_output.split("\n")
     thought = None
     action = None
 
     for line in lines:
-        if line.startswith('Thought:'):
-            thought = line.replace('Thought:', '').strip()
-        elif line.startswith('Action:'):
-            action = line.replace('Action:', '').strip()
+        if line.startswith("Thought:"):
+            thought = line.replace("Thought:", "").strip()
+        elif line.startswith("Action:"):
+            action = line.replace("Action:", "").strip()
 
-    return {
-        'thought': thought,
-        'action': action
-    }
+    return {"thought": thought, "action": action}
