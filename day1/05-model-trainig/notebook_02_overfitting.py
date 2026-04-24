@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.4"
+__generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
@@ -468,6 +468,11 @@ def _(mo):
 
     `notebook_03_transfer.py` で事前学習済み ResNet18 を使った転移学習を実践します。
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
