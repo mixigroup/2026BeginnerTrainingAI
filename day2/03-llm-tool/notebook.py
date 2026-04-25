@@ -443,7 +443,7 @@ def _(mo):
 
     ### ハンズオン課題
 
-    - 新しいツールを作って Function Calling を試してみよう
+    - 新しくツールを作って Function Calling を試してみよう
     """)
     return
 
