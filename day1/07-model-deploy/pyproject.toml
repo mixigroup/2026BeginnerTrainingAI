@@ -5,7 +5,7 @@ description = "SAM model deployment hands-on with Vertex AI custom container"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.20.1",
+    "marimo>=0.23.2",
     # Inference server
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",

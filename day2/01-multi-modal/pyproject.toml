@@ -5,10 +5,10 @@ description = "SigLIP2 マルチモーダルハンズオン - テキストと画
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.20.2",
+    "marimo>=0.23.2",
     "pyzmq>=27.1.0",
     "transformers>=4.48",
-    "torch>=2.0",
+    "torch>=2.0,<2.8",
     "Pillow>=10.0",
     "matplotlib>=3.8",
     "datasets>=3.0",
@@ -16,4 +16,8 @@ dependencies = [
     "tensorboard>=2.15",
     "numpy>=1.26",
     "requests>=2.31",
+    "setuptools==81.0.0", # https://github.com/tensorflow/tensorboard/issues/7003
 ]
+
+[tool.uv]
+exclude-newer = "3 days"

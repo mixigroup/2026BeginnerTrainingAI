@@ -5,7 +5,10 @@ description = "LLM API ハンズオン - Stateless 性質の理解と会話履�
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.20.2",
+    "marimo>=0.23.2",
     "pyzmq>=27.1.0",
     "google-genai>=1.0.0",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"
