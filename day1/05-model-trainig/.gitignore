@@ -1,3 +1,4 @@
 *.csv
 lightning_logs/
 runs/
+data/

@@ -5,9 +5,9 @@ description = "音声認識（ASR）ハンズオン - Whisper を使った音声
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.20.1",
+    "marimo>=0.23.2",
     "transformers>=4.40.0",
-    "torch>=2.0.0",
+    "torch>=2.0,<2.8",
     "torchaudio>=2.0.0",
     "datasets>=2.0.0",
     "jiwer>=3.0.0",
@@ -15,3 +15,6 @@ dependencies = [
     "torchcodec>=0.11.0",
     "pyzmq>=27.1.0",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"

@@ -105,6 +105,37 @@
     gh auth login
     ```
 
+### (任意) 1Password を使ったセットアップ
+
+1Password で SSH キーを管理している場合、エージェント転送を使って Workbench 上でも GitHub 認証を行えます。
+
+1. **1Password SSH エージェントを有効化**（ローカル）
+
+   以下のドキュメントを参考に、ローカルの 1Password SSH エージェントをセットアップしてください。
+
+   [Get started with 1Password for SSH | 1Password Developer](https://developer.1password.com/docs/ssh/get-started/)
+
+2. **SSH エージェント転送を設定**（ローカル）
+
+   `~/.ssh/config` の `workbench` ホスト設定に `ForwardAgent yes` を追加します。
+
+   ```
+   Host workbench
+       ...（既存の設定）
+       ForwardAgent yes
+   ```
+
+   参考: [SSH Agent Forwarding | 1Password Developer](https://developer.1password.com/docs/ssh/agent/forwarding)
+
+3. **Workbench 上で GitHub 認証を確認**
+
+   Workbench に SSH 接続後、以下を実行して鍵が転送されていることを確認します。
+
+   ```shell
+   ssh-add -L          # ローカルの SSH エージェントから鍵が転送されているか確認
+   ssh -T git@github.com  # GitHub への認証確認
+   ```
+
 ## 共通セットアップ
 
 Workbench / ローカルどちらの環境でも、以下のセットアップを 1 回だけ実施します。
@@ -130,6 +161,34 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv --version
 ```
 
+### 依存関係のインストール
+
+Workbench（Debian/Ubuntu）では以下のツールが必要です。macOS の場合は各ツールのダウンロードページを参照してください（LightGBM 使用時は libomp の追加インストールが必要になる場合があります）。
+
+#### Graphviz
+
+`day1/01-simple-model-inference/notebook_lgbm.py` で使用します。
+
+Debian/Ubuntu:
+
+```shell
+sudo apt install graphviz
+```
+
+その他の環境: <https://graphviz.org/download/>
+
+#### FFmpeg
+
+`day1/04-audio-inference/notebook.py` で使用します。
+
+Debian/Ubuntu:
+
+```shell
+sudo apt install ffmpeg
+```
+
+その他の環境: <https://ffmpeg.org/download.html>
+
 ### 環境の確認
 
 ```bash
@@ -142,16 +201,25 @@ uv python list
 
 ## ハンズオンの進め方
 
-各ハンズオンは独立した uv プロジェクト（`day<N>/<NN>-*/pyproject.toml`）として構成されています。**必ず対象ハンズオンのディレクトリに移動してから** `uv sync` → `uv run marimo edit` の順に実行してください。
+各ハンズオンは独立した uv プロジェクト（`day<N>/<NN>-*/pyproject.toml`）として構成されています。**必ず対象ハンズオンのディレクトリに移動してから** `uv sync --frozen` → `uv run marimo edit` の順に実行してください。
 
 ```bash
 cd day1/00-intro-python-environment   # 例: Day1 の最初のハンズオン
 
 # 依存パッケージのインストール（各ハンズオンごとに初回のみ）
-uv sync
+uv sync --frozen  # 再現性のために frozen オプションを推奨
 
 # marimo notebook を起動（ブラウザで対話的に実行）
 uv run marimo edit notebook.py
 ```
+
+### (推奨) VS Code での marimo notebook 実行
+
+VS Code の [marimo 拡張機能](https://marketplace.visualstudio.com/items?itemName=marimo-team.vscode-marimo)をインストールすると、VS Code 内で marimo notebook を直接開いて実行できます。
+
+1. ファイルを開いた状態で右上の marimo アイコンをクリックするとノートブックが起動します。
+2. ノートブック右上の「Select Kernel」または VS Code 右下の Python インタープリター選択から、ハンズオンの仮想環境（`.venv`）を選択してください。事前に `uv sync --frozen` で仮想環境をセットアップしておく必要があります。
+
+`.vscode/settings.json` に各ハンズオンの Python 環境パスを設定済みのため、通常は自動で検知されます。検知されない場合は [VS Code Python 環境のドキュメント](https://code.visualstudio.com/docs/python/environments)を参照してください。
 
 [marimo](https://marimo.io/) は `.py` ファイルで動くリアクティブ Notebook です。ブラウザが自動で開き、セルの変数を変更すると依存する関連セルが自動で再実行されます。
