@@ -83,6 +83,8 @@
 
 ### 3. GitHub CLI のインストール
 
+レポジトリをcloneするために、GitHub CLIをインストールします。SSHエージェントなどを使いcloneできる場合はこの手順は不要です。
+
 1. Workbench からリポジトリを clone するために、GitHub CLI をインストールします。
 
     参考：<https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian>
@@ -104,37 +106,6 @@
     ```bash
     gh auth login
     ```
-
-### (任意) 1Password を使ったセットアップ
-
-1Password で SSH キーを管理している場合、エージェント転送を使って Workbench 上でも GitHub 認証を行えます。
-
-1. **1Password SSH エージェントを有効化**（ローカル）
-
-   以下のドキュメントを参考に、ローカルの 1Password SSH エージェントをセットアップしてください。
-
-   [Get started with 1Password for SSH | 1Password Developer](https://developer.1password.com/docs/ssh/get-started/)
-
-2. **SSH エージェント転送を設定**（ローカル）
-
-   `~/.ssh/config` の `workbench` ホスト設定に `ForwardAgent yes` を追加します。
-
-   ```
-   Host workbench
-       ...（既存の設定）
-       ForwardAgent yes
-   ```
-
-   参考: [SSH Agent Forwarding | 1Password Developer](https://developer.1password.com/docs/ssh/agent/forwarding)
-
-3. **Workbench 上で GitHub 認証を確認**
-
-   Workbench に SSH 接続後、以下を実行して鍵が転送されていることを確認します。
-
-   ```shell
-   ssh-add -L          # ローカルの SSH エージェントから鍵が転送されているか確認
-   ssh -T git@github.com  # GitHub への認証確認
-   ```
 
 ## 共通セットアップ
 
@@ -218,7 +189,7 @@ uv run marimo edit notebook.py
 VS Code の [marimo 拡張機能](https://marketplace.visualstudio.com/items?itemName=marimo-team.vscode-marimo)をインストールすると、VS Code 内で marimo notebook を直接開いて実行できます。
 
 1. ファイルを開いた状態で右上の marimo アイコンをクリックするとノートブックが起動します。
-2. ノートブック右上の「Select Kernel」または VS Code 右下の Python インタープリター選択から、ハンズオンの仮想環境（`.venv`）を選択してください。事前に `uv sync --frozen` で仮想環境をセットアップしておく必要があります。
+2. ノートブック右上の「Select Kernel」または VS Code 右下の Python インタープリター選択から、ハンズオンの仮想環境（`.venv`）を選択してください。事前に `uv sync --frozen` で仮想環境をセットアップしておく必要があります。(初回はMarimoのSelect Kernelに表示されない場合があるため、その時はコマンドパレッドで「Python: Select Interpreter」を選択してからSelect Kernelに戻ると表示されることがあります)
 
 `.vscode/settings.json` に各ハンズオンの Python 環境パスを設定済みのため、通常は自動で検知されます。検知されない場合は [VS Code Python 環境のドキュメント](https://code.visualstudio.com/docs/python/environments)を参照してください。
 
