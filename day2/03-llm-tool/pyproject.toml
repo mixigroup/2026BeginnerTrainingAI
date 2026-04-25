@@ -10,3 +10,6 @@ dependencies = [
     "google-genai>=1.0.0",
     "nbformat>=5.10.4",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"
