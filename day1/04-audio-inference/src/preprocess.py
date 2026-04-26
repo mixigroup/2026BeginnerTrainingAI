@@ -7,6 +7,7 @@ import torch
 import torchaudio
 import matplotlib.pyplot as plt
 import matplotlib.figure
+import japanize_matplotlib  # noqa: F401  # matplotlib で日本語ラベルを表示するため
 from transformers import AutoFeatureExtractor
 
 

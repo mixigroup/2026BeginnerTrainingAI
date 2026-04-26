@@ -120,13 +120,20 @@ def _(MODEL_NAME, load_tokenizer):
     tokens = tokenizer.tokenize(sample_text)
 
     print(f"トークン数：{len(tokens)}")
+    print(f"トークン：{tokens}")
     return sample_text, tokenizer
+
+
+@app.cell
+def _(tokenizer):
+    vocab = tokenizer.get_vocab()
+    print(f"語彙辞書：{list(vocab.items())[:10]} ...") 
+    return (vocab,)
 
 
 @app.cell
 def _(preprocess, sample_text, tokenizer):
     encoded = preprocess(tokenizer, sample_text)
-
     print(f"input_ids: {encoded['input_ids'].tolist()}")
     print(f"attention_mask: {encoded['attention_mask'].tolist()}")
     print(f"テンソル長: {encoded['input_ids'].shape[1]}")
@@ -134,6 +141,13 @@ def _(preprocess, sample_text, tokenizer):
         f"実トークン数（attention_mask の合計）: {encoded['attention_mask'].sum().item()}"
     )
     return (encoded,)
+
+
+@app.cell
+def _(encoded, vocab):
+    vocab_id_to_token = {v: k for k, v in vocab.items()}
+    print(f"token 逆エンコーディング結果: {[vocab_id_to_token[i] for i in encoded['input_ids'].tolist()[0]]}")
+    return
 
 
 @app.cell(hide_code=True)
@@ -244,8 +258,43 @@ def _(EVAL_DATA, evaluate, model, tokenizer):
     return
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ---
+
+    ## まとめ
+
+    ### 推論の3フェーズ（Sentiment Analysis with BERT）
+
+    | フェーズ | 内容 |
+    |---|---|
+    | **Preprocess** | 文章 → Tokenizer → `input_ids` + `attention_mask` |
+    | **Forward** | `model(input_ids, attention_mask)` → logits |
+    | **Postprocess** | `softmax(logits)` → `argmax` → ラベル名 |
+
+    ### 試してみよう
+
+    1. 自分で文章を作って `pipe(...)` に入れ、結果が直感に合うか確認してみよう
+    2. 評価結果で間違えたサンプルを観察し、確率分布（softmax 後）を見てモデルがどの程度迷っていたか確認してみよう
+    3. `max_length` や `padding` の設定を変えると `input_ids` がどう変わるか確認してみよう
+
+    ### Optional 課題：Recall / Precision を計算してみよう
+
+    Accuracy は「全体の正解率」しか見ていないため、クラスごとの偏りや誤りの傾向はわかりません。
+    クラスごとに **Precision（適合率）** と **Recall（再現率）** を計算してみよう。
+
+    - **Precision** = そのクラスと予測したもののうち、本当に正解だった割合
+        - `Precision_c = TP_c / (TP_c + FP_c)`
+    - **Recall** = 本当にそのクラスのもののうち、正しく予測できた割合
+        - `Recall_c = TP_c / (TP_c + FN_c)`
+
+    ヒント:
+
+    - `evaluate(...)` の戻り値 `results` から、各サンプルの「正解ラベル」と「予測ラベル」を取り出せる
+    - `Positive` / `Negative` / `Neutral` の3クラスそれぞれについて TP / FP / FN を数えてみよう
+    - `sklearn.metrics.classification_report` を使えば一発で出せるが、まずは手計算で意味を掴んでみよう
+    """)
     return
 
 

@@ -103,10 +103,15 @@ def _(mo):
 
 
 @app.cell
-def _(load_sample_audio, mo):
+def _(load_sample_audio):
     # サンプル音声をロード（JSUT 日本語データセット）
     audio_array, sampling_rate, reference_text = load_sample_audio(index=0)
+    audio_array
+    return audio_array, reference_text, sampling_rate
 
+
+@app.cell
+def _(audio_array, mo, reference_text, sampling_rate):
     mo.md(
         f"""
         音声の長さ: {len(audio_array) / sampling_rate:.1f} 秒\n
@@ -114,7 +119,7 @@ def _(load_sample_audio, mo):
         正解テキスト: {reference_text}
         """
     )
-    return audio_array, reference_text, sampling_rate
+    return
 
 
 @app.cell
@@ -256,20 +261,24 @@ def _(mo):
 
 
 @app.cell
-def _(MODEL_NAME, encode_audio, inputs, load_model):
+def _(MODEL_NAME, load_model):
     # モデルのロード
     model = load_model(MODEL_NAME)
     num_params = sum(p.numel() for p in model.parameters())
     print(f"モデルクラス: {type(model).__name__}")
     print(f"パラメータ数: {num_params:,}")
+    return (model,)
 
+
+@app.cell
+def _(encode_audio, inputs, model):
     # Encoder フェーズ
     print("\n--- Encoder ---")
     encoder_outputs = encode_audio(model, inputs["input_features"])
     hidden_states = encoder_outputs.last_hidden_state
     print(f"encoder hidden states shape: {tuple(hidden_states.shape)}")
     print(f"  → (batch_size=1, seq_len=1500, hidden_size={hidden_states.shape[-1]})")
-    return (model,)
+    return
 
 
 @app.cell
@@ -394,6 +403,7 @@ def _(
     extract_features,
     feature_extractor,
     generate_tokens,
+    mo,
     model,
     processor,
     resample_audio,
@@ -433,12 +443,18 @@ def _(
 
     results, avg_wer, avg_cer = evaluate_batch(eval_references, eval_hypotheses)
 
-    print(f"\n{'正解テキスト':<25} {'予測テキスト':<25} {'CER':>6}")
-    print("-" * 65)
-    for r in results:
-        print(f"{r['reference'][:22]:<22} {r['hypothesis'][:22]:<22} {r['cer']:.1%}")
-
-    print(f"\n平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）")
+    table_rows = "\n".join(
+        f"| {r['reference']} | {r['hypothesis']} | {r['cer']:.1%} |"
+        for r in results
+    )
+    eval_table = mo.md(
+        "### 評価結果\n\n"
+        "| 正解テキスト | 予測テキスト | CER |\n"
+        "|---|---|---:|\n"
+        f"{table_rows}\n\n"
+        f"**平均 CER: {avg_cer:.1%}（{NUM_EVAL_SAMPLES}件）**"
+    )
+    eval_table
     return
 
 
@@ -449,28 +465,20 @@ def _(mo):
 
     ## 発展課題
 
-    1. **モデルを変えてみよう**
-       - `openai/whisper-tiny` → より小さく速い
-       - `openai/whisper-medium` → より高精度
-       - CER の変化を比較してみよう
+    **1. 適切なCERが計算されるようにしてみよう**
+    - 今回、句読点を入れるかどうかが精度に影響している
+    - `src/evaluate.py` に `normalize_text()` を追加して、句読点（`、。・「」`）の除去・全角半角の統一を行い、正規化後の CER を再計算してみよう
+    - 素の出力と正規化後で CER がどれくらい変わるか比較する
 
-    2. **別の言語を試してみよう**
-       - `language="english"` で英語音声を認識
-       - `language=None` で自動言語検出
+    **2. 自分の声で推論してみよう**
+    - マイクで録音した wav ファイルを `librosa.load()` で読み込んで推論にかける
+    - データセット音声との CER の差を観察する（雑音・滑舌・方言などで結果がどう変わる？）
+    - ヒント: `librosa.load(path, sr=None)` で元のサンプリングレートのまま読み込み、`resample_audio()` で 16kHz に変換する
 
-    3. **長い音声を試してみよう**
-       - Whisper は最大 30秒の音声を1回で処理できる
-       - それより長い音声はどう処理する？
-
-    ---
-
-    ## 参考リンク
-
-    - [Automatic Speech Recognition - HuggingFace](https://huggingface.co/docs/transformers/ja/tasks/asr)
-    - [openai/whisper-small - HuggingFace](https://huggingface.co/openai/whisper-small)
-    - [WER の解説 - Hugging Face evaluate](https://huggingface.co/spaces/evaluate-metric/wer)
-    - [jiwer ドキュメント](https://jiwer.readthedocs.io/en/latest/)
-    - [Audio classification - HuggingFace](https://huggingface.co/docs/transformers/ja/tasks/audio_classification)
+    **3. モデルサイズ × 精度 × 推論時間のトレードオフを比較してみよう**
+    - `openai/whisper-tiny` / `whisper-base` / `whisper-small` / `whisper-medium` で CER と推論時間を測定する
+    - `time.perf_counter()` で `generate_tokens()` の実行時間を計測
+    - 結果を表にまとめて「精度 vs コスト」のトレードオフを可視化する
     """)
     return
 

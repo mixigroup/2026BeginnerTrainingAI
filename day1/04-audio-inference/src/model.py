@@ -15,7 +15,8 @@ def load_model(model_name: str) -> AutoModelForSpeechSeq2Seq:
     Returns:
         AutoModelForSpeechSeq2Seq インスタンス（eval モード）
     """
-    model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model = AutoModelForSpeechSeq2Seq.from_pretrained(model_name, device_map=device)
     model.eval()
     return model
 
@@ -38,7 +39,7 @@ def encode_audio(
         - last_hidden_state shape: (1, 1500, hidden_size)
     """
     with torch.no_grad():
-        encoder_outputs = model.get_encoder()(input_features)
+        encoder_outputs = model.get_encoder()(input_features.to(model.device))
     return encoder_outputs
 
 
@@ -63,9 +64,13 @@ def generate_tokens(
     # `language` は Whisper の forced_decoder_ids を通じて制御される。
     # transformers 4.x 以降では generate() に直接渡せる。
     # 指定しない場合は Whisper が自動で言語を検出する。
+    inputs_on_device = {
+        k: v.to(model.device) if isinstance(v, torch.Tensor) else v
+        for k, v in inputs.items()
+    }
     with torch.no_grad():
         predicted_ids = model.generate(
-            **inputs,
+            **inputs_on_device,
             language=language,
         )
     return predicted_ids

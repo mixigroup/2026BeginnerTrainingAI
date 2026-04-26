@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.21.1"
+__generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
@@ -299,7 +299,7 @@ def _(mo):
 
 
 @app.cell
-def _(Path, onnx_size_bytes, mo):
+def _(Path, mo, onnx_size_bytes):
     quant_entries = [
         ("sam-vit-b-encoder.onnx", "ONNX FP32"),
         ("sam-vit-b-encoder-quantized.onnx", "ONNX INT8"),
@@ -331,17 +331,6 @@ def _(Path, onnx_size_bytes, mo):
 def _(mo):
     mo.md(r"""
     ## Step 7: 量子化モデルの推論時間を比較する
-
-    `src/gradio-demo.py` の `MODEL_FILES` に量子化モデルも追加します。
-    コメントアウトを外してください。
-
-    ```python
-    MODEL_FILES = {
-        "PyTorch": None,
-        "ONNX FP32": "sam-vit-b-encoder.onnx",
-        "ONNX INT8": "sam-vit-b-encoder-quantized.onnx",  # コメントアウトを外す
-    }
-    ```
 
     ```bash
     uv run python src/gradio-demo.py
@@ -464,7 +453,7 @@ def _(mo):
 
 
 @app.cell
-def _(Path, onnx_size_bytes, mo):
+def _(Path, mo, onnx_size_bytes):
     all_entries = [
         ("sam-vit-b-encoder.onnx", "ONNX FP32"),
         ("sam-vit-b-encoder-quantized.onnx", "ONNX INT8"),
@@ -498,27 +487,14 @@ def _(mo):
     mo.md(r"""
     ## Step 9: プルーニング済みモデルの推論時間を比較する
 
-    `src/gradio-demo.py` の `MODEL_FILES` にプルーニング済みモデルも追加して推論時間を比較してみましょう。
-
-    ```python
-    MODEL_FILES = {
-        "PyTorch": None,
-        "ONNX FP32": "sam-vit-b-encoder.onnx",
-        "ONNX INT8": "sam-vit-b-encoder-quantized.onnx",
-        "Pruned ONNX": "sam-vit-b-encoder-pruned.onnx",  # コメントアウトを外す
-    }
-    ```
-
     ```bash
     uv run python src/gradio-demo.py
     ```
 
     > **注意:** Unstructured Pruning は重みをゼロにするだけで、テンソルの形状は変わりません。
-    > そのため、**スパース演算をサポートしないランタイム**（通常の ONNX Runtime CPU など）では
-    > 推論時間が大きく改善しない場合があります。
+    > そのため、**スパース演算をサポートしないランタイム**（通常の ONNX Runtime CPU など）では推論時間が大きく改善しない場合があります。
     >
-    > 実運用でスピードアップを狙う場合は、**Structured Pruning**（チャネルごと削除）や
-    > スパース対応のハードウェア・ランタイムの利用を検討してください。
+    > 実運用でスピードアップを狙う場合は、**Structured Pruning**（チャネルごと削除）やスパース対応のハードウェア・ランタイムの利用を検討してください。
     """)
     return
 

@@ -14,6 +14,7 @@ dependencies = [
     "requests>=2.31",
     "timm>=0.9",
     "pyzmq>=27.1.0",
+    "pycocotools>=2.0.7",
 ]
 
 [tool.uv]

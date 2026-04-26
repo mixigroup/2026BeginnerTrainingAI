@@ -47,12 +47,8 @@ def _():
 
     from src.dataset import get_iris_raw, load_iris_dataloaders
     from src.model import FCNet
-    from src.evaluate import (
-        train_model,
-        evaluate,
-        plot_learning_curves,
-        plot_confusion_matrix,
-    )
+    from src.evaluate import evaluate, plot_confusion_matrix
+    from src.train import train_model, plot_learning_curves
 
     return (
         FCNet,
@@ -74,7 +70,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    ## Step 1: データ確認（EDA）
+    ## Step 1: 探索的データ解析（EDA: Exploratory Data Analysis）
 
     Iris データセットの基本情報を確認します。
     """)
@@ -254,10 +250,8 @@ def _(
     train_model,
     val_loader,
 ):
-    import torch.optim as optim
-
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -330,7 +324,7 @@ def _(class_names_loader, device, model, plot_confusion_matrix, test_loader):
 
 
 @app.cell(hide_code=True)
-def _(lit_test_acc, mo, test_acc):
+def _(mo, test_acc):
     mo.md(f"""
     ---
 
@@ -340,8 +334,7 @@ def _(lit_test_acc, mo, test_acc):
 
     | 手法 | Test Accuracy |
     |---|---|
-    | PyTorch（手動ループ） | **{test_acc * 100:.1f}%** |
-    | PyTorch Lightning | **{lit_test_acc * 100:.1f}%** |
+    | PyTorch | **{test_acc * 100:.1f}%** |
 
     同じモデル・同じデータで学習しているため精度はほぼ同じです。
     Lightning は「実装コスト」を下げるための抽象化であり、精度は変わりません。

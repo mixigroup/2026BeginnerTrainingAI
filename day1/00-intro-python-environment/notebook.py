@@ -467,7 +467,7 @@ def _():
 
     # Run shell command and capture output
     result_cmd = subprocess.run(
-        ["pip", "list"],
+        ["ls"],
         capture_output=True,
         text=True,
     )
