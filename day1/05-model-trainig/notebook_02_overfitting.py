@@ -79,7 +79,6 @@ def _(mo):
     ## Step 1: 過学習を意図的に起こす
 
     ### 戦略
-
     - **エポック増加**: 300 エポック学習
     - **モデル肥大化**: 例：Iris には不釣り合いな大型ネットワーク（512×3層）
     → train_loss はほぼ 0 になるが、val_loss は悪化する（過学習）
@@ -117,14 +116,22 @@ def _(load_iris_dataloaders, mo):
 
 
 @app.cell
-def _(FCNet, nn, optim, torch, train_loader_ov, train_model, val_loader_ov):
+def _(
+    OversizedFCNet,
+    nn,
+    optim,
+    torch,
+    train_loader_ov,
+    train_model,
+    val_loader_ov,
+):
     EPOCHS_OV = 300  # Many epochs
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model_ov = FCNet(input_dim=4, num_classes=3)
+    model_ov = OversizedFCNet(input_dim=4, num_classes=3)
     criterion_ov = nn.CrossEntropyLoss()
-    optimizer_ov = optim.Adam(model_ov.parameters(), lr=0.01)
+    optimizer_ov = optim.Adam(model_ov.parameters(), lr=0.001)
 
     print(f"Trainable parameters: {sum(p.numel() for p in model_ov.parameters()):,}")
     print("Training oversized model (no early stopping)...")
@@ -218,7 +225,7 @@ def _(
     train_model,
     val_loader_ov,
 ):
-    PATIENCE = 30  # Edit: early stopping patience
+    PATIENCE = 10  # Edit: early stopping patience
 
     model_es = OversizedFCNet(input_dim=4, num_classes=3)
     criterion_es = nn.CrossEntropyLoss()
@@ -232,7 +239,7 @@ def _(
         val_loader=val_loader_ov,
         criterion=criterion_es,
         optimizer=optimizer_es,
-        epochs=300,
+        epochs=500,
         device=device,
         early_stopping_patience=PATIENCE,
         verbose=True,
@@ -310,7 +317,7 @@ def _(mo):
 @app.cell
 def _(FCNet, device, nn, optim, train_loader_ov, train_model, val_loader_ov):
     # Regularized model: smaller FC net + dropout + weight decay
-    DROPOUT = 0.4  # Edit: dropout probability
+    DROPOUT = 0.5  # Edit: dropout probability
     WD = 1e-3  # Edit: weight decay (L2 regularization strength)
 
     model_reg = FCNet(
