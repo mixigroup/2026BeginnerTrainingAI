@@ -127,7 +127,7 @@ def _(MODEL_NAME, load_tokenizer):
 @app.cell
 def _(tokenizer):
     vocab = tokenizer.get_vocab()
-    print(f"語彙辞書：{list(vocab.items())[:10]} ...") 
+    print(f"語彙辞書：{list(vocab.items())[:10]} ...")
     return (vocab,)
 
 
@@ -146,7 +146,9 @@ def _(preprocess, sample_text, tokenizer):
 @app.cell
 def _(encoded, vocab):
     vocab_id_to_token = {v: k for k, v in vocab.items()}
-    print(f"token 逆エンコーディング結果: {[vocab_id_to_token[i] for i in encoded['input_ids'].tolist()[0]]}")
+    print(
+        f"token 逆エンコーディング結果: {[vocab_id_to_token[i] for i in encoded['input_ids'].tolist()[0]]}"
+    )
     return
 
 

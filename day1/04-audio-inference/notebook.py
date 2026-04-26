@@ -444,8 +444,7 @@ def _(
     results, avg_wer, avg_cer = evaluate_batch(eval_references, eval_hypotheses)
 
     table_rows = "\n".join(
-        f"| {r['reference']} | {r['hypothesis']} | {r['cer']:.1%} |"
-        for r in results
+        f"| {r['reference']} | {r['hypothesis']} | {r['cer']:.1%} |" for r in results
     )
     eval_table = mo.md(
         "### 評価結果\n\n"
