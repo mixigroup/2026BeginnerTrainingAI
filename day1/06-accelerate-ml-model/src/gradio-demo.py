@@ -17,7 +17,7 @@ from transformers import SamModel, SamProcessor
 # --- モデル設定 ---
 MODEL_ID = "facebook/sam-vit-base"
 
-# 使用する Encoder バリアント（コメントアウトを外して追加）
+# 使用する Encoder バリアント
 MODEL_FILES: dict[str, str | None] = {
     "PyTorch": None,  # PyTorch の vision_encoder を直接使用
     "ONNX FP32": "sam-vit-b-encoder.onnx",

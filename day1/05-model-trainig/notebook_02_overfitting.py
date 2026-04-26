@@ -50,8 +50,8 @@ def _():
 
     from src.dataset import load_iris_dataloaders
     from src.model import OversizedFCNet, FCNet
-    from src.evaluate import (
-        evaluate,
+    from src.evaluate import evaluate
+    from src.train import (
         train_model,
         plot_learning_curves,
         compare_learning_curves,
@@ -79,26 +79,25 @@ def _(mo):
     ## Step 1: 過学習を意図的に起こす
 
     ### 戦略
-    - **データ削減**: 学習データを 30 サンプルに限定
-    - **モデル肥大化**: Iris には不釣り合いな大型ネットワーク（512×3層）
-    - **エポック増加**: 300 エポック学習
 
+    - **エポック増加**: 300 エポック学習
+    - **モデル肥大化**: 例：Iris には不釣り合いな大型ネットワーク（512×3層）
     → train_loss はほぼ 0 になるが、val_loss は悪化する（過学習）
+
+    ### 他の戦略
+    - **データ削減**: 例：学習データを30に制限
+    - **学習率を上げる**: 例: 0.1くらいに設定
     """)
     return
 
 
 @app.cell
 def _(load_iris_dataloaders, mo):
-    # Small dataset for overfitting demo
-    SUBSET_SIZE = 30  # Only 30 training samples
-
     train_loader_ov, val_loader_ov, test_loader_ov, class_names = load_iris_dataloaders(
         batch_size=16,
         val_ratio=0.2,
         test_ratio=0.2,
         random_state=42,
-        subset_size=SUBSET_SIZE,
     )
 
     n_train_ov = len(train_loader_ov.dataset)
@@ -110,32 +109,22 @@ def _(load_iris_dataloaders, mo):
 
         | セット | サンプル数 |
         |---|---|
-        | Train  | **{n_train_ov}** （削減済み） |
+        | Train  | **{n_train_ov}** |
         | Valid  | **{n_val_ov}** |
-
-        30 サンプルはかなり少ない → 過学習しやすい設定です。
         """
     )
     return test_loader_ov, train_loader_ov, val_loader_ov
 
 
 @app.cell
-def _(
-    OversizedFCNet,
-    nn,
-    optim,
-    torch,
-    train_loader_ov,
-    train_model,
-    val_loader_ov,
-):
+def _(FCNet, nn, optim, torch, train_loader_ov, train_model, val_loader_ov):
     EPOCHS_OV = 300  # Many epochs
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model_ov = OversizedFCNet(input_dim=4, num_classes=3)
+    model_ov = FCNet(input_dim=4, num_classes=3)
     criterion_ov = nn.CrossEntropyLoss()
-    optimizer_ov = optim.Adam(model_ov.parameters(), lr=0.001)
+    optimizer_ov = optim.Adam(model_ov.parameters(), lr=0.01)
 
     print(f"Trainable parameters: {sum(p.numel() for p in model_ov.parameters()):,}")
     print("Training oversized model (no early stopping)...")
@@ -151,7 +140,7 @@ def _(
         verbose=True,
         verbose_interval=50,
     )
-    return criterion_ov, device, history_ov, model_ov
+    return EPOCHS_OV, criterion_ov, device, history_ov, model_ov
 
 
 @app.cell(hide_code=True)
@@ -176,7 +165,7 @@ def _(history_ov, plot_learning_curves):
 
 
 @app.cell
-def _(criterion_ov, device, evaluate, mo, model_ov, test_loader_ov):
+def _(EPOCHS_OV, criterion_ov, device, evaluate, mo, model_ov, test_loader_ov):
     test_loss_ov, test_acc_ov = evaluate(model_ov, test_loader_ov, criterion_ov, device)
 
     mo.md(
@@ -187,9 +176,10 @@ def _(criterion_ov, device, evaluate, mo, model_ov, test_loader_ov):
         |---|---|
         | Test Loss | **{test_loss_ov:.4f}** |
         | Test Accuracy | **{test_acc_ov:.2%}** |
-        | 学習エポック数 | **300** |
+        | 学習エポック数 | **{EPOCHS_OV}** |
 
-        過学習しているため、テスト精度が低い可能性があります。
+        Iris のような単純な分類タスクでは、過学習していても Test Accuracy は高く出やすいです。
+        過学習の影響は **Test Loss**（モデルの自信度の指標）の方に現れるので、各手法の比較は Loss 軸で行いましょう。
         """
     )
     return test_acc_ov, test_loss_ov
@@ -228,7 +218,7 @@ def _(
     train_model,
     val_loader_ov,
 ):
-    PATIENCE = 20  # Edit: early stopping patience
+    PATIENCE = 30  # Edit: early stopping patience
 
     model_es = OversizedFCNet(input_dim=4, num_classes=3)
     criterion_es = nn.CrossEntropyLoss()

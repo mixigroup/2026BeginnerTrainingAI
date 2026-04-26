@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.4"
+__generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
@@ -21,16 +21,17 @@ def _():
 
     from src.dataset import load_cifar10_dataloaders
     from src.model import ResNet18TransferModel
-    from src.evaluate import (
+    from src.evaluate import evaluate, plot_confusion_matrix
+    from src.train import (
         train_model,
         plot_learning_curves,
         compare_learning_curves,
-        plot_confusion_matrix,
     )
 
     return (
         ResNet18TransferModel,
         compare_learning_curves,
+        evaluate,
         load_cifar10_dataloaders,
         nn,
         np,
@@ -402,6 +403,23 @@ def _(compare_learning_curves, history_ft, history_head):
 def _(compare_learning_curves, histories_compare):
     fig_cmp_loss = compare_learning_curves(histories_compare, metric="val_loss")
     fig_cmp_loss
+    return
+
+
+@app.cell
+def _(criterion, device, evaluate, mo, model, test_loader):
+    test_loss, test_acc = evaluate(model, test_loader, criterion, device)
+
+    mo.md(
+        f"""
+        ### Fine-tuning 後のテスト精度
+
+        | 指標 | 値 |
+        |---|---|
+        | Test Loss | **{test_loss:.4f}** |
+        | Test Accuracy | **{test_acc:.4f}** （{test_acc * 100:.2f}%） |
+        """
+    )
     return
 
 
