@@ -202,12 +202,11 @@ def _(calc_agent, mo):
 
     llama-index の ReActAgent が内部で使用しているプロンプトを確認できます。
 
-    ```
-    {system_prompt[:800] if system_prompt else "No system prompt found"}
-    ...
-    ```
-
     このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。
+
+    ```
+    {system_prompt if system_prompt else "No system prompt found"}
+    ```
     """)
     return
 
