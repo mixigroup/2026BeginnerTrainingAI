@@ -75,13 +75,35 @@ async def section1_calculator_agent(llm):
     multiply_tool = FunctionTool.from_defaults(fn=multiply)
     add_tool = FunctionTool.from_defaults(fn=add)
 
-    calc_agent = ReActAgent(tools=[multiply_tool, add_tool], llm=llm, verbose=True)
+    calc_agent = ReActAgent(tools=[multiply_tool, add_tool], llm=llm, verbose=False)
 
     print("計算クエリ: What is 20+(2*4)? Calculate step by step\n")
-    calc_response = await calc_agent.run("What is 20+(2*4)? Calculate step by step")
+    print("-" * 70)
+    print("ReAct Agent の推論過程:")
+    print("-" * 70)
+
+    handler = calc_agent.run("What is 20+(2*4)? Calculate step by step")
+
+    # Stream events to show Thought/Action/Observation
+    step_num = 1
+    async for event in handler.stream_events():
+        # Show LLM response (Thought + Action)
+        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+            content = event.response.content
+            if content and ('Thought:' in content or 'Action:' in content or 'Answer:' in content):
+                print(f"\n--- Step {step_num} ---")
+                print(content)
+
+        # Show tool execution result (Observation)
+        if hasattr(event, 'tool_output'):
+            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+            print(f"Observation: {result}")
+            step_num += 1
+
+    calc_response = await handler
 
     print("\n" + "-" * 70)
-    print("計算結果:")
+    print("最終回答:")
     print(calc_response.response.content)
     print("-" * 70)
 
@@ -181,18 +203,39 @@ async def section2_rag_agent(llm, embed_model):
         ),
     ]
 
-    rag_agent = ReActAgent(tools=query_engine_tools, llm=llm, verbose=True)
+    rag_agent = ReActAgent(tools=query_engine_tools, llm=llm, verbose=False)
 
     # Query 1: Lyft's revenue growth
     print("\n" + "-" * 70)
     print("Query 1: Lyft の売上成長率")
     print("-" * 70)
-    print("Query: What was Lyft's revenue growth in 2021?\n")
+    query1 = "What was Lyft's revenue growth in 2021?"
+    print(f"Query: {query1}\n")
+    print("-" * 70)
+    print("ReAct Agent の推論過程:")
+    print("-" * 70)
 
-    rag_response1 = await rag_agent.run("What was Lyft's revenue growth in 2021?")
+    handler1 = rag_agent.run(query1)
+    step_num = 1
+
+    async for event in handler1.stream_events():
+        # Show LLM response (Thought + Action)
+        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+            content = event.response.content
+            if content and ('Thought:' in content or 'Answer:' in content):
+                print(f"\n--- Step {step_num} ---")
+                print(content)
+
+        # Show tool execution result (Observation)
+        if hasattr(event, 'tool_output'):
+            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+            print(f"Observation: {result}")
+            step_num += 1
+
+    rag_response1 = await handler1
 
     print("\n" + "-" * 70)
-    print("Response:")
+    print("最終回答:")
     print(rag_response1.response.content)
     print("-" * 70)
 
@@ -200,14 +243,33 @@ async def section2_rag_agent(llm, embed_model):
     print("\n" + "-" * 70)
     print("Query 2: Uber vs Lyft 比較分析")
     print("-" * 70)
-    print("Query: Compare and contrast the revenue growth of Uber and Lyft in 2021\n")
+    query2 = "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
+    print(f"Query: {query2}\n")
+    print("-" * 70)
+    print("ReAct Agent の推論過程:")
+    print("-" * 70)
 
-    rag_response2 = await rag_agent.run(
-        "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
-    )
+    handler2 = rag_agent.run(query2)
+    step_num = 1
+
+    async for event in handler2.stream_events():
+        # Show LLM response (Thought + Action)
+        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+            content = event.response.content
+            if content and ('Thought:' in content or 'Answer:' in content):
+                print(f"\n--- Step {step_num} ---")
+                print(content)
+
+        # Show tool execution result (Observation)
+        if hasattr(event, 'tool_output'):
+            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+            print(f"Observation: {result}")
+            step_num += 1
+
+    rag_response2 = await handler2
 
     print("\n" + "-" * 70)
-    print("Response:")
+    print("最終回答:")
     print(rag_response2.response.content)
     print("-" * 70)
 

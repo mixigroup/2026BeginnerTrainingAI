@@ -168,20 +168,44 @@ def _():
 def _(add_tool, llm, multiply_tool):
     from llama_index.core.agent.workflow import ReActAgent
 
-    calc_agent = ReActAgent(tools=[multiply_tool, add_tool], llm=llm, verbose=True)
+    calc_agent = ReActAgent(tools=[multiply_tool, add_tool], llm=llm, verbose=False)
     return (calc_agent,)
 
 
 @app.cell
 async def _(calc_agent, mo):
-    calc_response = await calc_agent.run("What is 20+(2*4)? Calculate step by step")
+    _query = "What is 20+(2*4)? Calculate step by step"
+    _handler = calc_agent.run(_query)
+
+    # Collect ReAct reasoning steps
+    _steps = []
+    _step_num = 1
+
+    async for _event in _handler.stream_events():
+        # Capture LLM response (Thought + Action)
+        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+            _content = _event.response.content
+            if _content and ('Thought:' in _content or 'Answer:' in _content):
+                _steps.append(f"**Step {_step_num}:**\n```\n{_content}\n```")
+
+        # Capture tool execution result (Observation)
+        if hasattr(_event, 'tool_output'):
+            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+            _steps.append(f"```\nObservation: {_result}\n```")
+            _step_num += 1
+
+    calc_response = await _handler
 
     mo.md(f"""
     ### 計算結果
 
-    **Query:** "What is 20+(2*4)? Calculate step by step"
+    **Query:** "{_query}"
 
-    **Response:**
+    #### ReAct Agent の推論過程
+
+    {chr(10).join(_steps)}
+
+    #### 最終回答
 
     {calc_response.response.content}
     """)
@@ -373,20 +397,44 @@ def _(lyft_index, mo, uber_index):
 def _(llm, query_engine_tools):
     from llama_index.core.agent.workflow import ReActAgent as ReActAgent2
 
-    rag_agent = ReActAgent2(tools=query_engine_tools, llm=llm, verbose=True)
+    rag_agent = ReActAgent2(tools=query_engine_tools, llm=llm, verbose=False)
     return (rag_agent,)
 
 
 @app.cell
 async def _(mo, rag_agent):
-    rag_response1 = await rag_agent.run("What was Lyft's revenue growth in 2021?")
+    _query1 = "What was Lyft's revenue growth in 2021?"
+    _handler1 = rag_agent.run(_query1)
+
+    # Collect ReAct reasoning steps
+    _steps1 = []
+    _step_num1 = 1
+
+    async for _event in _handler1.stream_events():
+        # Capture LLM response (Thought + Action)
+        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+            _content = _event.response.content
+            if _content and ('Thought:' in _content or 'Answer:' in _content):
+                _steps1.append(f"**Step {_step_num1}:**\n```\n{_content}\n```")
+
+        # Capture tool execution result (Observation)
+        if hasattr(_event, 'tool_output'):
+            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+            _steps1.append(f"```\nObservation: {_result}\n```")
+            _step_num1 += 1
+
+    rag_response1 = await _handler1
 
     mo.md(f"""
     ### Query 1: Lyft の売上成長率
 
-    **Query:** "What was Lyft's revenue growth in 2021?"
+    **Query:** "{_query1}"
 
-    **Response:**
+    #### ReAct Agent の推論過程
+
+    {chr(10).join(_steps1)}
+
+    #### 最終回答
 
     {rag_response1.response.content}
     """)
@@ -395,16 +443,38 @@ async def _(mo, rag_agent):
 
 @app.cell
 async def _(mo, rag_agent):
-    rag_response2 = await rag_agent.run(
-        "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
-    )
+    _query2 = "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
+    _handler2 = rag_agent.run(_query2)
+
+    # Collect ReAct reasoning steps
+    _steps2 = []
+    _step_num2 = 1
+
+    async for _event in _handler2.stream_events():
+        # Capture LLM response (Thought + Action)
+        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+            _content = _event.response.content
+            if _content and ('Thought:' in _content or 'Answer:' in _content):
+                _steps2.append(f"**Step {_step_num2}:**\n```\n{_content}\n```")
+
+        # Capture tool execution result (Observation)
+        if hasattr(_event, 'tool_output'):
+            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+            _steps2.append(f"```\nObservation: {_result}\n```")
+            _step_num2 += 1
+
+    rag_response2 = await _handler2
 
     mo.md(f"""
     ### Query 2: Uber vs Lyft 比較分析
 
-    **Query:** "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
+    **Query:** "{_query2}"
 
-    **Response:**
+    #### ReAct Agent の推論過程
+
+    {chr(10).join(_steps2)}
+
+    #### 最終回答
 
     {rag_response2.response.content}
     """)
