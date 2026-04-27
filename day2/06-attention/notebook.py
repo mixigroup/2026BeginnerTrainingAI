@@ -85,10 +85,10 @@ def _(mo):
 
 @app.cell
 def _():
-    import matplotlib
     import matplotlib.pyplot as plt
     import numpy as np
     import seaborn as sns
+    import japanize_matplotlib  # noqa: F401
     from src.attention_utils import (
         compute_attention_weights,
         compute_context_vector,
@@ -100,13 +100,6 @@ def _():
         plot_attention_summary,
         plot_cls_attention,
     )
-
-    matplotlib.rcParams["font.family"] = "sans-serif"
-    matplotlib.rcParams["font.sans-serif"] = [
-        "Hiragino Sans",
-        "Hiragino Kaku Gothic ProN",
-        "sans-serif",
-    ]
 
     return (
         plt,
