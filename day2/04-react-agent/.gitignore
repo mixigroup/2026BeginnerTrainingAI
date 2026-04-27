@@ -1,0 +1,7 @@
+# Data files
+data/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
