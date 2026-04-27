@@ -7,8 +7,15 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
+[options]
+exclude-newer = "2026-04-24T16:42:20.344821834Z"
+exclude-newer-span = "P3D"
+
+[options.exclude-newer-package]
+marimo = false
+
 [[package]]
-name = "04-react-agent"
+name = "05-react-agent"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

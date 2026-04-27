@@ -6,7 +6,7 @@
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/01-multi-modal",
+            "path": "day2/01-attention",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -16,7 +16,7 @@
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/02-llm-api",
+            "path": "day2/02-multi-modal",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -26,7 +26,7 @@
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/03-llm-tool",
+            "path": "day2/03-llm-api",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -41,12 +41,7 @@
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/04-react-agent",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
-            "path": "day2/05-coding-agent",
+            "path": "day2/04-llm-tool",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -56,7 +51,17 @@
             "packageManager": "ms-python.python:pip"
         },
         {
+            "path": "day2/05-react-agent",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
             "path": "day1/06-accelerate-ml-model",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/06-own_agent",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },

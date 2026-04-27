@@ -1,4 +1,4 @@
-# 03. Function Calling
+# 04. Function Calling
 
 LLM がツールを呼び出す仕組みを体験する。フレームワークを使わずに while 文でツール呼び出しのループを自作する。
 
@@ -20,7 +20,7 @@ LLM がツールを呼び出す仕組みを体験する。フレームワーク�
 ## ディレクトリ構造
 
 ```
-03-llm-tool/
+04-llm-tool/
 ├── notebook.py         # marimo ノートブック（インタラクティブ版）
 ├── pyproject.toml      # 依存パッケージ定義
 └── README.md

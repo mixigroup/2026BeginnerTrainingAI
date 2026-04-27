@@ -1,11 +1,11 @@
 [project]
-name = "01-multi-modal"
+name = "02-multi-modal"
 version = "0.1.0"
 description = "SigLIP2 マルチモーダルハンズオン - テキストと画像のベクトル空間理解"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.23.2",
+    "marimo==0.23.2",
     "pyzmq>=27.1.0",
     "transformers>=4.48",
     "torch>=2.0,<2.8",
@@ -22,3 +22,5 @@ dependencies = [
 
 [tool.uv]
 exclude-newer = "3 days"
+# VSCode の Marimo 拡張が常に最新バージョンを要求するため exclude-newer の対象から除外
+exclude-newer-package = { marimo = false }

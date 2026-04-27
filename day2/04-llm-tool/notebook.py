@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.23.1"
+__generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
@@ -84,7 +84,7 @@ def _():
         location="global",
     )
     MODEL_NAME = "gemini-3-flash-preview"
-    return (MODEL_NAME, client, genai, types)
+    return MODEL_NAME, client, types
 
 
 @app.cell(hide_code=True)
@@ -155,7 +155,7 @@ def _(mo):
     # → {get_weather("大阪")}
     ```
     """)
-    return (get_current_location, get_weather)
+    return get_current_location, get_weather
 
 
 @app.cell(hide_code=True)

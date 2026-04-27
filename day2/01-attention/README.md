@@ -1,4 +1,4 @@
-# 06. Attention メカニズムの可視化 — Word2Vec と BERT で理解する Attention
+# 01. Attention メカニズムの可視化 — Word2Vec と BERT で理解する Attention
 
 Attention メカニズムの数学的原理を Word2Vec で体験し、BERT の Multi-Head Self-Attention を可視化することで、Transformer の中核技術を理解する。
 
@@ -13,7 +13,7 @@ Attention メカニズムの数学的原理を Word2Vec で体験し、BERT の 
 ## ディレクトリ構成
 
 ```
-06-attention/
+01-attention/
 ├── notebook.py          # Marimo ノートブック（メインのハンズオン教材）
 ├── pyproject.toml       # プロジェクト設定・依存パッケージ
 ├── README.md            # この文書
@@ -26,7 +26,7 @@ Attention メカニズムの数学的原理を Word2Vec で体験し、BERT の 
 ## セットアップ
 
 ```bash
-cd day2/06-attention
+cd day2/01-attention
 uv sync
 ```
 

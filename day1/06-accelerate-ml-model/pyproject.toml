@@ -29,3 +29,5 @@ explicit = true
 
 [tool.uv]
 exclude-newer = "3 days"
+# VSCode の Marimo 拡張が常に最新バージョンを要求するため exclude-newer の対象から除外
+exclude-newer-package = { marimo = false }

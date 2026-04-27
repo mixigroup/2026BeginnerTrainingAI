@@ -1,5 +1,5 @@
 [project]
-name = "07-own_agent"
+name = "06-own_agent"
 version = "0.1.0"
 description = "カスタマイズ用プロダクション品質ベースライン ReAct エージェント"
 readme = "README.md"
@@ -15,3 +15,6 @@ dependencies = [
 dev = [
     "ruff>=0.8.0",
 ]
+
+[tool.uv]
+exclude-newer = "3 days"

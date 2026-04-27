@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        "marimo-team.vscode-marimo",
+        "ms-toolsai.tensorboard"
+    ]
+}

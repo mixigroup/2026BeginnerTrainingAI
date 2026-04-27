@@ -1,11 +1,11 @@
 [project]
-name = "06-attention"
+name = "01-attention"
 version = "0.1.0"
 description = "Attention メカニズムの可視化ハンズオン - Word2Vec と BERT で Attention の仕組みを理解"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "marimo>=0.23.2",
+    "marimo>=0.23.3",
     "pyzmq>=27.1.0",
     "transformers>=4.48",
     "torch>=2.0,<2.8",
@@ -20,3 +20,5 @@ dependencies = [
 
 [tool.uv]
 exclude-newer = "3 days"
+# VSCode の Marimo 拡張が常に最新バージョンを要求するため exclude-newer の対象から除外
+exclude-newer-package = { marimo = false }
