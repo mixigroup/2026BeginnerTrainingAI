@@ -82,7 +82,6 @@ def _():
     import japanize_matplotlib  # noqa: F401
     from src.attention_utils import (
         compute_attention_weights,
-        compute_context_vector,
         get_bert_attentions,
         load_bert_japanese,
         plot_attention_barplot,
