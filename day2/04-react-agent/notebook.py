@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.2"
+__generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
@@ -110,7 +110,7 @@ def _():
     from llama_index.llms.gemini import Gemini
     from llama_index.embeddings.gemini import GeminiEmbedding
 
-    return Gemini, GeminiEmbedding, Settings, nest_asyncio
+    return Gemini, GeminiEmbedding, Settings
 
 
 @app.cell
@@ -134,8 +134,7 @@ def _(Gemini, GeminiEmbedding, Settings):
     Settings.llm = llm
     Settings.embed_model = embed_model
     Settings.chunk_size = 512
-
-    return embed_model, llm
+    return (llm,)
 
 
 @app.cell(hide_code=True)
@@ -162,8 +161,7 @@ def _():
 
     multiply_tool = FunctionTool.from_defaults(fn=multiply)
     add_tool = FunctionTool.from_defaults(fn=add)
-
-    return FunctionTool, add, add_tool, multiply, multiply_tool
+    return add_tool, multiply_tool
 
 
 @app.cell
@@ -171,8 +169,7 @@ def _(add_tool, llm, multiply_tool):
     from llama_index.core.agent import ReActAgent
 
     calc_agent = ReActAgent.from_tools([multiply_tool, add_tool], llm=llm, verbose=True)
-
-    return ReActAgent, calc_agent
+    return (calc_agent,)
 
 
 @app.cell
@@ -188,7 +185,7 @@ def _(calc_agent, mo):
 
     {calc_response.response}
     """)
-    return (calc_response,)
+    return
 
 
 @app.cell
@@ -213,7 +210,7 @@ def _(calc_agent, mo):
 
     このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。
     """)
-    return prompt_dict, system_prompt
+    return
 
 
 @app.cell(hide_code=True)
@@ -257,7 +254,7 @@ def _(mo):
 
     Uber/Lyft 2021 年 10K 決算書（PDF）をダウンロードしました。
     """)
-    return files_to_download, filepath, os, url, urllib
+    return
 
 
 @app.cell
@@ -274,15 +271,7 @@ def _():
     # Build indexes (this may take a while on first run)
     lyft_index = VectorStoreIndex.from_documents(lyft_docs)
     uber_index = VectorStoreIndex.from_documents(uber_docs)
-
-    return (
-        SimpleDirectoryReader,
-        VectorStoreIndex,
-        lyft_docs,
-        lyft_index,
-        uber_docs,
-        uber_index,
-    )
+    return lyft_index, uber_index
 
 
 @app.cell
@@ -319,7 +308,7 @@ def _(lyft_index, mo, uber_index):
 
     各ツールは VectorStoreIndex をベースにした QueryEngine を持ち、similarity_top_k=3 で関連文書を検索します。
     """)
-    return QueryEngineTool, ToolMetadata, lyft_engine, query_engine_tools, uber_engine
+    return (query_engine_tools,)
 
 
 @app.cell
@@ -327,8 +316,7 @@ def _(llm, query_engine_tools):
     from llama_index.core.agent import ReActAgent as ReActAgent2
 
     rag_agent = ReActAgent2.from_tools(query_engine_tools, llm=llm, verbose=True)
-
-    return ReActAgent2, rag_agent
+    return (rag_agent,)
 
 
 @app.cell
@@ -344,7 +332,7 @@ def _(mo, rag_agent):
 
     {rag_response1.response}
     """)
-    return (rag_response1,)
+    return
 
 
 @app.cell
@@ -362,7 +350,7 @@ def _(mo, rag_agent):
 
     {rag_response2.response}
     """)
-    return (rag_response2,)
+    return
 
 
 @app.cell(hide_code=True)
