@@ -2,6 +2,7 @@
 
 実行方法: uv run main.py
 """
+# ruff: noqa: E402
 
 from __future__ import annotations
 
@@ -11,8 +12,8 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-from src.agent import create_agent, create_llm  # noqa: E402
-from src.tools import get_tools  # noqa: E402
+from src.agent import create_agent, create_llm
+from src.tools import get_tools
 
 
 async def main() -> None:

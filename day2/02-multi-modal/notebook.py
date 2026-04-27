@@ -133,15 +133,13 @@ def _(MODEL_NAME, load_siglip_model, mo):
     model, processor = load_siglip_model(MODEL_NAME)
 
     n_params = sum(p.numel() for p in model.parameters())
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ モデルロード完了
 
     - パラメータ数: **{n_params / 1e6:.1f}M**
     - 画像埋め込み次元: **{model.config.vision_config.hidden_size}**
     - テキスト埋め込み次元: **{model.config.text_config.hidden_size}**
-    """)
-    )
+    """))
     return model, processor
 
 
@@ -180,14 +178,12 @@ def _(N_SAMPLES, mo):
     xm_dataset = load_dataset("floschne/xm3600", split="ja")
     xm_dataset = xm_dataset.select(range(min(N_SAMPLES, len(xm_dataset))))
 
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ データセットロード完了
 
     - サンプル数: **{len(xm_dataset)}**
     - カラム: `{list(xm_dataset.column_names)}`
-    """)
-    )
+    """))
     return (xm_dataset,)
 
 
@@ -258,12 +254,10 @@ def _(xm_dataset, decode_image, np, plt, mo):
 
     mo.output.append(mo.md("#### 画像サイズの分布"))
     mo.output.append(mo.as_html(fig_eda))
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     - 幅: 最小 {min(widths)}px, 最大 {max(widths)}px, 平均 {np.mean(widths):.0f}px
     - 高さ: 最小 {min(heights)}px, 最大 {max(heights)}px, 平均 {np.mean(heights):.0f}px
-    """)
-    )
+    """))
     return
 
 
@@ -300,23 +294,19 @@ def _(xm_dataset, np, plt, mo):
 
     mo.output.append(mo.md("#### キャプションの特徴"))
     mo.output.append(mo.as_html(fig_txt))
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     - 文字数: 最小 {min(caption_lengths)}, 最大 {max(caption_lengths)}, 平均 {np.mean(caption_lengths):.1f}
     - 1画像あたりのキャプション数: 最小 {min(n_captions_per_sample)}, 最大 {max(n_captions_per_sample)}
-    """)
-    )
+    """))
 
     # 最短・最長キャプションの表示
     shortest_idx = int(np.argmin(caption_lengths))
     longest_idx = int(np.argmax(caption_lengths))
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     **最短キャプション** (#{shortest_idx}, {caption_lengths[shortest_idx]}文字): {captions_all[shortest_idx]}
 
     **最長キャプション** (#{longest_idx}, {caption_lengths[longest_idx]}文字): {captions_all[longest_idx]}
-    """)
-    )
+    """))
     return
 
 
@@ -346,16 +336,14 @@ def _(
     xm_img_emb = encode_images(model, processor, xm_images, DEVICE)
     xm_txt_emb = encode_texts(model, processor, xm_texts, DEVICE)
 
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ エンコード完了
 
     - 画像埋め込み: `{xm_img_emb.shape}` （{xm_img_emb.shape[0]}枚 × {xm_img_emb.shape[1]}次元）
     - テキスト埋め込み: `{xm_txt_emb.shape}` （{xm_txt_emb.shape[0]}文 × {xm_txt_emb.shape[1]}次元）
 
     どちらも **同じ {xm_img_emb.shape[1]} 次元空間** に埋め込まれている！
-    """)
-    )
+    """))
     return xm_images, xm_texts, xm_img_emb, xm_txt_emb
 
 
@@ -612,16 +600,14 @@ def _(
     )
     writer.close()
 
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ TensorBoardX エクスポート完了
 
     - 出力先: `{log_dir}/`
     - 画像埋め込み: {len(xm_images)} 件
     - テキスト埋め込み: {len(xm_texts)} 件
     - 合計: {len(xm_images) + len(xm_texts)} 点
-    """)
-    )
+    """))
     return
 
 

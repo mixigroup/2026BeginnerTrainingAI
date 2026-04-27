@@ -130,14 +130,12 @@ def _(mo):
     mo.output.append(mo.md("Word2Vec モデルをロード中... (初回は ~1.6GB ダウンロード)"))
     w2v_model = api.load("word2vec-google-news-300")
 
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ Word2Vec ロード完了
 
     - 語彙数: **{len(w2v_model):,}** 語
     - ベクトル次元: **{w2v_model.vector_size}**
-    """)
-    )
+    """))
     return (w2v_model,)
 
 
@@ -309,16 +307,14 @@ def _(load_bert_japanese, mo):
 
     _n_params = sum(p.numel() for p in bert_model.parameters())
     _config = bert_model.config
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     ✅ BERT ロード完了
 
     - パラメータ数: **{_n_params / 1e6:.1f}M**
     - レイヤー数: **{_config.num_hidden_layers}**
     - ヘッド数: **{_config.num_attention_heads}**
     - 隠れ層次元: **{_config.hidden_size}**
-    """)
-    )
+    """))
     return bert_model, bert_tokenizer
 
 
@@ -328,14 +324,12 @@ def _(bert_model, bert_tokenizer, get_bert_attentions, mo):
     attentions, tokens = get_bert_attentions(bert_model, bert_tokenizer, sentence)
 
     mo.output.append(mo.md(f"### 入力文: 「{sentence}」"))
-    mo.output.append(
-        mo.md(f"""
+    mo.output.append(mo.md(f"""
     - トークン列: `{tokens}`
     - トークン数: **{len(tokens)}**
     - Attention テンソル shape: **{list(attentions.shape)}**
       - `[{attentions.shape[0]} layers, {attentions.shape[1]} heads, {attentions.shape[2]} tokens, {attentions.shape[3]} tokens]`
-    """)
-    )
+    """))
     return attentions, tokens
 
 
@@ -427,13 +421,11 @@ def _(attentions, mo, plot_attention_heatmap, plt, tokens):
     _fig.tight_layout()
 
     mo.output.append(mo.as_html(_fig))
-    mo.output.append(
-        mo.md("""
+    mo.output.append(mo.md("""
     - **Layer 0（浅い層）**: 隣接するトークンや局所的なパターンに注目する傾向
     - **Layer 6（中間層）**: より広い範囲の関係を捉え始める
     - **Layer 11（最終層）**: 文全体の大域的な関係や、タスクに必要な情報に集中
-    """)
-    )
+    """))
     return
 
 
