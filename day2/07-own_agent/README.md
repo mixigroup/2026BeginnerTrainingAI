@@ -1,6 +1,6 @@
 # 07. Own Agent - カスタマイズ用ベースライン ReAct エージェント
 
-参加者が独自のツールやプロンプトを追加してカスタマイズできる、プロダクション品質の ReAct エージェントベースラインです。
+参加者が独自のツールやプロンプトを追加してカスタマイズできる ReAct エージェントベースラインです。
 
 ## 学習目標
 
@@ -272,9 +272,9 @@ if __name__ == "__main__":
 #### Temperature を変更する
 
 `temperature` は出力のランダム性を制御します:
-- `0.0` = 決定的（常に同じ答え）
+- `0.0` = 決定的
 - `0.7` = バランス
-- `1.0` = 多様（多様な答え）
+- `1.0` = 多様
 
 ```python
 llm = create_llm(
@@ -437,7 +437,7 @@ gcloud auth application-default login
 llm = create_llm(project="your-project-id")
 ```
 
-### エージェントが無限ループする
+### Trouble shoot
 
 `verbose=True` で推論過程を確認し、ツールの戻り値が適切か検証してください。
 

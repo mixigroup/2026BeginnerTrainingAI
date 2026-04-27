@@ -142,25 +142,6 @@ agent = ReActAgent.from_tools(
 response = agent.chat("What is 20+(2*4)?")
 ```
 
-### QueryEngineツールの作成
-
-```python
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.core.tools import QueryEngineTool, ToolMetadata
-
-docs = SimpleDirectoryReader(input_files=["data.pdf"]).load_data()
-index = VectorStoreIndex.from_documents(docs)
-engine = index.as_query_engine(similarity_top_k=3)
-
-tool = QueryEngineTool(
-    query_engine=engine,
-    metadata=ToolMetadata(
-        name="data_query",
-        description="Provides information from data.pdf"
-    )
-)
-```
-
 ## ハンズオン課題
 
 ### 基礎
@@ -180,7 +161,6 @@ tool = QueryEngineTool(
 - [ ] `agent.reset()` でチャット履歴をクリアし、マルチターン会話の挙動を確認
 - [ ] エージェントが無限ループに陥るケースを見つけ、対策を考える
 - [ ] カスタムプロンプトで Thought の詳細度を調整（`agent.update_prompts()`）
-- [ ] ストリーミングレスポンス（`agent.stream_chat()`）を試す
 
 ## VectorStoreIndex のチャンキング詳細
 
@@ -303,18 +283,6 @@ Gemini Embedding API のレート制限に達した場合：
 ```python
 # Settings.chunk_size を大きくして埋め込み回数を削減
 Settings.chunk_size = 1024
-```
-
-### メモリ不足
-
-大きなPDFでインデックス構築時にメモリ不足になる場合：
-
-```python
-# ページ数を制限して読み込み
-from llama_index.core import Document
-
-docs = SimpleDirectoryReader(input_files=["data.pdf"]).load_data()
-docs = docs[:100]  # 最初の100ページのみ
 ```
 
 ## 参考リンク
