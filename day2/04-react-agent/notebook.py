@@ -204,9 +204,9 @@ def _(calc_agent, mo):
 
     このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。
 
-    ```
+    ------------------------- system prompt -------------------------------
+
     {system_prompt if system_prompt else "No system prompt found"}
-    ```
     """)
     return
 

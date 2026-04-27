@@ -87,12 +87,16 @@ async def section1_calculator_agent(llm):
 
     # Show ReAct System Prompt
     print("\n" + "-" * 70)
-    print("ReAct System Prompt:")
+    print("ReAct System Prompt")
     print("-" * 70)
+    print("\nllama-index の ReActAgent が内部で使用しているプロンプトを確認できます。")
+    print("このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。\n")
+    print("-" * 70 + " system prompt " + "-" * 70)
     prompt_dict = calc_agent.get_prompts()
     for k, v in prompt_dict.items():
         print(v.template)
         break
+    print("-" * 154)
 
 
 async def section2_rag_agent(llm, embed_model):
