@@ -185,18 +185,18 @@ def _(w2v_model, np, compute_attention_weights, plot_attention_barplot, mo):
     query_vec = w2v_model[query]
     key_vecs = np.array([w2v_model[w] for w in words])
 
-    weights = compute_attention_weights(query_vec, key_vecs)
+    _weights = compute_attention_weights(query_vec, key_vecs)
 
-    fig_bar = plot_attention_barplot(words, weights, query)
+    _fig = plot_attention_barplot(words, _weights, query)
     mo.output.append(mo.md(f"### Query: `{query}` に対する各単語の Attention Weight"))
-    mo.output.append(mo.as_html(fig_bar))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md(
             "果物に関連する単語（apple, banana, orange）に高い重みがつき、"
             "関連の薄い単語（king, queen, computer）は低い重みになる。"
         )
     )
-    return query, words, query_vec, key_vecs, weights
+    return query, words, query_vec, key_vecs
 
 
 @app.cell(hide_code=True)
@@ -221,21 +221,21 @@ def _(mo):
 
 @app.cell
 def _(query_vec, key_vecs, words, compute_attention_weights, plt, sns, np, mo):
-    temperatures = [0.5, 1.0, 2.0]
-    fig_temp, axes_temp = plt.subplots(1, 3, figsize=(15, 4))
+    _temperatures = [0.5, 1.0, 2.0]
+    _fig, _axes = plt.subplots(1, 3, figsize=(15, 4))
 
-    for idx, temp in enumerate(temperatures):
-        w = compute_attention_weights(query_vec, key_vecs, temperature=temp)
-        sns.barplot(x=list(words), y=w, palette="viridis", ax=axes_temp[idx])
-        axes_temp[idx].set_title(f"Temperature = {temp}", fontsize=12)
-        axes_temp[idx].set_ylabel("Weight")
-        axes_temp[idx].set_ylim(0, np.max(w) * 1.2)
-        axes_temp[idx].tick_params(axis="x", rotation=30)
+    for _i, _temp in enumerate(_temperatures):
+        _w = compute_attention_weights(query_vec, key_vecs, temperature=_temp)
+        sns.barplot(x=list(words), y=_w, palette="viridis", ax=_axes[_i])
+        _axes[_i].set_title(f"Temperature = {_temp}", fontsize=12)
+        _axes[_i].set_ylabel("Weight")
+        _axes[_i].set_ylim(0, np.max(_w) * 1.2)
+        _axes[_i].tick_params(axis="x", rotation=30)
 
-    fig_temp.suptitle("Temperature による Attention 分布の変化", fontsize=14)
-    fig_temp.tight_layout()
+    _fig.suptitle("Temperature による Attention 分布の変化", fontsize=14)
+    _fig.tight_layout()
 
-    mo.output.append(mo.as_html(fig_temp))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md(
             "温度が低いほど最も関連の高い単語に集中し、"
@@ -273,16 +273,16 @@ def _(load_bert_japanese, mo):
 
     bert_model, bert_tokenizer = load_bert_japanese(BERT_MODEL)
 
-    n_params = sum(p.numel() for p in bert_model.parameters())
-    config = bert_model.config
+    _n_params = sum(p.numel() for p in bert_model.parameters())
+    _config = bert_model.config
     mo.output.append(
         mo.md(f"""
     ✅ BERT ロード完了
 
-    - パラメータ数: **{n_params / 1e6:.1f}M**
-    - レイヤー数: **{config.num_hidden_layers}**
-    - ヘッド数: **{config.num_attention_heads}**
-    - 隠れ層次元: **{config.hidden_size}**
+    - パラメータ数: **{_n_params / 1e6:.1f}M**
+    - レイヤー数: **{_config.num_hidden_layers}**
+    - ヘッド数: **{_config.num_attention_heads}**
+    - 隠れ層次元: **{_config.hidden_size}**
     """)
     )
     return bert_model, bert_tokenizer, BERT_MODEL
@@ -327,9 +327,9 @@ def _(mo):
 
 @app.cell
 def _(attentions, tokens, plot_attention_heatmap, mo):
-    fig_single = plot_attention_heatmap(attentions, tokens, layer=0, head=0)
+    _fig = plot_attention_heatmap(attentions, tokens, layer=0, head=0)
     mo.output.append(mo.md("### Layer 0, Head 0 の Attention パターン"))
-    mo.output.append(mo.as_html(fig_single))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md(
             "行方向（Query）の各トークンが、列方向（Key）のどのトークンに注目しているかを表す。"
@@ -340,9 +340,9 @@ def _(attentions, tokens, plot_attention_heatmap, mo):
 
 @app.cell
 def _(attentions, tokens, plot_attention_heads_grid, mo):
-    fig_grid = plot_attention_heads_grid(attentions, tokens, layer=0)
+    _fig = plot_attention_heads_grid(attentions, tokens, layer=0)
     mo.output.append(mo.md("### Layer 0: 全 12 ヘッドの Attention パターン"))
-    mo.output.append(mo.as_html(fig_grid))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md(
             "各ヘッドが異なるパターンを捉えていることが分かる。"
@@ -354,18 +354,18 @@ def _(attentions, tokens, plot_attention_heads_grid, mo):
 
 @app.cell
 def _(attentions, tokens, plot_attention_heatmap, plt, mo):
-    layers_to_compare = [0, 6, 11]
-    fig_layers, axes_layers = plt.subplots(1, 3, figsize=(20, 6))
+    _layers_to_compare = [0, 6, 11]
+    _fig, _axes = plt.subplots(1, 3, figsize=(20, 6))
 
-    for idx, layer_idx in enumerate(layers_to_compare):
+    for _i, _layer_idx in enumerate(_layers_to_compare):
         plot_attention_heatmap(
-            attentions, tokens, layer=layer_idx, head=0, ax=axes_layers[idx]
+            attentions, tokens, layer=_layer_idx, head=0, ax=_axes[_i]
         )
 
-    fig_layers.suptitle("層の深さによる Attention パターンの変化 (Head 0)", fontsize=14)
-    fig_layers.tight_layout()
+    _fig.suptitle("層の深さによる Attention パターンの変化 (Head 0)", fontsize=14)
+    _fig.tight_layout()
 
-    mo.output.append(mo.as_html(fig_layers))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md("""
     - **Layer 0（浅い層）**: 隣接するトークンや局所的なパターンに注目する傾向
@@ -378,15 +378,15 @@ def _(attentions, tokens, plot_attention_heatmap, plt, mo):
 
 @app.cell
 def _(attentions, tokens, plot_attention_summary, plot_cls_attention, plt, mo):
-    fig_summary, axes_summary = plt.subplots(1, 2, figsize=(16, 6))
+    _fig, _axes = plt.subplots(1, 2, figsize=(16, 6))
 
-    plot_attention_summary(attentions, tokens, ax=axes_summary[0])
-    plot_cls_attention(attentions, tokens, ax=axes_summary[1])
+    plot_attention_summary(attentions, tokens, ax=_axes[0])
+    plot_cls_attention(attentions, tokens, ax=_axes[1])
 
-    fig_summary.tight_layout()
+    _fig.tight_layout()
 
     mo.output.append(mo.md("### 全体の Attention パターン"))
-    mo.output.append(mo.as_html(fig_summary))
+    mo.output.append(mo.as_html(_fig))
     mo.output.append(
         mo.md(
             "[CLS] トークンは文全体の情報を集約する役割を持つ。"
