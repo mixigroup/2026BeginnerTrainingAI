@@ -73,12 +73,6 @@ def _(mo):
     $$
     \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V
     $$
-
-    | | Simple Attention | Self-Attention | Multi-Head Attention |
-    |---|---|---|---|
-    | **Q, K, V の出所** | 外部クエリ | 同じ入力 | 同じ入力（射影済み） |
-    | **ヘッド数** | 1 | 1 | h（例: 12） |
-    | **用途** | 検索・検索 | 文脈理解 | Transformer |
     """)
     return
 
@@ -378,16 +372,17 @@ def _(mo):
 
 @app.cell
 def _(attentions, tokens, plot_attention_heatmap, plot_attention_heads_grid, mo):
-    # --- FIXME: ここの数字を 0〜11 に変えて、色んな層の Attention を見てみよう ---
-    LAYER = 0
+    # --- FIXME: ここの数字を変えて、色んな層・ヘッドの Attention を見てみよう ---
+    LAYER = 0  # 0〜11
+    HEAD = 0  # 0〜11
 
-    _fig_single = plot_attention_heatmap(attentions, tokens, layer=LAYER, head=0)
-    mo.output.append(mo.md(f"### Layer {LAYER}, Head 0 の Attention パターン"))
+    _fig_single = plot_attention_heatmap(attentions, tokens, layer=LAYER, head=HEAD)
+    mo.output.append(mo.md(f"### Layer {LAYER}, Head {HEAD} の Attention パターン"))
     mo.output.append(mo.as_html(_fig_single))
     mo.output.append(
         mo.md(
             "行方向（Query）の各トークンが、列方向（Key）のどのトークンに注目しているかを表す。\n\n"
-            f"⬆️ `LAYER = {LAYER}` の数字を **0〜11** に変えてセルを再実行してみよう。"
+            f"⬆️ `LAYER = {LAYER}`, `HEAD = {HEAD}` の数字を **0〜11** に変えてセルを再実行してみよう。"
         )
     )
 
