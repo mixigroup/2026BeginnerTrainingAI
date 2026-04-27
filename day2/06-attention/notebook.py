@@ -4,9 +4,6 @@ __generated_with = "0.23.2"
 app = marimo.App(width="medium")
 
 
-# --- Part 1: 導入 ---
-
-
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
@@ -96,22 +93,18 @@ def _():
     )
 
     return (
-        plt,
-        np,
-        sns,
         compute_attention_weights,
-        compute_context_vector,
         get_bert_attentions,
         load_bert_japanese,
+        np,
         plot_attention_barplot,
         plot_attention_heads_grid,
         plot_attention_heatmap,
         plot_attention_summary,
         plot_cls_attention,
+        plt,
+        sns,
     )
-
-
-# --- Part 2: Word2Vec による Attention の原理 ---
 
 
 @app.cell(hide_code=True)
@@ -165,7 +158,7 @@ def _(mo):
 
 
 @app.cell
-def _(w2v_model, np, compute_attention_weights, plot_attention_barplot, mo):
+def _(compute_attention_weights, mo, np, plot_attention_barplot, w2v_model):
     query = "fruit"
     words = ["apple", "king", "banana", "queen", "orange", "computer"]
 
@@ -183,7 +176,7 @@ def _(w2v_model, np, compute_attention_weights, plot_attention_barplot, mo):
             "関連の薄い単語（king, queen, computer）は低い重みになる。"
         )
     )
-    return query, words, query_vec, key_vecs
+    return key_vecs, query, query_vec, words
 
 
 @app.cell(hide_code=True)
@@ -203,7 +196,7 @@ def _(mo):
 
 
 @app.cell
-def _(w2v_model, np, words, query, plt, sns, mo):
+def _(mo, np, plt, query, sns, w2v_model, words):
     _q = w2v_model[query]
     _keys = np.array([w2v_model[w] for w in words])
 
@@ -265,7 +258,7 @@ def _(mo):
 
 
 @app.cell
-def _(query_vec, key_vecs, words, compute_attention_weights, plt, sns, np, mo):
+def _(compute_attention_weights, key_vecs, mo, np, plt, query_vec, sns, words):
     _temperatures = [0.5, 1.0, 2.0]
     _fig, _axes = plt.subplots(1, 3, figsize=(15, 4))
 
@@ -288,9 +281,6 @@ def _(query_vec, key_vecs, words, compute_attention_weights, plt, sns, np, mo):
         )
     )
     return
-
-
-# --- Part 3: BERT の Multi-Head Attention 可視化 ---
 
 
 @app.cell(hide_code=True)
@@ -330,7 +320,7 @@ def _(load_bert_japanese, mo):
     - 隠れ層次元: **{_config.hidden_size}**
     """)
     )
-    return bert_model, bert_tokenizer, BERT_MODEL
+    return bert_model, bert_tokenizer
 
 
 @app.cell
@@ -347,7 +337,7 @@ def _(bert_model, bert_tokenizer, get_bert_attentions, mo):
       - `[{attentions.shape[0]} layers, {attentions.shape[1]} heads, {attentions.shape[2]} tokens, {attentions.shape[3]} tokens]`
     """)
     )
-    return sentence, attentions, tokens
+    return attentions, tokens
 
 
 @app.cell(hide_code=True)
@@ -371,7 +361,13 @@ def _(mo):
 
 
 @app.cell
-def _(attentions, tokens, plot_attention_heatmap, plot_attention_heads_grid, mo):
+def _(
+    attentions,
+    mo,
+    plot_attention_heads_grid,
+    plot_attention_heatmap,
+    tokens,
+):
     # --- FIXME: ここの数字を変えて、色んな層・ヘッドの Attention を見てみよう ---
     LAYER = 0  # 0〜11
     HEAD = 0  # 0〜11
@@ -419,7 +415,7 @@ def _(mo):
 
 
 @app.cell
-def _(attentions, tokens, plot_attention_heatmap, plt, mo):
+def _(attentions, mo, plot_attention_heatmap, plt, tokens):
     _layers_to_compare = [0, 6, 11]
     _fig, _axes = plt.subplots(1, 3, figsize=(20, 6))
 
@@ -443,7 +439,7 @@ def _(attentions, tokens, plot_attention_heatmap, plt, mo):
 
 
 @app.cell
-def _(attentions, tokens, plot_attention_summary, plot_cls_attention, plt, mo):
+def _(attentions, mo, plot_attention_summary, plot_cls_attention, plt, tokens):
     _fig, _axes = plt.subplots(1, 2, figsize=(16, 6))
 
     plot_attention_summary(attentions, tokens, ax=_axes[0])
@@ -460,9 +456,6 @@ def _(attentions, tokens, plot_attention_summary, plot_cls_attention, plt, mo):
         )
     )
     return
-
-
-# --- Part 4: まとめ ---
 
 
 @app.cell(hide_code=True)
