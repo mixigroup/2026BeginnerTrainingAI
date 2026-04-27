@@ -12,4 +12,6 @@ dependencies = [
     "llama-index-llms-google-genai>=0.1.0",
     "llama-index-embeddings-google-genai>=0.1.0",
     "nest-asyncio>=1.6.0",
+    "pypdf>=5.0.0",
+    "llama-index-readers-file>=0.4.0",
 ]
