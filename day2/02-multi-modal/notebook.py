@@ -83,13 +83,8 @@ def _():
         decode_image,
     )
 
-    # matplotlib で日本語フォントを使用（macOS: Hiragino Sans）
-    matplotlib.rcParams["font.family"] = "sans-serif"
-    matplotlib.rcParams["font.sans-serif"] = [
-        "Hiragino Sans",
-        "Hiragino Kaku Gothic ProN",
-        "sans-serif",
-    ]
+    # matplotlib で日本語フォントを使用
+    import japanize_matplotlib
 
     return (
         torch,
