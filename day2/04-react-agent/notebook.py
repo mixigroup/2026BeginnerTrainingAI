@@ -166,15 +166,15 @@ def _():
 
 @app.cell
 def _(add_tool, llm, multiply_tool):
-    from llama_index.core.agent import ReActAgent
+    from llama_index.core.agent.workflow import ReActAgent
 
-    calc_agent = ReActAgent.from_tools([multiply_tool, add_tool], llm=llm, verbose=True)
+    calc_agent = ReActAgent(tools=[multiply_tool, add_tool], llm=llm, verbose=True)
     return (calc_agent,)
 
 
 @app.cell
-def _(calc_agent, mo):
-    calc_response = calc_agent.chat("What is 20+(2*4)? Calculate step by step")
+async def _(calc_agent, mo):
+    calc_response = await calc_agent.run("What is 20+(2*4)? Calculate step by step")
 
     mo.md(f"""
     ### 計算結果
@@ -183,7 +183,7 @@ def _(calc_agent, mo):
 
     **Response:**
 
-    {calc_response.response}
+    {calc_response.response.content}
     """)
     return
 
@@ -194,9 +194,8 @@ def _(calc_agent, mo):
 
     system_prompt = None
     for k, v in prompt_dict.items():
-        if "system" in k.lower():
-            system_prompt = v.template
-            break
+        system_prompt = v.template
+        break
 
     mo.md(f"""
     ### ReAct System Prompt
@@ -312,15 +311,15 @@ def _(lyft_index, mo, uber_index):
 
 @app.cell
 def _(llm, query_engine_tools):
-    from llama_index.core.agent import ReActAgent as ReActAgent2
+    from llama_index.core.agent.workflow import ReActAgent as ReActAgent2
 
-    rag_agent = ReActAgent2.from_tools(query_engine_tools, llm=llm, verbose=True)
+    rag_agent = ReActAgent2(tools=query_engine_tools, llm=llm, verbose=True)
     return (rag_agent,)
 
 
 @app.cell
-def _(mo, rag_agent):
-    rag_response1 = rag_agent.chat("What was Lyft's revenue growth in 2021?")
+async def _(mo, rag_agent):
+    rag_response1 = await rag_agent.run("What was Lyft's revenue growth in 2021?")
 
     mo.md(f"""
     ### Query 1: Lyft の売上成長率
@@ -329,14 +328,14 @@ def _(mo, rag_agent):
 
     **Response:**
 
-    {rag_response1.response}
+    {rag_response1.response.content}
     """)
     return
 
 
 @app.cell
-def _(mo, rag_agent):
-    rag_response2 = rag_agent.chat(
+async def _(mo, rag_agent):
+    rag_response2 = await rag_agent.run(
         "Compare and contrast the revenue growth of Uber and Lyft in 2021, then give an analysis"
     )
 
@@ -347,7 +346,7 @@ def _(mo, rag_agent):
 
     **Response:**
 
-    {rag_response2.response}
+    {rag_response2.response.content}
     """)
     return
 

@@ -11,4 +11,5 @@ dependencies = [
     "llama-index-core>=0.13.0",
     "llama-index-llms-google-genai>=0.1.0",
     "llama-index-embeddings-google-genai>=0.1.0",
+    "nest-asyncio>=1.6.0",
 ]
