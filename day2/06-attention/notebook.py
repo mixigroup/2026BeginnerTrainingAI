@@ -195,6 +195,64 @@ def _(w2v_model, np, compute_attention_weights, plot_attention_barplot, mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    ### 🔧 スコア計算を変えてみよう
+
+    上のセルでは **内積（ドット積）** でスコアを計算した。
+    他の類似度関数に変えると、Attention の分布はどう変わるだろうか？
+
+    | 方法 | 数式 | 特徴 |
+    |------|------|------|
+    | **内積** | $Q \cdot K$ | ベクトルの大きさに影響される |
+    | **コサイン類似度** | $\frac{Q \cdot K}{\|Q\| \|K\|}$ | 方向だけで判定、大きさに依存しない |
+    """)
+    return
+
+
+@app.cell
+def _(w2v_model, np, words, query, plt, sns, mo):
+    _q = w2v_model[query]
+    _keys = np.array([w2v_model[w] for w in words])
+
+    # --- FIXME: "cosine" を "dot" に変えて比較してみよう ---
+    SCORE_METHOD = "cosine"
+
+    if SCORE_METHOD == "dot":
+        _scores = _keys @ _q
+    elif SCORE_METHOD == "cosine":
+        _norms = np.linalg.norm(_keys, axis=1) * np.linalg.norm(_q)
+        _scores = (_keys @ _q) / _norms
+
+    _scores_shifted = _scores - _scores.max()
+    _weights = np.exp(_scores_shifted) / np.exp(_scores_shifted).sum()
+
+    _fig, _axes = plt.subplots(1, 2, figsize=(14, 4))
+
+    sns.barplot(x=list(words), y=_scores, palette="coolwarm", ax=_axes[0])
+    _axes[0].set_title(f"スコア（{SCORE_METHOD}）", fontsize=12)
+    _axes[0].set_ylabel("Score")
+
+    sns.barplot(x=list(words), y=_weights, palette="viridis", ax=_axes[1])
+    _axes[1].set_title(f"Attention Weight（{SCORE_METHOD}）", fontsize=12)
+    _axes[1].set_ylabel("Weight")
+
+    _fig.suptitle(
+        f"スコア計算方法: {SCORE_METHOD}  (SCORE_METHOD を変えて比較しよう)",
+        fontsize=13,
+    )
+    _fig.tight_layout()
+    mo.output.append(mo.as_html(_fig))
+    mo.output.append(
+        mo.md(
+            '`SCORE_METHOD = "cosine"` を `"dot"` に書き換えてセルを再実行してみよう。'
+            "内積とコサイン類似度で、Attention の分布がどう変わるか観察しよう。"
+        )
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
     ### Temperature パラメータ
 
     Attention のスコアを温度 $T$ でスケーリングすることで、重みの分布を制御できる：
@@ -283,7 +341,7 @@ def _(load_bert_japanese, mo):
 
 @app.cell
 def _(bert_model, bert_tokenizer, get_bert_attentions, mo):
-    sentence = "私はその人を常に先生と呼んでいた。だからここでもただ先生と書くだけで本名は打ち明けない。"
+    sentence = "私はその人を先生と呼んでいた。"
     attentions, tokens = get_bert_attentions(bert_model, bert_tokenizer, sentence)
 
     mo.output.append(mo.md(f"### 入力文: 「{sentence}」"))
@@ -310,8 +368,8 @@ def _(mo):
     - ヒートマップの明るい部分 = 強い Attention
 
     ```
-    Query (attending)    →  [CLS] 私 は その 人 を 常に 先生 と ...
-                            ↓    ↓  ↓  ↓   ↓ ↓  ↓   ↓   ↓
+    Query (attending)    →  [CLS] 私 は その 人 を 先生 と 呼ん で い た 。 [SEP]
+                            ↓    ↓  ↓  ↓   ↓ ↓  ↓   ↓  ↓  ↓ ↓ ↓ ↓  ↓
     Key (attended to)    →  各トークンへの重み（行の合計 = 1.0）
     ```
     """)
@@ -319,29 +377,49 @@ def _(mo):
 
 
 @app.cell
-def _(attentions, tokens, plot_attention_heatmap, mo):
-    _fig = plot_attention_heatmap(attentions, tokens, layer=0, head=0)
-    mo.output.append(mo.md("### Layer 0, Head 0 の Attention パターン"))
-    mo.output.append(mo.as_html(_fig))
+def _(attentions, tokens, plot_attention_heatmap, plot_attention_heads_grid, mo):
+    # --- FIXME: ここの数字を 0〜11 に変えて、色んな層の Attention を見てみよう ---
+    LAYER = 0
+
+    _fig_single = plot_attention_heatmap(attentions, tokens, layer=LAYER, head=0)
+    mo.output.append(mo.md(f"### Layer {LAYER}, Head 0 の Attention パターン"))
+    mo.output.append(mo.as_html(_fig_single))
     mo.output.append(
         mo.md(
-            "行方向（Query）の各トークンが、列方向（Key）のどのトークンに注目しているかを表す。"
+            "行方向（Query）の各トークンが、列方向（Key）のどのトークンに注目しているかを表す。\n\n"
+            f"⬆️ `LAYER = {LAYER}` の数字を **0〜11** に変えてセルを再実行してみよう。"
         )
     )
-    return
 
-
-@app.cell
-def _(attentions, tokens, plot_attention_heads_grid, mo):
-    _fig = plot_attention_heads_grid(attentions, tokens, layer=0)
-    mo.output.append(mo.md("### Layer 0: 全 12 ヘッドの Attention パターン"))
-    mo.output.append(mo.as_html(_fig))
+    _fig_grid = plot_attention_heads_grid(attentions, tokens, layer=LAYER)
+    mo.output.append(mo.md(f"### Layer {LAYER}: 全 12 ヘッドの Attention パターン"))
+    mo.output.append(mo.as_html(_fig_grid))
     mo.output.append(
         mo.md(
             "各ヘッドが異なるパターンを捉えていることが分かる。"
             "一部のヘッドは隣接トークンに集中し、別のヘッドは特定のトークンに強く反応する。"
         )
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""
+    ### 🔍 代名詞の Attention を探してみよう
+
+    「私はその人を先生と呼んでいた」には代名詞「**その**」が含まれている。
+    「その」は「人」を指しているが、BERT はこの関係を Attention で捉えているだろうか？
+
+    **探し方のヒント:**
+
+    1. 上のセルで `LAYER` を **0 → 11** まで順に変えてみる
+    2. 12ヘッドのグリッドの中で、「その」の行を見る
+    3. 「その」→「人」に強い Attention が向いているヘッドを探す
+    4. 浅い層（0〜3）と深い層（8〜11）で違いはあるか？
+
+    > 💡 一般に、代名詞の解決（coreference）は **中間〜深い層** のヘッドが担当する傾向がある。
+    """)
     return
 
 
