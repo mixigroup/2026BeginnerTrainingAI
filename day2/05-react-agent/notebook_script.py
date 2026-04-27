@@ -6,6 +6,7 @@ Gemini on Vertex AI で実行します。
 
 このスクリプトは notebook.py と同じ処理を行います。
 """
+# ruff: noqa: E402
 
 import asyncio
 import os
@@ -15,11 +16,19 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex  # noqa: E402
-from llama_index.core.agent.workflow import ReActAgent  # noqa: E402
-from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata  # noqa: E402
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding  # noqa: E402
-from llama_index.llms.google_genai import GoogleGenAI  # noqa: E402
+from llama_index.core import (
+    Settings,
+    SimpleDirectoryReader,
+    VectorStoreIndex,
+)
+from llama_index.core.agent.workflow import ReActAgent
+from llama_index.core.tools import (
+    FunctionTool,
+    QueryEngineTool,
+    ToolMetadata,
+)
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
+from llama_index.llms.google_genai import GoogleGenAI
 
 
 def print_section(title):

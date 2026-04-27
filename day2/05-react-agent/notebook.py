@@ -183,14 +183,18 @@ async def _(calc_agent, mo):
 
     async for _event in _handler.stream_events():
         # Capture LLM response (Thought + Action)
-        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+        if hasattr(_event, "response") and hasattr(_event.response, "content"):
             _content = _event.response.content
-            if _content and ('Thought:' in _content or 'Answer:' in _content):
+            if _content and ("Thought:" in _content or "Answer:" in _content):
                 _steps.append(f"**Step {_step_num}:**\n```\n{_content}\n```")
 
         # Capture tool execution result (Observation)
-        if hasattr(_event, 'tool_output'):
-            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+        if hasattr(_event, "tool_output"):
+            _result = (
+                _event.tool_output.blocks[0].text
+                if _event.tool_output.blocks
+                else str(_event.tool_output.raw_output)
+            )
             _steps.append(f"```\nObservation: {_result}\n```")
             _step_num += 1
 
@@ -412,14 +416,18 @@ async def _(mo, rag_agent):
 
     async for _event in _handler1.stream_events():
         # Capture LLM response (Thought + Action)
-        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+        if hasattr(_event, "response") and hasattr(_event.response, "content"):
             _content = _event.response.content
-            if _content and ('Thought:' in _content or 'Answer:' in _content):
+            if _content and ("Thought:" in _content or "Answer:" in _content):
                 _steps1.append(f"**Step {_step_num1}:**\n```\n{_content}\n```")
 
         # Capture tool execution result (Observation)
-        if hasattr(_event, 'tool_output'):
-            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+        if hasattr(_event, "tool_output"):
+            _result = (
+                _event.tool_output.blocks[0].text
+                if _event.tool_output.blocks
+                else str(_event.tool_output.raw_output)
+            )
             _steps1.append(f"```\nObservation: {_result}\n```")
             _step_num1 += 1
 
@@ -452,14 +460,18 @@ async def _(mo, rag_agent):
 
     async for _event in _handler2.stream_events():
         # Capture LLM response (Thought + Action)
-        if hasattr(_event, 'response') and hasattr(_event.response, 'content'):
+        if hasattr(_event, "response") and hasattr(_event.response, "content"):
             _content = _event.response.content
-            if _content and ('Thought:' in _content or 'Answer:' in _content):
+            if _content and ("Thought:" in _content or "Answer:" in _content):
                 _steps2.append(f"**Step {_step_num2}:**\n```\n{_content}\n```")
 
         # Capture tool execution result (Observation)
-        if hasattr(_event, 'tool_output'):
-            _result = _event.tool_output.blocks[0].text if _event.tool_output.blocks else str(_event.tool_output.raw_output)
+        if hasattr(_event, "tool_output"):
+            _result = (
+                _event.tool_output.blocks[0].text
+                if _event.tool_output.blocks
+                else str(_event.tool_output.raw_output)
+            )
             _steps2.append(f"```\nObservation: {_result}\n```")
             _step_num2 += 1
 
