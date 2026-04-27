@@ -130,11 +130,10 @@ def _(Gemini, GeminiEmbedding, Settings):
         location="asia-northeast1",
     )
 
-    # Set global settings
     Settings.llm = llm
     Settings.embed_model = embed_model
     Settings.chunk_size = 512
-    return (llm,)
+    return llm, embed_model
 
 
 @app.cell(hide_code=True)
@@ -258,7 +257,7 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(embed_model):
     from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
     lyft_docs = SimpleDirectoryReader(
@@ -268,9 +267,8 @@ def _():
         input_files=["./data/10k/uber_2021.pdf"]
     ).load_data()
 
-    # Build indexes (this may take a while on first run)
-    lyft_index = VectorStoreIndex.from_documents(lyft_docs)
-    uber_index = VectorStoreIndex.from_documents(uber_docs)
+    lyft_index = VectorStoreIndex.from_documents(lyft_docs, embed_model=embed_model)
+    uber_index = VectorStoreIndex.from_documents(uber_docs, embed_model=embed_model)
     return lyft_index, uber_index
 
 
