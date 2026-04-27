@@ -283,7 +283,7 @@ def _(load_bert_japanese, mo):
 
 @app.cell
 def _(bert_model, bert_tokenizer, get_bert_attentions, mo):
-    sentence = "今日は渋谷の会場で、AIのアテンションについて詳しく学んでいます。"
+    sentence = "私はその人を常に先生と呼んでいた。だからここでもただ先生と書くだけで本名は打ち明けない。"
     attentions, tokens = get_bert_attentions(bert_model, bert_tokenizer, sentence)
 
     mo.output.append(mo.md(f"### 入力文: 「{sentence}」"))
@@ -310,8 +310,8 @@ def _(mo):
     - ヒートマップの明るい部分 = 強い Attention
 
     ```
-    Query (attending)    →  [CLS] 今日 は 渋谷 の 会場 で ...
-                            ↓    ↓  ↓  ↓   ↓  ↓   ↓
+    Query (attending)    →  [CLS] 私 は その 人 を 常に 先生 と ...
+                            ↓    ↓  ↓  ↓   ↓ ↓  ↓   ↓   ↓
     Key (attended to)    →  各トークンへの重み（行の合計 = 1.0）
     ```
     """)
