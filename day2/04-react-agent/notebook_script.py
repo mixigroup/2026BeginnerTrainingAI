@@ -15,11 +15,11 @@ import nest_asyncio
 
 nest_asyncio.apply()
 
-from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex
-from llama_index.core.agent.workflow import ReActAgent
-from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
-from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
-from llama_index.llms.google_genai import GoogleGenAI
+from llama_index.core import Settings, SimpleDirectoryReader, VectorStoreIndex  # noqa: E402
+from llama_index.core.agent.workflow import ReActAgent  # noqa: E402
+from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata  # noqa: E402
+from llama_index.embeddings.google_genai import GoogleGenAIEmbedding  # noqa: E402
+from llama_index.llms.google_genai import GoogleGenAI  # noqa: E402
 
 
 def print_section(title):
@@ -88,15 +88,21 @@ async def section1_calculator_agent(llm):
     step_num = 1
     async for event in handler.stream_events():
         # Show LLM response (Thought + Action)
-        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+        if hasattr(event, "response") and hasattr(event.response, "content"):
             content = event.response.content
-            if content and ('Thought:' in content or 'Action:' in content or 'Answer:' in content):
+            if content and (
+                "Thought:" in content or "Action:" in content or "Answer:" in content
+            ):
                 print(f"\n--- Step {step_num} ---")
                 print(content)
 
         # Show tool execution result (Observation)
-        if hasattr(event, 'tool_output'):
-            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+        if hasattr(event, "tool_output"):
+            result = (
+                event.tool_output.blocks[0].text
+                if event.tool_output.blocks
+                else str(event.tool_output.raw_output)
+            )
             print(f"Observation: {result}")
             step_num += 1
 
@@ -112,7 +118,9 @@ async def section1_calculator_agent(llm):
     print("ReAct System Prompt")
     print("-" * 70)
     print("\nllama-index の ReActAgent が内部で使用しているプロンプトを確認できます。")
-    print("このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。\n")
+    print(
+        "このプロンプトが、LLM に Thought/Action/Observation のフォーマットで出力させる指示を与えています。\n"
+    )
     print("-" * 70 + " system prompt " + "-" * 70)
     prompt_dict = calc_agent.get_prompts()
     for k, v in prompt_dict.items():
@@ -152,15 +160,21 @@ async def section2_rag_agent(llm, embed_model):
     print("PDF から テキストへの変換")
     print("-" * 70)
     print("\nドキュメント読み込み中...")
-    lyft_docs = SimpleDirectoryReader(input_files=["./data/10k/lyft_2021.pdf"]).load_data()
-    uber_docs = SimpleDirectoryReader(input_files=["./data/10k/uber_2021.pdf"]).load_data()
+    lyft_docs = SimpleDirectoryReader(
+        input_files=["./data/10k/lyft_2021.pdf"]
+    ).load_data()
+    uber_docs = SimpleDirectoryReader(
+        input_files=["./data/10k/uber_2021.pdf"]
+    ).load_data()
 
     lyft_text_size = sum(len(doc.text) for doc in lyft_docs)
     uber_text_size = sum(len(doc.text) for doc in uber_docs)
 
     print(f"  Lyft: {len(lyft_docs)} pages ({lyft_text_size:,} 文字)")
     print(f"  Uber: {len(uber_docs)} pages ({uber_text_size:,} 文字)")
-    print(f"  合計: {len(lyft_docs) + len(uber_docs)} pages ({lyft_text_size + uber_text_size:,} 文字)")
+    print(
+        f"  合計: {len(lyft_docs) + len(uber_docs)} pages ({lyft_text_size + uber_text_size:,} 文字)"
+    )
     print("\nSimpleDirectoryReader が pypdf を使って PDF からテキストを抽出します。")
     print("抽出されたテキストは Document オブジェクトとして保存されます。")
 
@@ -220,15 +234,19 @@ async def section2_rag_agent(llm, embed_model):
 
     async for event in handler1.stream_events():
         # Show LLM response (Thought + Action)
-        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+        if hasattr(event, "response") and hasattr(event.response, "content"):
             content = event.response.content
-            if content and ('Thought:' in content or 'Answer:' in content):
+            if content and ("Thought:" in content or "Answer:" in content):
                 print(f"\n--- Step {step_num} ---")
                 print(content)
 
         # Show tool execution result (Observation)
-        if hasattr(event, 'tool_output'):
-            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+        if hasattr(event, "tool_output"):
+            result = (
+                event.tool_output.blocks[0].text
+                if event.tool_output.blocks
+                else str(event.tool_output.raw_output)
+            )
             print(f"Observation: {result}")
             step_num += 1
 
@@ -254,15 +272,19 @@ async def section2_rag_agent(llm, embed_model):
 
     async for event in handler2.stream_events():
         # Show LLM response (Thought + Action)
-        if hasattr(event, 'response') and hasattr(event.response, 'content'):
+        if hasattr(event, "response") and hasattr(event.response, "content"):
             content = event.response.content
-            if content and ('Thought:' in content or 'Answer:' in content):
+            if content and ("Thought:" in content or "Answer:" in content):
                 print(f"\n--- Step {step_num} ---")
                 print(content)
 
         # Show tool execution result (Observation)
-        if hasattr(event, 'tool_output'):
-            result = event.tool_output.blocks[0].text if event.tool_output.blocks else str(event.tool_output.raw_output)
+        if hasattr(event, "tool_output"):
+            result = (
+                event.tool_output.blocks[0].text
+                if event.tool_output.blocks
+                else str(event.tool_output.raw_output)
+            )
             print(f"Observation: {result}")
             step_num += 1
 
@@ -272,8 +294,6 @@ async def section2_rag_agent(llm, embed_model):
     print("最終回答:")
     print(rag_response2.response.content)
     print("-" * 70)
-
-
 
 
 async def main():
