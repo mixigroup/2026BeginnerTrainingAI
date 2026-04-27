@@ -107,27 +107,28 @@ def _():
     nest_asyncio.apply()
 
     from llama_index.core import Settings
-    from llama_index.llms.gemini import Gemini
-    from llama_index.embeddings.gemini import GeminiEmbedding
+    from llama_index.llms.google_genai import GoogleGenAI
+    from llama_index.embeddings.google_genai import GoogleGenAIEmbedding
 
-    return Gemini, GeminiEmbedding, Settings
+    return GoogleGenAI, GoogleGenAIEmbedding, Settings
 
 
 @app.cell
-def _(Gemini, GeminiEmbedding, Settings):
-    # Initialize Gemini LLM
-    llm = Gemini(
+def _(GoogleGenAI, GoogleGenAIEmbedding, Settings):
+    _vertexai_config = {
+        "project": "hr-mixi",
+        "location": "asia-northeast1",
+    }
+
+    llm = GoogleGenAI(
         model="gemini-2.5-flash",
-        project_id="hr-mixi",
-        location="asia-northeast1",
+        vertexai_config=_vertexai_config,
         temperature=0.0,
     )
 
-    # Initialize Gemini Embeddings
-    embed_model = GeminiEmbedding(
-        model_name="models/text-embedding-004",
-        project_id="hr-mixi",
-        location="asia-northeast1",
+    embed_model = GoogleGenAIEmbedding(
+        model_name="text-embedding-004",
+        vertexai_config=_vertexai_config,
     )
 
     Settings.llm = llm
