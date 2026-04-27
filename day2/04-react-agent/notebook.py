@@ -29,7 +29,7 @@ def _(mo):
     2. **llama-index フレームワークの基本** — エージェント構築の実践的アプローチ
     3. **FunctionTool による計算ツール** — 簡単な関数をツール化
     4. **QueryEngineTool による RAG** — Uber/Lyft 10K 決算書からの情報抽出
-    5. **03 との比較** — Function Calling ベース vs ReAct パターン
+    5. **VectorStoreIndex の仕組み** — チャンキング・埋め込み・検索の流れ
     """)
     return
 
@@ -256,6 +256,67 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### PDF から テキストへの変換
+
+    #### データサイズ
+    - **Lyft 2021 10K**: 238 ページ（約 863,000 文字）
+    - **Uber 2021 10K**: 307 ページ（約 1,267,000 文字）
+    - **合計**: 545 ページ（約 2,131,000 文字）
+
+    次のセルで、これらの PDF を `SimpleDirectoryReader` でパースし、テキストとして読み込みます。
+    内部では `pypdf` と `llama-index-readers-file` を使って PDF からテキストを抽出しています。
+    抽出されたテキストは `Document` オブジェクトとして保存され、後続の VectorStoreIndex 構築に使用されます。
+    """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ### VectorStoreIndex の内部処理
+
+    `VectorStoreIndex.from_documents()` は以下の3ステップで動作します：
+
+    #### Step 1: Document → Node 変換（チャンキング）
+
+    - `Settings.chunk_size = 512` で設定したサイズでテキストを分割
+    - デフォルトでは `SentenceSplitter` が使われる（文の途中で切らない）
+    - `chunk_overlap` でチャンク間のオーバーラップを設定（デフォルト 200 文字）
+
+    #### Step 2: Embedding 生成
+
+    - 各チャンク（ノード）に対して埋め込みベクトルを生成
+    - `text-embedding-004` を使用 → 768 次元ベクトル
+
+    #### Step 3: VectorStore への保存
+
+    - デフォルトでは `SimpleVectorStore`（インメモリ）
+    - クエリ時に `similarity_top_k=3` で類似チャンクを検索
+
+    #### カスタマイズ可能な設定
+
+    ```python
+    # チャンクサイズを変更
+    Settings.chunk_size = 256  # 小さく→粒度細かい、文脈狭い
+
+    # カスタムスプリッター
+    from llama_index.core.node_parser import SentenceSplitter
+    splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+    nodes = splitter.get_nodes_from_documents(docs)
+    index = VectorStoreIndex(nodes, embed_model=embed_model)
+
+    # 検索時の top_k を変更
+    engine = index.as_query_engine(similarity_top_k=5)  # デフォルト 2
+    ```
+
+    詳細は `explain_chunking.py` を参照してください。
+    """)
+    return
+
+
 @app.cell
 def _(embed_model):
     from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
@@ -347,48 +408,6 @@ async def _(mo, rag_agent):
     **Response:**
 
     {rag_response2.response.content}
-    """)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""
-    ## Comparison: Function Calling (03) vs ReAct (04)
-
-    | 観点 | 03 (Function Calling) | 04 (ReAct with llama-index) |
-    |------|----------------------|------------------------------|
-    | **ツール呼び出し判断** | モデルの組み込み機能 | プロンプトで制御（llama-index が抽象化） |
-    | **推論過程** | ブラックボックス | Thought で明示的に出力 |
-    | **ツール定義** | JSON Schema or Python 関数 | FunctionTool でラップ |
-    | **エラー耐性** | 高い（構造化出力） | パース失敗のリスク（フレームワークが緩和） |
-    | **透明性** | 低い | 高い（思考過程が見える） |
-    | **実装複雑度** | シンプル | やや複雑（フレームワーク学習コスト） |
-    | **RAG 統合** | 手動実装必要 | QueryEngineTool で簡単 |
-    | **スケーラビリティ** | カスタムコードが増える | フレームワークの機能活用 |
-
-    ### ReAct の利点
-
-    1. **透明性**: 推論過程（Thought）が明示的に見える
-    2. **デバッグ性**: どこで失敗したか追跡しやすい
-    3. **教育的価値**: LLM がどう考えているかを理解できる
-    4. **柔軟性**: 複雑なマルチステップタスクに対応しやすい
-    5. **フレームワーク統合**: llama-index で RAG やツール管理が容易
-
-    ### ReAct の課題
-
-    1. **トークン消費**: Thought が長くなると context が肥大化
-    2. **レイテンシ**: 複数回の LLM 呼び出しが必要
-    3. **無限ループリスク**: 終了条件を適切に設計しないと停止しない
-    4. **プロンプト依存**: フォーマットが崩れると動作不良
-    5. **コスト**: Function Calling より API 呼び出し回数が多い傾向
-
-    ### どちらを選ぶべきか
-
-    - **Function Calling (03)**: シンプルなツール呼び出し、本番環境の高速性重視
-    - **ReAct (04)**: 複雑な推論が必要、デバッグ性・透明性重視、RAG 統合が必要
-
-    実践では、タスクの性質に応じて使い分けることが重要です。
     """)
     return
 

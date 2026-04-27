@@ -11,7 +11,7 @@ ReAct（Reasoning + Acting）パターンを llama-index フレームワーク�
 - **llama-indexフレームワークの基本** — エージェント構築の実践的アプローチ
 - **FunctionToolによるツール定義** — Python関数を簡単にツール化
 - **QueryEngineToolによるRAGエージェント** — 決算書からの情報抽出
-- **03（Function Calling）との比較** — 異なるアプローチの長所・短所
+- **VectorStoreIndexの仕組み** — チャンキング・埋め込み・検索の流れ
 
 ## ReActとは
 
@@ -172,7 +172,7 @@ tool = QueryEngineTool(
 ### 応用
 
 - [ ] QueryEngineの `similarity_top_k` を 1, 3, 5 に変更して精度を比較
-- [ ] 03（Function Calling）と同じタスクを実行し、Thought の有無を比較
+- [ ] `Settings.chunk_size` を変更してチャンク分割の粒度を調整し、検索精度への影響を確認
 - [ ] Wikipedia検索ツールなど、外部APIを呼ぶツールを追加
 
 ### 発展
@@ -211,17 +211,6 @@ from llama_index.core import Document
 docs = SimpleDirectoryReader(input_files=["data.pdf"]).load_data()
 docs = docs[:100]  # 最初の100ページのみ
 ```
-
-## 03（Function Calling）との比較
-
-| 観点 | 03 (Function Calling) | 04 (ReAct) |
-|------|----------------------|------------|
-| ツール呼び出し判断 | モデルの組み込み機能 | プロンプトで制御 |
-| 推論過程 | ブラックボックス | Thought で明示的 |
-| 実装複雑度 | シンプル | やや複雑 |
-| デバッグ性 | 低い | 高い（思考が見える） |
-| RAG統合 | 手動実装 | QueryEngineTool で簡単 |
-| レイテンシ | 速い | やや遅い（複数回呼び出し） |
 
 ## 参考リンク
 
