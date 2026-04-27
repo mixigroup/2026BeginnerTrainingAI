@@ -182,6 +182,111 @@ tool = QueryEngineTool(
 - [ ] カスタムプロンプトで Thought の詳細度を調整（`agent.update_prompts()`）
 - [ ] ストリーミングレスポンス（`agent.stream_chat()`）を試す
 
+## VectorStoreIndex のチャンキング詳細
+
+### 内部処理の3ステップ
+
+`VectorStoreIndex.from_documents()` は以下の処理を行います：
+
+#### 1. Document → Node 変換（チャンキング）
+
+テキストを小さな「チャンク」に分割します。
+
+```python
+# デフォルト設定
+Settings.chunk_size = 512      # 512文字ごとに分割
+Settings.chunk_overlap = 200   # 前後200文字オーバーラップ
+```
+
+**使用されるスプリッター:**
+- デフォルト: `SentenceSplitter` — 文の途中で切らない
+- 代替: `TokenTextSplitter` — トークン数ベースで分割
+
+**チャンクサイズの影響:**
+- **小さい（256）**: 粒度細かい、文脈狭い、検索精度高い、埋め込み回数多い
+- **大きい（1024）**: 粒度粗い、文脈広い、検索精度やや下がる、埋め込み回数少ない
+
+#### 2. Embedding 生成
+
+各チャンクを埋め込みベクトルに変換します。
+
+```python
+embed_model = GoogleGenAIEmbedding(
+    model_name="text-embedding-004",  # 768次元ベクトル
+    vertexai_config={"project": "...", "location": "..."}
+)
+```
+
+**545ページのPDFの場合:**
+- 約2,130,000文字
+- chunk_size=512 → 約6,200回のEmbedding API呼び出し
+- chunk_size=1024 → 約3,100回（半減）
+
+#### 3. VectorStore への保存
+
+ベクトルをインメモリストアに保存します。
+
+```python
+# デフォルトは SimpleVectorStore（インメモリ）
+index = VectorStoreIndex.from_documents(docs, embed_model=embed_model)
+
+# クエリ時に類似チャンクを検索
+engine = index.as_query_engine(similarity_top_k=3)  # 上位3チャンクを取得
+```
+
+### カスタマイズ例
+
+#### チャンクサイズを変更
+
+```python
+from llama_index.core import Settings
+
+Settings.chunk_size = 256       # 小さく→精度向上
+Settings.chunk_overlap = 50     # オーバーラップも調整
+```
+
+#### カスタムスプリッターを使用
+
+```python
+from llama_index.core.node_parser import SentenceSplitter, TokenTextSplitter
+
+# 文ベース
+splitter = SentenceSplitter(chunk_size=512, chunk_overlap=50)
+nodes = splitter.get_nodes_from_documents(docs)
+index = VectorStoreIndex(nodes, embed_model=embed_model)
+
+# トークンベース
+token_splitter = TokenTextSplitter(chunk_size=128, chunk_overlap=20)
+nodes = token_splitter.get_nodes_from_documents(docs)
+index = VectorStoreIndex(nodes, embed_model=embed_model)
+```
+
+#### 検索時のtop_kを変更
+
+```python
+# より多くのチャンクを取得
+engine = index.as_query_engine(similarity_top_k=5)
+
+# 少なくして高速化
+engine = index.as_query_engine(similarity_top_k=1)
+```
+
+### パラメータのトレードオフ
+
+| 設定 | 小さい値 | 大きい値 |
+|------|---------|---------|
+| **chunk_size** | 粒度細、文脈狭、API多 | 粒度粗、文脈広、API少 |
+| **chunk_overlap** | 境界で情報欠損リスク | 冗長性高、ノード数増 |
+| **similarity_top_k** | 高速、見落としリスク | 精度高、遅延増 |
+
+### 推奨設定（10K決算書のような長文）
+
+```python
+Settings.chunk_size = 512
+Settings.chunk_overlap = 50
+engine = index.as_query_engine(similarity_top_k=3)
+```
+
 ## トラブルシューティング
 
 ### PDFダウンロード失敗

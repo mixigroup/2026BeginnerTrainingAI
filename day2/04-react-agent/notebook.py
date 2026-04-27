@@ -335,7 +335,7 @@ def _(mo):
     engine = index.as_query_engine(similarity_top_k=5)  # デフォルト 2
     ```
 
-    詳細は `explain_chunking.py` を参照してください。
+    詳細は README.md の「VectorStoreIndex のチャンキング詳細」セクションを参照してください。
     """)
     return
 
