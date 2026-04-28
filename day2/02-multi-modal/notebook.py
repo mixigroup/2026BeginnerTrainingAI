@@ -70,7 +70,6 @@ def _(mo):
 def _():
     import torch
     import numpy as np
-    import matplotlib
     import matplotlib.pyplot as plt
     from PIL import Image
     from src.siglip_utils import (
@@ -84,7 +83,7 @@ def _():
     )
 
     # matplotlib で日本語フォントを使用
-    import japanize_matplotlib
+    import japanize_matplotlib  # noqa: F401
 
     return (
         torch,
