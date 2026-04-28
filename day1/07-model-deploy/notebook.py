@@ -794,7 +794,7 @@ def _(ENDPOINT_ID, PROJECT_ID, REGION, base64):
             outputs=[output_image, perf_text],
         )
 
-        demo.launch(share=True)
+        demo.launch(share=False)
     return
 
 
