@@ -1,4 +1,4 @@
-# 07. Own Agent - カスタマイズ用ベースライン ReAct エージェント
+# 06. Own Agent - カスタマイズ用ベースライン ReAct エージェント
 
 参加者が独自のツールやプロンプトを追加してカスタマイズできる ReAct エージェントベースラインです。
 
@@ -15,7 +15,7 @@
 ## ディレクトリ構成
 
 ```
-07-own_agent/
+06-own_agent/
 ├── src/
 │   ├── __init__.py         # パッケージエクスポート
 │   ├── tools.py            # ツール定義（ベースライン: multiply, add）
@@ -31,7 +31,7 @@
 ### 1. ディレクトリ移動
 
 ```bash
-cd day2/07-own_agent
+cd day2/06-own_agent
 ```
 
 ### 2. 依存パッケージのインストール
@@ -443,7 +443,7 @@ llm = create_llm(project="your-project-id")
 
 ## 参考リンク
 
-- **04-react-agent** — 教育版の ReAct エージェント（詳細な説明付き）
+- **05-react-agent** — 教育版の ReAct エージェント（詳細な説明付き）
 - **llama-index 公式ドキュメント** — https://docs.llamaindex.ai/
 - **ReActAgent リファレンス** — https://docs.llamaindex.ai/en/stable/module_guides/deploying/agents/
 - **Gemini API** — https://ai.google.dev/gemini-api/docs

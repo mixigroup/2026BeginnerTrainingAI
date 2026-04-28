@@ -1,4 +1,4 @@
-# 01. SigLIP2 マルチモーダル — テキストと画像のベクトル空間理解
+# 02. SigLIP2 マルチモーダル — テキストと画像のベクトル空間理解
 
 SigLIP2（Sigmoid Loss for Language-Image Pre-training 2）を使って、テキストと画像を同じベクトル空間にエンコードし、両者の距離を計算することで、マルチモーダルモデルの仕組みを理解する。
 
@@ -13,7 +13,7 @@ SigLIP2（Sigmoid Loss for Language-Image Pre-training 2）を使って、テキ
 ## ディレクトリ構成
 
 ```
-01-multi-modal/
+02-multi-modal/
 ├── notebook.py          # Marimo ノートブック（メインのハンズオン教材）
 ├── pyproject.toml       # プロジェクト設定・依存パッケージ
 ├── README.md            # この文書
@@ -30,7 +30,7 @@ SigLIP2（Sigmoid Loss for Language-Image Pre-training 2）を使って、テキ
 ## セットアップ
 
 ```bash
-cd day2/01-multi-modal
+cd day2/02-multi-modal
 uv sync
 ```
 

@@ -6,27 +6,12 @@
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/01-multi-modal",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
             "path": "day1/01-simple-model-inference",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
         {
-            "path": "day2/02-llm-api",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
             "path": "day1/02-nlp-inference",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
-            "path": "day2/03-llm-tool",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -37,16 +22,6 @@
         },
         {
             "path": "day1/04-audio-inference",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
-            "path": "day2/04-react-agent",
-            "envManager": "ms-python.python:venv",
-            "packageManager": "ms-python.python:pip"
-        },
-        {
-            "path": "day2/05-coding-agent",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         },
@@ -62,6 +37,36 @@
         },
         {
             "path": "day1/07-model-deploy",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/01-attention",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/02-multi-modal",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/03-llm-api",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/04-llm-tool",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/05-react-agent",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        },
+        {
+            "path": "day2/06-own_agent",
             "envManager": "ms-python.python:venv",
             "packageManager": "ms-python.python:pip"
         }

@@ -1,4 +1,4 @@
-# 04. ReAct Agent with llama-index
+# 05. ReAct Agent with llama-index
 
 ReAct（Reasoning + Acting）パターンを llama-index フレームワークで実装し、Gemini on Vertex AI で実行します。
 
@@ -40,7 +40,7 @@ Yao et al. (2022) "ReAct: Synergizing Reasoning and Acting in Language Models"
 ## ディレクトリ構成
 
 ```
-04-react-agent/
+05-react-agent/
 ├── notebook.py           # Marimo ノートブック（メイン教材）
 ├── pyproject.toml        # プロジェクト設定・依存関係
 ├── plan.md               # 実装計画
@@ -56,7 +56,7 @@ Yao et al. (2022) "ReAct: Synergizing Reasoning and Acting in Language Models"
 ### 1. ディレクトリ移動
 
 ```bash
-cd day2/04-react-agent
+cd day2/05-react-agent
 ```
 
 ### 2. 依存パッケージのインストール
