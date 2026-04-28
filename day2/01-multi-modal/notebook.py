@@ -1,10 +1,7 @@
 import marimo
 
-__generated_with = "0.20.2"
+__generated_with = "0.23.3"
 app = marimo.App(width="medium")
-
-
-# --- Part 1: 導入 + モデルロード ---
 
 
 @app.cell(hide_code=True)
@@ -72,6 +69,7 @@ def _():
     import numpy as np
     import matplotlib
     import matplotlib.pyplot as plt
+    import japanize_matplotlib
     from PIL import Image
     from src.siglip_utils import (
         load_siglip_model,
@@ -90,19 +88,17 @@ def _():
         "Hiragino Kaku Gothic ProN",
         "sans-serif",
     ]
-
     return (
-        torch,
-        np,
-        plt,
-        Image,
-        load_siglip_model,
+        cosine_similarity_matrix,
+        decode_image,
         encode_images,
         encode_texts,
-        cosine_similarity_matrix,
-        plot_similarity_heatmap,
         export_embeddings_to_tensorboard,
-        decode_image,
+        load_siglip_model,
+        np,
+        plot_similarity_heatmap,
+        plt,
+        torch,
     )
 
 
@@ -110,7 +106,13 @@ def _():
 def _(torch):
     MODEL_NAME = "google/siglip2-base-patch16-224"
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    return MODEL_NAME, DEVICE
+    return DEVICE, MODEL_NAME
+
+
+@app.cell
+def _(DEVICE):
+    DEVICE
+    return
 
 
 @app.cell(hide_code=True)
@@ -143,9 +145,6 @@ def _(MODEL_NAME, load_siglip_model, mo):
     """)
     )
     return model, processor
-
-
-# --- Part 2: xm3600 データセット + EDA ---
 
 
 @app.cell(hide_code=True)
@@ -192,7 +191,7 @@ def _(N_SAMPLES, mo):
 
 
 @app.cell
-def _(xm_dataset, decode_image, mo):
+def _(decode_image, mo, xm_dataset):
     # データセットのサンプルを表示
     items = []
     for _i in range(min(6, len(xm_dataset))):
@@ -224,7 +223,7 @@ def _(mo):
 
 
 @app.cell
-def _(xm_dataset, decode_image, np, plt, mo):
+def _(decode_image, mo, np, plt, xm_dataset):
     # --- EDA: 画像サイズの分布 ---
     widths = []
     heights = []
@@ -268,7 +267,7 @@ def _(xm_dataset, decode_image, np, plt, mo):
 
 
 @app.cell
-def _(xm_dataset, np, plt, mo):
+def _(mo, np, plt, xm_dataset):
     # --- EDA: キャプションの文字数分布 ---
     captions_all = [_s["captions"][0] for _s in xm_dataset]
     caption_lengths = [len(c) for c in captions_all]
@@ -320,9 +319,6 @@ def _(xm_dataset, np, plt, mo):
     return
 
 
-# --- Part 3: 埋め込みとコサイン類似度 ---
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -336,7 +332,14 @@ def _(mo):
 
 @app.cell
 def _(
-    xm_dataset, model, processor, DEVICE, encode_images, encode_texts, decode_image, mo
+    DEVICE,
+    decode_image,
+    encode_images,
+    encode_texts,
+    mo,
+    model,
+    processor,
+    xm_dataset,
 ):
     mo.output.append(mo.md("xm3600 の画像・テキストをエンコード中..."))
 
@@ -356,7 +359,7 @@ def _(
     どちらも **同じ {xm_img_emb.shape[1]} 次元空間** に埋め込まれている！
     """)
     )
-    return xm_images, xm_texts, xm_img_emb, xm_txt_emb
+    return xm_images, xm_img_emb, xm_texts, xm_txt_emb
 
 
 @app.cell(hide_code=True)
@@ -380,9 +383,6 @@ def _(mo):
     return
 
 
-# --- Part 4: 3種の距離分析 ---
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -399,12 +399,12 @@ def _(mo):
 
 @app.cell
 def _(
-    xm_img_emb,
-    xm_txt_emb,
-    xm_texts,
     cosine_similarity_matrix,
-    plot_similarity_heatmap,
     mo,
+    plot_similarity_heatmap,
+    xm_img_emb,
+    xm_texts,
+    xm_txt_emb,
 ):
     # 画像↔テキスト（10x10 サブセット）
     n_sub = 10
@@ -440,7 +440,13 @@ def _(mo):
 
 
 @app.cell
-def _(xm_img_emb, xm_texts, cosine_similarity_matrix, plot_similarity_heatmap, mo):
+def _(
+    cosine_similarity_matrix,
+    mo,
+    plot_similarity_heatmap,
+    xm_img_emb,
+    xm_texts,
+):
     # 画像↔画像（15x15 サブセット）
     n_ii = 15
     sim_img_img = cosine_similarity_matrix(xm_img_emb[:n_ii], xm_img_emb[:n_ii])
@@ -475,7 +481,13 @@ def _(mo):
 
 
 @app.cell
-def _(xm_txt_emb, xm_texts, cosine_similarity_matrix, plot_similarity_heatmap, mo):
+def _(
+    cosine_similarity_matrix,
+    mo,
+    plot_similarity_heatmap,
+    xm_texts,
+    xm_txt_emb,
+):
     # テキスト↔テキスト（15x15 サブセット）
     n_tt = 15
     sim_txt_txt = cosine_similarity_matrix(xm_txt_emb[:n_tt], xm_txt_emb[:n_tt])
@@ -496,9 +508,6 @@ def _(xm_txt_emb, xm_texts, cosine_similarity_matrix, plot_similarity_heatmap, m
     return
 
 
-# --- Part 5: 検索 ---
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -512,17 +521,17 @@ def _(mo):
 
 @app.cell
 def _(
-    xm_img_emb,
-    xm_txt_emb,
-    xm_images,
-    xm_texts,
-    model,
-    processor,
     DEVICE,
-    encode_texts,
     cosine_similarity_matrix,
-    np,
+    encode_texts,
     mo,
+    model,
+    np,
+    processor,
+    xm_images,
+    xm_img_emb,
+    xm_texts,
+    xm_txt_emb,
 ):
     # テキスト → 画像検索
     query_text = "動物の写真"
@@ -563,9 +572,6 @@ def _(
     return
 
 
-# --- Part 6: TensorBoardX 可視化 ---
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""
@@ -586,7 +592,12 @@ def _(mo):
 
 @app.cell
 def _(
-    xm_img_emb, xm_txt_emb, xm_images, xm_texts, export_embeddings_to_tensorboard, mo
+    export_embeddings_to_tensorboard,
+    mo,
+    xm_images,
+    xm_img_emb,
+    xm_texts,
+    xm_txt_emb,
 ):
     import os
     import shutil
