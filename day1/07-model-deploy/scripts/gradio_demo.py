@@ -26,9 +26,6 @@ def _parse_args() -> argparse.Namespace:
         "--region", default="asia-northeast1", help="Vertex AI リージョン"
     )
     parser.add_argument("--endpoint", required=True, help="Vertex AI エンドポイント ID")
-    parser.add_argument(
-        "--share", action="store_true", help="Gradio share リンクを有効にする"
-    )
     return parser.parse_args()
 
 
@@ -113,7 +110,7 @@ def main() -> None:
             outputs=[output_image, perf_text],
         )
 
-    demo.launch(share=args.share)
+    demo.launch(share=False)
 
 
 if __name__ == "__main__":
