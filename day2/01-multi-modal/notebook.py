@@ -69,8 +69,6 @@ def _():
     import numpy as np
     import matplotlib
     import matplotlib.pyplot as plt
-    import japanize_matplotlib
-    from PIL import Image
     from src.siglip_utils import (
         load_siglip_model,
         encode_images,
